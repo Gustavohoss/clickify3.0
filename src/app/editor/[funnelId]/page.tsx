@@ -197,7 +197,7 @@ const ArgumentoCanvasComponent = ({ component }: { component: CanvasComponentDat
   return (
       <div className={cn('grid gap-4', gridClass)}>
           {items.map((item) => (
-              <Card key={item.id} className="p-6 text-center border-dashed">
+              <Card key={item.id} className="p-6 text-center">
                   <div className="flex justify-center mb-4">
                       <span className="text-4xl">{item.icon}</span>
                   </div>
@@ -212,7 +212,7 @@ const ArgumentoCanvasComponent = ({ component }: { component: CanvasComponentDat
 
 const AlertCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
     const { title, description, backgroundColor, textColor, borderColor, icon } = component.props;
-    const IconComponent = icon || <Check className="h-4 w-4" />;
+    const IconComponent = icon || <CheckCircle className="h-4 w-4" />;
 
     return (
         <Alert 
@@ -303,6 +303,12 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
     const icon = modelIcons[model];
     onUpdate({ ...component.props, model, ...colors, icon });
   };
+
+  const handleColorReset = (colorType: 'backgroundColor' | 'textColor' | 'borderColor') => {
+    const currentModel = component.props.model || 'success';
+    const defaultColor = modelColors[currentModel][colorType];
+    onUpdate({ ...component.props, [colorType]: defaultColor });
+  };
     
   return (
     <div className='space-y-6'>
@@ -356,33 +362,42 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
         <div className="grid grid-cols-3 gap-4">
             <div className='space-y-1'>
                 <Label htmlFor='color' className='text-xs'>Cor</Label>
-                <Input 
-                    type='color' 
-                    id='color' 
-                    className='p-1 h-8' 
-                    value={component.props.backgroundColor || '#ffffff'}
-                    onChange={(e) => onUpdate({ ...component.props, backgroundColor: e.target.value })}
-                />
+                <div className="relative">
+                    <Input 
+                        type='color' 
+                        id='color' 
+                        className='p-1 h-8 w-full' 
+                        value={component.props.backgroundColor || '#ffffff'}
+                        onChange={(e) => onUpdate({ ...component.props, backgroundColor: e.target.value })}
+                    />
+                    <Button variant="ghost" size="icon" className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => handleColorReset('backgroundColor')}><XCircle className="h-4 w-4"/></Button>
+                </div>
             </div>
             <div className='space-y-1'>
                 <Label htmlFor='text-color' className='text-xs'>Texto</Label>
-                <Input 
-                    type='color' 
-                    id='text-color' 
-                    className='p-1 h-8'
-                    value={component.props.textColor || '#000000'}
-                    onChange={(e) => onUpdate({ ...component.props, textColor: e.target.value })}
-                />
+                 <div className="relative">
+                    <Input 
+                        type='color' 
+                        id='text-color' 
+                        className='p-1 h-8 w-full'
+                        value={component.props.textColor || '#000000'}
+                        onChange={(e) => onUpdate({ ...component.props, textColor: e.target.value })}
+                    />
+                    <Button variant="ghost" size="icon" className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => handleColorReset('textColor')}><XCircle className="h-4 w-4"/></Button>
+                </div>
             </div>
             <div className='space-y-1'>
                 <Label htmlFor='border-color' className='text-xs'>Borda</Label>
-                <Input 
-                    type='color' 
-                    id='border-color' 
-                    className='p-1 h-8'
-                    value={component.props.borderColor || '#000000'}
-                    onChange={(e) => onUpdate({ ...component.props, borderColor: e.target.value })}
-                />
+                 <div className="relative">
+                    <Input 
+                        type='color' 
+                        id='border-color' 
+                        className='p-1 h-8 w-full'
+                        value={component.props.borderColor || '#000000'}
+                        onChange={(e) => onUpdate({ ...component.props, borderColor: e.target.value })}
+                    />
+                    <Button variant="ghost" size="icon" className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => handleColorReset('borderColor')}><XCircle className="h-4 w-4"/></Button>
+                </div>
             </div>
         </div>
       </Card>
@@ -391,7 +406,16 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
   )
 }
 
-const emojis = ['👋', '🚀', '💡', '🔥', '💰', '✅', '❌', '⚠️', 'ℹ️', '👍', '👎', '❤️'];
+const emojiCategories = {
+    'Smileys & People': ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾', '👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '🖕', '👇', '☝️', '👍', '👎', '✊', '👊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️', '💅', '🤳', '💪', '🦾', '🦵', '🦿', '🦶', '👂', '🦻', '👃', '🧠', '🦷', '🦴', '👀', '👁️', '👅', '👄'],
+    'Animals & Nature': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐽', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦟', '🦗', '🕷️', '🕸️', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🦧', '🐘', '🦛', '🦏', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🦙', '🐐', '🦌', '🐕', '🐩', '🦮', '🐕‍🦺', '🐈', '🐓', '🦃', '🦚', '🦜', '🦢', '🦩', '🕊️', '🐇', '🦝', '🦨', '🦡', '🦦', '🦥', '🐁', '🐀', '🐿️', '🦔', '🐾', '🐉', '🐲', '🌵', '🎄', '🌲', '🌳', '🌴', '🌱', '🌿', '☘️', '🍀', '🎍', '🎋', '🍃', '🍂', '🍁', '🍄', '🐚', '🌾', '💐', '🌷', '🌹', '🥀', '🌺', '🌸', '🌼', '🌻', '🌞', '🌝', '🌛', '🌜', '🌚', '🌕', '🌖', '🌗', '🌘', '🌑', '🌒', '🌓', '🌔', '🌙', '🌎', '🌍', '🌏', '💫', '⭐️', '🌟', '✨', '⚡️', '☄️', '💥', '🔥', '🌪️', '🌈', '☀️', '🌤️', '⛅️', '🌥️', '☁️', '🌦️', '🌧️', '⛈️', '🌩️', '🌨️', '❄️', '☃️', '⛄️', '🌬️', '💨', '💧', '💦', '☔️', '☂️', '🌊', '🌫️'],
+    'Food & Drink': ['🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕', '🧄', '🧅', '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🧈', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🦴', '핫도그', '🍔', '🍟', '🍕', '🥪', '🥙', '🧆', '🌮', '🌯', '🥗', '🥘', '🥫', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🍤', '🍙', '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🌰', '🥜', '🍯', '🥛', '🍼', '☕️', '🍵', '🧃', '🥤', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🧉', '🍾', '🧊', '🥄', '🍴', '🍽️', '🥣', '🥡', '🥢', '🧂'],
+    'Activities': ['⚽️', '🏀', '🏈', '⚾️', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🪀', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '🥅', '⛳️', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️‍♀️', '🏋️‍♂️', '🤼‍♀️', '🤼‍♂️', '🤸‍♀️', '🤸‍♂️', '🤺', '🤾‍♀️', '🤾‍♂️', '🏌️‍♀️', '🏌️‍♂️', '🏇', '🧘‍♀️', '🧘‍♂️', '🏄‍♀️', '🏄‍♂️', '🏊‍♀️', '🏊‍♂️', '🤽‍♀️', '🤽‍♂️', '🚣‍♀️', '🚣‍♂️', '🧗‍♀️', '🧗‍♂️', '🚵‍♀️', '🚵‍♂️', '🚴‍♀️', '🚴‍♂️', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫', '🎟️', '🎪', '🤹‍♀️', '🤹‍♂️', '🎭', '🩰', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🪕', '🎻', '🎲', '♟️', '🎯', '🎳', '🎮', '🎰', '🧩'],
+    'Travel & Places': ['🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜', '🛴', '🚲', '🛵', '🏍️', '🛺', '🚨', '🚔', '🚍', '🚘', '🚖', '🚡', '🚠', '🚟', '🚃', '🚋', '🚞', '🚝', '🚄', '🚅', '🚈', '🚂', '🚆', '🚇', '🚊', '🚉', '✈️', '🛫', '🛬', '💺', '🚀', '🛸', '🚁', '🛶', '⛵️', '🚤', '🛥️', '🛳️', '⛴️', '🚢', '⚓️', '⛽️', '🚧', '🚦', '🚥', '🗺️', '🗿', '🗽', '🗼', '🏰', '🏯', '🏟️', '🎡', '🎢', '🎠', '⛲️', '⛱️', '🏖️', '🏝️', '🏜️', '🌋', '⛰️', '🏔️', '🗻', '🏕️', '⛺️', '🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏭', '🏢', '🏬', '🏣', '🏤', '🏥', '🏦', '🏨', '🏪', '🏫', '🏩', '💒', '🏛️', '⛪️', '🕌', '🕍', '🛕', '🕋', '⛩️', '🛤️', '🛣️', '🗾', '🎑', '🏞️', '🌅', '🌄', '🌠', '🎇', '🎆', '🌉', '🌁', '🏙️', '🌃', '🌌', '🌉', 'milky_way', 'shooting_star', 'fireworks', 'sparkler', 'rainbow', 'house', 'house_with_garden', 'houses', 'office', 'post_office', 'hospital', 'bank', 'hotel', 'love_hotel', 'convenience_store', 'school', 'department_store', 'factory', 'japanese_castle', 'european_castle', 'wedding', 'tokyo_tower', 'statue_of_liberty', 'church', 'mosque', 'synagogue', 'shinto_shrine', 'kaaba', 'fountain', 'tent', 'foggy', 'night_with_stars', 'cityscape', 'sunrise_over_mountains', 'sunrise', 'city_sunset', 'city_dusk', 'sunset', 'night_with_stars', 'bridge_at_night', 'milky_way', 'volcano', 'mountain_snow', 'mountain', 'japan', 'camping', 'beach_umbrella', 'desert_island', 'desert', 'stadium', 'classical_building', 'building_construction', 'house_buildings', 'derelict_house', 'cityscape', 'railway_track', 'motorway', 'map', 'world_map', 'japan', 'snow-capped_mountain', 'volcano', 'mount_fuji', 'camping', 'beach', 'desert_island', 'national_park', 'stadium', 'classical_building', 'building_construction', 'derelict_house', 'house', 'house_with_garden', 'office', 'post_office', 'hospital', 'bank', 'hotel', 'love_hotel', 'convenience_store', 'school', 'department_store', 'factory', 'shrine', 'church', 'mosque', 'synagogue', 'kaaba', 'fountain', 'tent', 'foggy', 'night_with_stars', 'sunrise_over_mountains', 'sunrise', 'city_sunset', 'city_dusk', 'sunset', 'bridge_at_night'],
+    'Objects': ['⌚️', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', '🕹️', '🗜️', '💽', '💾', '💿', '📀', '📼', '📷', '📸', '📹', '🎥', '🎞️', '📞', '☎️', '📟', '📠', '📺', '📻', '🎙️', '🎚️', '🎛️', '🧭', '⏱️', '⏲️', '⏰', '🕰️', '⌛️', '⏳', '📡', '🔋', '🔌', '💡', '🔦', '🕯️', '🪔', '🧯', '🗑️', '🛢️', '💸', '💵', '💴', '💶', '💷', '💰', '💳', '🧾', '💎', '⚖️', '🦯', '🔧', '🔨', '⚒️', '🛠️', '⛏️', '🔩', '⚙️', '🧱', '⛓️', '🧲', '🔫', '💣', '🧨', '🪓', '🔪', '🗡️', '⚔️', '🛡️', '🚬', '⚰️', '⚱️', '🏺', '🔮', '📿', '🧿', '💈', '⚗️', '🔭', '🔬', '🕳️', '💊', '💉', '🩸', '🧬', '🦠', '🧫', '🧪', '🌡️', '🧹', '🧺', '🧻', '🚽', '🚰', '🚿', '🛁', '🛀', '🧼', '🪒', '🧽', '🧴', '🛎️', '🔑', '🗝️', '🚪', '🪑', '🛋️', '🛏️', '🛌', '🧸', '🖼️', '🛍️', '🛒', '🎁', '🎈', '🎏', '🎀', '🎊', '🎉', '🎎', '🏮', '🎐', '🧧', '✉️', '📩', '📨', '📧', '💌', '📮', '📪', '📫', '📬', '📭', '📦', '🪧', '📪', '📫', '📬', '📭', '📄', '📃', '📜', '📑', '📊', '📈', '📉', '🗒️', '🗓️', '📆', '📅', '🗑️', '📇', '🗃️', '🗳️', '🗄️', '📋', '📁', '📂', '🗂️', '🗞️', '📰', '📓', '📔', '📒', '📕', '📗', '📘', '📙', '📚', '📖', '🔖', '🧷', '🔗', '📎', '🖇️', '📐', '📏', '🧮', '📌', '📍', '✂️', '🖊️', '🖋️', '✒️', '🖌️', '🖍️', '📝', '✏️', '🔎', '🔍', '🔏', '🔐', '🔒', '🔓'],
+    'Symbols': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈️', '♉️', '♊️', '♋️', '♌️', '♍️', '♎️', '♏️', '♐️', '♑️', '♒️', '♓️', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚️', '🈸', '🈺', '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴', '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️', '🆘', '❌', '⭕️', '🛑', '⛔️', '📛', '🚫', '💯', '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵', '🚭', '❗️', '❕', '❓', '❔', '‼️', '⁉️', '🔅', '🔆', '〽️', '⚠️', '🚸', '🔱', '⚜️', '🔰', '♻️', '✅', '🈯️', '💹', '❇️', '✳️', '❎', '🌐', '💠', 'Ⓜ️', '🌀', '💤', '🏧', '🚾', '♿️', '🅿️', '🈳', '🈂️', '🛂', '🛃', '🛄', '🛅', '🚹', '🚺', '🚼', '🚻', '🚮', '🎦', '📶', '🈁', '🔣', 'ℹ️', '🔤', '🔡', '🔠', '🆖', '🆗', '🆙', '🆒', '🆕', '🆓', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟', '🔢', '#️⃣', '*️⃣', '⏏️', '▶️', '⏸️', '⏯️', '⏹️', '⏺️', '⏭️', '⏮️', '⏩', '⏪', '⏫', '⏬', '◀️', '🔼', '🔽', '➡️', '⬅️', '⬆️', '⬇️', '↗️', '↘️', '↙️', '↖️', '↕️', '↔️', '↪️', '↩️', '⤴️', '⤵️', '🔀', '🔁', '🔂', '🔄', '🔃', '🎵', '🎶', '➕', '➖', '➗', '✖️', '♾️', '💲', '💱', '™️', '©️', '®️', '👁️‍🗨️', '🔚', '🔙', '🔛', '🔝', '🔜', '✔️', '☑️', '🔘', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️', '🟤', '🔺', '🔻', '🔼', '🔽', '⚫️', '⚪️', '▪️', '▫️', '◾️', '◽️', '◼️', '◻️', '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛️', '⬜️', '🟫', '🔶', '🔷', '🔸', '🔹', '▪️', '▫️', '⚰️', '⚱️', '▶️', '⚫️', '⚪️', '🔵', '🔴', '🔶', '🔷', '🔸', '🔹', '🔺', '🔻', '🔲', '🔳', '💭', '🗯️', '💬', '🗨️', '™️', '©️', '®️', '🀄️', '🃏', '♠️', '♣️', '♥️', '♦️', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚', '🕛', '🕜', '🕝', '🕞', '🕟', '🕠', '🕡', '🕢', '🕣', '🕤', '🕥', '🕦', '🕧']
+};
+
 
 const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
   const items = component.props.items || [];
@@ -443,64 +467,73 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
 
       <Card className="p-4 bg-muted/20 border-border/50">
           <h3 className="text-sm font-medium text-muted-foreground mb-4">Argumentos</h3>
-          <div className="space-y-4">
-              {items.map(item => (
-                  <Card key={item.id} className="p-3 bg-card space-y-3 relative">
-                      <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="absolute top-2 right-2 h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => handleDeleteItem(item.id)}
-                      >
-                          <Trash2 className="h-4 w-4" />
-                      </Button>
-                      <div className="flex items-start gap-2">
-                           <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant="outline" className="w-12 h-10 text-xl text-center p-0">
-                                  {item.icon}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-2">
-                                <div className="grid grid-cols-4 gap-2">
-                                    {emojis.map((emoji) => (
-                                        <Button
-                                            key={emoji}
-                                            variant="ghost"
-                                            size="icon"
-                                            className="text-lg"
-                                            onClick={() => handleUpdateItem(item.id, { icon: emoji })}
-                                        >
-                                            {emoji}
-                                        </Button>
+          <ScrollArea className="h-72">
+            <div className="space-y-4 pr-4">
+                {items.map(item => (
+                    <Card key={item.id} className="p-3 bg-card space-y-3 relative">
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="absolute top-2 right-2 h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => handleDeleteItem(item.id)}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <div className="flex items-start gap-2">
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                  <Button variant="outline" className="w-12 h-10 text-xl text-center p-0">
+                                    {item.icon}
+                                  </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80 h-96">
+                                <ScrollArea className="h-full w-full">
+                                    {Object.entries(emojiCategories).map(([category, emojis]) => (
+                                        <div key={category}>
+                                            <h4 className="font-bold text-sm text-muted-foreground mb-2">{category}</h4>
+                                            <div className="grid grid-cols-8 gap-1 mb-4">
+                                                {emojis.map((emoji) => (
+                                                    <Button
+                                                        key={emoji}
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="text-lg"
+                                                        onClick={() => handleUpdateItem(item.id, { icon: emoji })}
+                                                    >
+                                                        {emoji}
+                                                    </Button>
+                                                ))}
+                                            </div>
+                                        </div>
                                     ))}
-                                </div>
-                            </PopoverContent>
-                          </Popover>
+                                </ScrollArea>
+                              </PopoverContent>
+                            </Popover>
 
-                          <div className="w-full space-y-2">
-                               <Input 
-                                  value={item.title}
-                                  onChange={(e) => handleUpdateItem(item.id, { title: e.target.value })}
-                                  placeholder="Título"
-                                  className="h-8 font-semibold"
-                              />
-                              <Textarea
-                                  value={item.description}
-                                  onChange={(e) => handleUpdateItem(item.id, { description: e.target.value })}
-                                  placeholder="Descrição"
-                                  className="text-xs"
-                                  rows={3}
-                              />
-                          </div>
-                      </div>
-                  </Card>
-              ))}
-              <Button variant="outline" className="w-full" onClick={handleAddItem}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Adicionar Argumento
-              </Button>
-          </div>
+                            <div className="w-full space-y-2">
+                                <Input 
+                                    value={item.title}
+                                    onChange={(e) => handleUpdateItem(item.id, { title: e.target.value })}
+                                    placeholder="Título"
+                                    className="h-8 font-semibold"
+                                />
+                                <Textarea
+                                    value={item.description}
+                                    onChange={(e) => handleUpdateItem(item.id, { description: e.target.value })}
+                                    placeholder="Descrição"
+                                    className="text-xs"
+                                    rows={3}
+                                />
+                            </div>
+                        </div>
+                    </Card>
+                ))}
+            </div>
+          </ScrollArea>
+           <Button variant="outline" className="w-full mt-4" onClick={handleAddItem}>
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar Argumento
+            </Button>
       </Card>
     </div>
   );
@@ -702,13 +735,15 @@ function FunnelEditorContent() {
 
         {/* Right Sidebar */}
         <aside className="w-80 border-l border-border p-6">
-          <div className="space-y-6">
-            {selectedComponent ? (
-                <ComponentSettings component={selectedComponent} onUpdate={updateComponentProps} />
-            ) : (
-                <StepSettings />
-            )}
-          </div>
+          <ScrollArea className="h-full">
+            <div className="space-y-6 pr-4">
+              {selectedComponent ? (
+                  <ComponentSettings component={selectedComponent} onUpdate={updateComponentProps} />
+              ) : (
+                  <StepSettings />
+              )}
+            </div>
+          </ScrollArea>
         </aside>
       </div>
     </div>
