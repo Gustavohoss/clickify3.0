@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { Suspense, useState, ReactNode } from 'react';
@@ -138,6 +139,20 @@ const components: ComponentType[] = [
   { name: 'Video', icon: <Video /> },
 ];
 
+const WavingHandIcon = () => (
+  <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M79.5 56C79.5 50.201 74.799 45.5 69 45.5C63.201 45.5 58.5 50.201 58.5 56V71.5C58.5 77.299 63.201 82 69 82C74.799 82 79.5 77.299 79.5 71.5V56Z" fill="#FFD6A5" stroke="black" strokeWidth="3"/>
+      <path d="M64 45.5C64 39.701 59.299 35 53.5 35C47.701 35 43 39.701 43 45.5V71.5C43 77.299 47.701 82 53.5 82C59.299 82 64 77.299 64 71.5V45.5Z" fill="#FFD6A5" stroke="black" strokeWidth="3"/>
+      <path d="M49 45.5C49 39.701 44.299 35 38.5 35C32.701 35 28 39.701 28 45.5V66.5C28 72.299 32.701 77 38.5 77C44.299 77 49 72.299 49 66.5V45.5Z" fill="#FFD6A5" stroke="black" strokeWidth="3"/>
+      <path d="M33 45.5C33 41.3579 29.6421 38 25.5 38C21.3579 38 18 41.3579 18 45.5V58.5C18 62.6421 21.3579 66 25.5 66C29.6421 66 33 62.6421 33 58.5V45.5Z" fill="#FFD6A5" stroke="black" strokeWidth="3"/>
+      <path d="M83 45C85.7614 45 88 42.7614 88 40C88 37.2386 85.7614 35 83 35C80.2386 35 78 37.2386 78 40C78 42.7614 80.2386 45 83 45Z" fill="#FFD6A5" stroke="black" strokeWidth="3"/>
+      <path d="M85 32C86.1046 32 87 31.1046 87 30C87 28.8954 86.1046 28 85 28C83.8954 28 83 28.8954 83 30C83 31.1046 83.8954 32 85 32Z" fill="#9DD6F3"/>
+      <path d="M92 40C93.1046 40 94 39.1046 94 38C94 36.8954 93.1046 36 92 36C90.8954 36 90 36.8954 90 38C90 39.1046 90.8954 40 92 40Z" fill="#9DD6F3"/>
+      <path d="M85 48C86.1046 48 87 47.1046 87 46C87 44.8954 86.1046 44 85 44C83.8954 44 83 44.8954 83 46C83 47.1046 83.8954 48 85 48Z" fill="#9DD6F3"/>
+  </svg>
+);
+
+
 const GenericCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
   return (
     <Card className="p-4 flex items-center gap-4 bg-muted/20">
@@ -146,6 +161,19 @@ const GenericCanvasComponent = ({ component }: { component: CanvasComponentData 
     </Card>
   );
 };
+
+const ArgumentoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  return (
+    <Card className="p-6 text-center border-dashed">
+      <div className="flex justify-center mb-4">
+        <WavingHandIcon />
+      </div>
+      <h3 className="font-bold text-lg">Argumento</h3>
+      <p className="text-muted-foreground mt-1">Lorem ipsum dollor sit amet</p>
+    </Card>
+  );
+}
+
 
 const AlertCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
     const { title, description, backgroundColor, textColor, borderColor, icon } = component.props;
@@ -172,6 +200,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
     switch (component.name) {
       case 'Alerta':
         return <AlertCanvasComponent component={component} />;
+      case 'Argumentos':
+        return <ArgumentoCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
