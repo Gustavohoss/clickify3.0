@@ -53,7 +53,8 @@ export default function NovoFunilPage() {
 
   const handleCreateFunnel = () => {
     if (funnelName.trim() && selectedFunnel) {
-      router.push(`/dashboard/funis/editor?type=${selectedFunnel}&name=${encodeURIComponent(funnelName.trim())}`);
+      // For now, we use a placeholder ID like '123'
+      router.push(`/editor/123?type=${selectedFunnel}&name=${encodeURIComponent(funnelName.trim())}`);
     }
     // TODO: Add toast notification for empty name
   };
