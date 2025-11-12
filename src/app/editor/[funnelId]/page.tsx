@@ -161,6 +161,10 @@ type ComponentProps = {
   progress?: number;
   loadingDescription?: string;
   progressBarColor?: string;
+  duration?: number;
+  limit?: number;
+  showTitle?: boolean;
+  showProgress?: boolean;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -408,19 +412,25 @@ const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentDa
     progress = 60,
     loadingDescription = 'Lorem ipsum dollor sit amet.',
     progressBarColor,
+    showTitle = true,
+    showProgress = true,
   } = component.props;
 
   return (
     <div className="w-full space-y-2">
-      <div className="flex justify-between items-center text-sm font-medium">
-        <span>{loadingText}</span>
-        <span className="text-muted-foreground">{progress}%</span>
-      </div>
-      <Progress 
-        value={progress} 
-        className="w-full h-2 [&>div]:bg-foreground" 
-        style={{ '--progress-bar-color': progressBarColor } as React.CSSProperties}
-      />
+      {showTitle && (
+        <div className="flex justify-between items-center text-sm font-medium">
+          <span>{loadingText}</span>
+          {showProgress && <span className="text-muted-foreground">{progress}%</span>}
+        </div>
+      )}
+      {showProgress && (
+         <Progress 
+            value={progress} 
+            className="w-full h-2 [&>div]:bg-foreground" 
+            style={{ '--progress-bar-color': progressBarColor } as React.CSSProperties}
+          />
+      )}
       <p className="text-sm text-muted-foreground text-center pt-1">{loadingDescription}</p>
     </div>
   );
@@ -1029,11 +1039,52 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
 const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
   return (
     <div className='space-y-6'>
-      <Card className="p-4 bg-muted/20 border-border/50">
-        <h3 className="text-sm font-medium text-muted-foreground mb-4">Conteúdo</h3>
+       <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Progresso</h3>
         <div className="space-y-3">
           <div>
-            <Label htmlFor="loadingText" className='text-xs'>Texto de Carregamento</Label>
+            <Label htmlFor="duration" className='text-xs'>Duração</Label>
+            <Input
+              id="duration"
+              type="number"
+              value={component.props.duration || 5}
+              onChange={(e) => onUpdate({ ...component.props, duration: Number(e.target.value) })}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label htmlFor="limit" className='text-xs'>Limite</Label>
+            <Input
+              id="limit"
+              type="number"
+              value={component.props.limit || 60}
+              onChange={(e) => onUpdate({ ...component.props, limit: Number(e.target.value) })}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label htmlFor="action" className='text-xs'>Ação</Label>
+            <Select
+              value={component.props.action || 'next_step'}
+              onValueChange={(value: 'next_step' | 'open_url') => onUpdate({ ...component.props, action: value })}
+            >
+              <SelectTrigger id="action" className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="next_step">Próxima Etapa</SelectItem>
+                <SelectItem value="open_url">Abrir URL</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Estilo</h3>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="loadingText" className='text-xs'>Título</Label>
             <Input
               id="loadingText"
               value={component.props.loadingText || ''}
@@ -1050,33 +1101,21 @@ const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponen
               className="mt-1"
             />
           </div>
-        </div>
-      </Card>
-      
-      <Card className="p-4 bg-muted/20 border-border/50">
-        <h3 className="text-sm font-medium text-muted-foreground mb-4">Progresso</h3>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="progress" className='text-xs'>Porcentagem ({component.props.progress || 0}%)</Label>
-            <Slider
-              id="progress"
-              min={0}
-              max={100}
-              step={1}
-              value={[component.props.progress || 0]}
-              onValueChange={(value) => onUpdate({ ...component.props, progress: value[0] })}
-              className="mt-2"
-            />
+          <div className="flex items-center justify-between">
+              <Label htmlFor="showTitle">Mostrar Título</Label>
+              <Switch 
+                  id="showTitle"
+                  checked={component.props.showTitle}
+                  onCheckedChange={(checked) => onUpdate({ ...component.props, showTitle: checked })}
+              />
           </div>
-          <div>
-            <Label htmlFor='progressBarColor' className='text-xs'>Cor da Barra</Label>
-            <Input
-              type='color'
-              id='progressBarColor'
-              className='p-1 h-8 w-full mt-1'
-              value={component.props.progressBarColor || '#000000'}
-              onChange={(e) => onUpdate({ ...component.props, progressBarColor: e.target.value })}
-            />
+          <div className="flex items-center justify-between">
+              <Label htmlFor="showProgress">Mostrar Progresso</Label>
+              <Switch 
+                  id="showProgress"
+                  checked={component.props.showProgress}
+                  onCheckedChange={(checked) => onUpdate({ ...component.props, showProgress: checked })}
+              />
           </div>
         </div>
       </Card>
@@ -1175,7 +1214,12 @@ function FunnelEditorContent() {
         loadingText: 'Carregando...',
         progress: 60,
         loadingDescription: 'Lorem ipsum dollor sit amet.',
-        progressBarColor: '#1f2937', // dark grey
+        progressBarColor: '#1f2937',
+        duration: 5,
+        limit: 60,
+        action: 'next_step',
+        showTitle: true,
+        showProgress: true,
       };
     }
 
@@ -1345,3 +1389,4 @@ export default function EditorPage() {
     
 
     
+
