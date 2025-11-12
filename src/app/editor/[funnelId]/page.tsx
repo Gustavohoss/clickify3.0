@@ -53,13 +53,16 @@ import {
   Underline,
   Strikethrough,
   Heading2,
+  Heading3,
   Link,
   ListOrdered,
   AlignLeft,
   AlignCenter,
   AlignRight,
   AlignJustify,
-  RemoveFormatting
+  RemoveFormatting,
+  Baseline,
+  Highlighter
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -391,7 +394,7 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
                  <div className="relative">
                     <Input 
                         type='color' 
-                        id='text-color' _
+                        id='text-color' 
                         className='p-1 h-8 w-full'
                         value={component.props.textColor || '#000000'}
                         onChange={(e) => onUpdate({ ...component.props, textColor: e.target.value })}
@@ -455,18 +458,18 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
     onUpdate({ ...component.props, items: newItems });
   };
   
-  const handleFormat = (command: string) => {
-    document.execCommand(command, false);
+  const handleFormat = (command: string, value?: string) => {
+    document.execCommand(command, false, value);
   };
 
-  const RichTextToolbarButton = ({ icon, isActive, command }: { icon: ReactNode, isActive?: boolean, command: string }) => (
+  const RichTextToolbarButton = ({ icon, isActive, command, value }: { icon: ReactNode, isActive?: boolean, command: string, value?: string }) => (
     <Button 
       variant="ghost" 
       size="icon" 
       className={cn('h-7 w-7', isActive ? 'text-blue-500 bg-blue-500/10' : 'text-white/60 hover:text-white/80 hover:bg-white/10')}
       onMouseDown={(e) => {
           e.preventDefault(); // Prevent editor losing focus
-          handleFormat(command);
+          handleFormat(command, value);
       }}
     >
       {icon}
@@ -500,7 +503,7 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
           <h3 className="text-sm font-medium text-muted-foreground mb-4">Argumentos</h3>
           <ScrollArea className="h-[40rem]">
             <div className="space-y-4 pr-4">
-                {items.map(item => (
+                {items.map((item, itemIndex) => (
                     <Card key={item.id} className="p-3 bg-card space-y-3 relative overflow-hidden">
                         <div className="flex items-center justify-between">
                             <Popover>
@@ -515,9 +518,9 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
                                         <div key={category}>
                                             <h4 className="font-bold text-sm text-muted-foreground mb-2 sticky top-0 bg-popover py-1">{category}</h4>
                                             <div className="grid grid-cols-8 gap-1 mb-4">
-                                                {emojis.map((emoji, index) => (
+                                                {emojis.map((emoji, emojiIndex) => (
                                                     <Button
-                                                        key={`${emoji}-${index}`}
+                                                        key={`${emoji}-${itemIndex}-${emojiIndex}`}
                                                         variant="ghost"
                                                         size="icon"
                                                         className="text-lg"
@@ -544,12 +547,12 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
                         
                         <div className="bg-[#1E1E1E] rounded-md">
                            <div className="bg-[#2C2C2C] p-2 border-b border-[#3A3A3A] rounded-t-md flex flex-wrap items-center gap-1">
-                              <Select defaultValue='normal'>
+                              <Select defaultValue='normal' onValueChange={(value) => handleFormat('formatBlock', value)}>
                                 <SelectTrigger className="w-[100px] h-7 text-xs bg-transparent border-none text-white/80 focus:ring-0">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="normal">Normal</SelectItem>
+                                  <SelectItem value="p">Normal</SelectItem>
                                   <SelectItem value="h1">Título 1</SelectItem>
                                   <SelectItem value="h2">Título 2</SelectItem>
                                   <SelectItem value="h3">Título 3</SelectItem>
@@ -560,6 +563,9 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
                               <RichTextToolbarButton icon={<Italic />} command="italic" />
                               <RichTextToolbarButton icon={<Underline />} command="underline" />
                               <RichTextToolbarButton icon={<Strikethrough />} command="strikeThrough" />
+                              <Separator orientation="vertical" className="h-5 bg-white/20" />
+                               <RichTextToolbarButton icon={<Baseline className="text-blue-500" />} command="foreColor" value="#0EA5FF" />
+                               <RichTextToolbarButton icon={<Highlighter />} command="hiliteColor" value="#FEF3C7" />
                               <Separator orientation="vertical" className="h-5 bg-white/20" />
                               <RichTextToolbarButton icon={<AlignLeft />} command="justifyLeft" />
                               <RichTextToolbarButton icon={<AlignCenter />} command="justifyCenter" />
@@ -821,11 +827,3 @@ export default function EditorPage() {
         </Suspense>
     )
 }
-
-    
-
-    
-
-
-
-
