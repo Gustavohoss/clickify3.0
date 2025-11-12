@@ -70,7 +70,7 @@ import {
   CheckCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -96,6 +96,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import Image from 'next/image';
 
 
 type ComponentType = {
@@ -127,6 +129,13 @@ type ArgumentItem = {
     description: string;
 };
 
+type CarouselItem = {
+    id: number;
+    imageUrl: string;
+    caption: string;
+};
+
+
 type ComponentProps = {
   // Common properties for all components
   [key: string]: any; 
@@ -140,7 +149,6 @@ type ComponentProps = {
   icon?: ReactNode;
   // Specific properties for Argumentos
   layout?: 'list' | '2-cols' | '3-cols' | '4-cols';
-  disposition?: string;
   items?: ArgumentItem[];
   // Specific properties for Audio
   audioUrl?: string;
@@ -164,6 +172,11 @@ type ComponentProps = {
   limit?: number;
   showTitle?: boolean;
   showProgress?: boolean;
+  // Specific properties for Carrosel
+  slides?: CarouselItem[];
+  loop?: boolean;
+  autoplayCarousel?: boolean;
+  autoplayDelay?: number;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -466,6 +479,48 @@ const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentDa
   );
 };
 
+const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const slides = component.props.slides || [];
+  const loop = component.props.loop || false;
+
+  if (slides.length === 0) {
+    return (
+      <Card className="p-6 text-center border-dashed">
+        <div className="flex justify-center mb-4">
+          <WavingHandIcon />
+        </div>
+        <h3 className="font-bold text-lg">Carrossel</h3>
+        <p className="text-muted-foreground mt-1">Adicione slides para começar</p>
+      </Card>
+    );
+  }
+
+  return (
+    <Carousel className="w-full" opts={{ loop }}>
+      <CarouselContent>
+        {slides.map((slide) => (
+          <CarouselItem key={slide.id}>
+            <div className="p-1">
+              <Card>
+                <CardContent className="flex aspect-video items-center justify-center p-6 relative bg-muted/30">
+                  {slide.imageUrl ? (
+                     <Image src={slide.imageUrl} alt={slide.caption || 'Slide image'} layout="fill" objectFit="contain" />
+                  ) : (
+                    <ImageIcon className="h-12 w-12 text-muted-foreground" />
+                  )}
+                </CardContent>
+              </Card>
+              {slide.caption && <p className="text-center text-sm text-muted-foreground mt-2">{slide.caption}</p>}
+            </div>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious className="absolute left-[-50px] top-1/2 -translate-y-1/2" />
+      <CarouselNext className="absolute right-[-50px] top-1/2 -translate-y-1/2" />
+    </Carousel>
+  );
+};
+
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
   const renderComponent = () => {
@@ -480,6 +535,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
         return <BotaoCanvasComponent component={component} />;
       case 'Carregando':
         return <CarregandoCanvasComponent component={component} />;
+      case 'Carrosel':
+        return <CarroselCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -1153,6 +1210,93 @@ const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponen
   );
 };
 
+const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  const slides = component.props.slides || [];
+
+  const handleUpdateSlide = (slideId: number, newValues: Partial<CarouselItem>) => {
+    const newSlides = slides.map(slide =>
+      slide.id === slideId ? { ...slide, ...newValues } : slide
+    );
+    onUpdate({ ...component.props, slides: newSlides });
+  };
+
+  const handleAddSlide = () => {
+    const newSlide: CarouselItem = {
+      id: Date.now(),
+      imageUrl: `https://picsum.photos/seed/${Date.now()}/400/300`,
+      caption: 'Nova Legenda'
+    };
+    onUpdate({ ...component.props, slides: [...slides, newSlide] });
+  };
+
+  const handleDeleteSlide = (slideId: number) => {
+    const newSlides = slides.filter(slide => slide.id !== slideId);
+    onUpdate({ ...component.props, slides: newSlides });
+  };
+
+  return (
+    <div className='space-y-6'>
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Configurações</h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="loop">Navegação Infinita (Loop)</Label>
+            <Switch
+              id="loop"
+              checked={component.props.loop}
+              onCheckedChange={(checked) => onUpdate({ ...component.props, loop: checked })}
+            />
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Slides</h3>
+        <ScrollArea className="h-[40rem]">
+          <div className="space-y-4 pr-4">
+            {slides.map(slide => (
+              <Card key={slide.id} className="p-3 bg-card space-y-3 relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  onClick={() => handleDeleteSlide(slide.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+                <div className="space-y-2">
+                  <div>
+                    <Label htmlFor={`imageUrl-${slide.id}`} className='text-xs'>URL da Imagem</Label>
+                    <Input
+                      id={`imageUrl-${slide.id}`}
+                      value={slide.imageUrl}
+                      onChange={(e) => handleUpdateSlide(slide.id, { imageUrl: e.target.value })}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor={`caption-${slide.id}`} className='text-xs'>Legenda</Label>
+                    <Input
+                      id={`caption-${slide.id}`}
+                      value={slide.caption}
+                      onChange={(e) => handleUpdateSlide(slide.id, { caption: e.target.value })}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </ScrollArea>
+        <Button variant="outline" className="w-full mt-4" onClick={handleAddSlide}>
+          <Plus className="h-4 w-4 mr-2" />
+          Adicionar Slide
+        </Button>
+      </Card>
+    </div>
+  );
+};
+
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
@@ -1173,6 +1317,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <BotaoSettings component={component} onUpdate={handleUpdate} />;
         case 'Carregando':
             return <CarregandoSettings component={component} onUpdate={handleUpdate} />;
+        case 'Carrosel':
+            return <CarroselSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -1249,6 +1395,16 @@ function FunnelEditorContent() {
         action: 'next_step',
         showTitle: true,
         showProgress: true,
+      };
+    }
+
+    if (component.name === 'Carrosel') {
+      defaultProps = {
+        slides: [
+          { id: 1, imageUrl: 'https://picsum.photos/seed/carousel1/400/300', caption: 'Legenda 1' },
+          { id: 2, imageUrl: 'https://picsum.photos/seed/carousel2/400/300', caption: 'Legenda 2' }
+        ],
+        loop: false,
       };
     }
 
@@ -1418,5 +1574,6 @@ export default function EditorPage() {
     
 
     
+
 
 
