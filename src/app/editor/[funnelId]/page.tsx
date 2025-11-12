@@ -158,7 +158,6 @@ type ComponentProps = {
   variant?: 'default' | 'outline' | 'ghost' | 'secondary' | 'link' | 'destructive';
   // Specific properties for Carregando
   loadingText?: string;
-  progress?: number;
   loadingDescription?: string;
   progressBarColor?: string;
   duration?: number;
@@ -409,24 +408,55 @@ const BotaoCanvasComponent = ({ component }: { component: CanvasComponentData })
 const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
   const {
     loadingText = 'Carregando...',
-    progress = 60,
     loadingDescription = 'Lorem ipsum dollor sit amet.',
     progressBarColor,
+    duration = 5,
+    limit = 100,
     showTitle = true,
     showProgress = true,
   } = component.props;
+
+  const [animatedProgress, setAnimatedProgress] = useState(0);
+
+  useEffect(() => {
+    setAnimatedProgress(0); // Reset animation on prop change
+
+    if (!showProgress || duration <= 0 || limit <= 0) {
+      if (limit > 0) setAnimatedProgress(limit);
+      return;
+    }
+
+    const intervalTime = 50; // Update every 50ms for smooth animation
+    const totalSteps = (duration * 1000) / intervalTime;
+    const increment = limit / totalSteps;
+
+    const timer = setInterval(() => {
+      setAnimatedProgress(prev => {
+        const nextProgress = prev + increment;
+        if (nextProgress >= limit) {
+          clearInterval(timer);
+          return limit;
+        }
+        return nextProgress;
+      });
+    }, intervalTime);
+
+    return () => clearInterval(timer);
+  }, [duration, limit, showProgress]);
+
+  const displayProgress = Math.floor(animatedProgress);
 
   return (
     <div className="w-full space-y-2">
       {showTitle && (
         <div className="flex justify-between items-center text-sm font-medium">
           <span>{loadingText}</span>
-          {showProgress && <span className="text-muted-foreground">{progress}%</span>}
+          {showProgress && <span className="text-muted-foreground">{displayProgress}%</span>}
         </div>
       )}
       {showProgress && (
          <Progress 
-            value={progress} 
+            value={displayProgress} 
             className="w-full h-2 [&>div]:bg-foreground" 
             style={{ '--progress-bar-color': progressBarColor } as React.CSSProperties}
           />
@@ -996,9 +1026,9 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="default">Padrão</SelectItem>
-                  <SelectItem value="ghost">Fantasma</SelectItem>
-                  <SelectItem value="outline">Bordas</SelectItem>
                   <SelectItem value="destructive">Destrutivo</SelectItem>
+                  <SelectItem value="outline">Bordas</SelectItem>
+                  <SelectItem value="ghost">Fantasma</SelectItem>
                   <SelectItem value="link">Link</SelectItem>
                   <SelectItem value="secondary">Relevo</SelectItem>
                 </SelectContent>
@@ -1057,7 +1087,7 @@ const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponen
             <Input
               id="limit"
               type="number"
-              value={component.props.limit || 60}
+              value={component.props.limit || 100}
               onChange={(e) => onUpdate({ ...component.props, limit: Number(e.target.value) })}
               className="mt-1"
             />
@@ -1212,11 +1242,10 @@ function FunnelEditorContent() {
     if (component.name === 'Carregando') {
       defaultProps = {
         loadingText: 'Carregando...',
-        progress: 60,
         loadingDescription: 'Lorem ipsum dollor sit amet.',
         progressBarColor: '#1f2937',
         duration: 5,
-        limit: 60,
+        limit: 100,
         action: 'next_step',
         showTitle: true,
         showProgress: true,
@@ -1389,4 +1418,5 @@ export default function EditorPage() {
     
 
     
+
 
