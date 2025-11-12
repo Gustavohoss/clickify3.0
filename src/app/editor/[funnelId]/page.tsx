@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { Suspense, useState, ReactNode } from 'react';
@@ -51,6 +52,14 @@ import {
   Italic,
   Underline,
   Strikethrough,
+  Heading2,
+  Link,
+  ListOrdered,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  RemoveFormatting
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -177,16 +186,16 @@ const ArgumentoCanvasComponent = ({ component }: { component: CanvasComponentDat
 
   const layoutClasses: { [key: string]: string } = {
     'list': 'grid-cols-1',
-    '2-cols': 'grid-cols-2',
-    '3-cols': 'grid-cols-3',
-    '4-cols': 'grid-cols-4',
+    '2-cols': 'md:grid-cols-2',
+    '3-cols': 'md:grid-cols-3',
+    '4-cols': 'md:grid-cols-4',
   };
 
   const gridClass = layoutClasses[layout] || 'grid-cols-1';
 
   if (items.length === 0) {
       return (
-        <div className={cn('grid gap-4', gridClass)}>
+        <div className={cn('grid gap-4 grid-cols-1')}>
             <Card className="p-6 text-center border-dashed">
                 <div className="flex justify-center mb-4">
                     <WavingHandIcon />
@@ -254,7 +263,7 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
         )}
         onClick={onClick}
       >
-          <div className="absolute top-0 left-2 -translate-y-1/2 z-10 bg-blue-500 rounded-md shadow-lg flex items-center gap-1 p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-blue-500 rounded-md shadow-lg flex items-center gap-0.5 p-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:bg-blue-600 hover:text-white cursor-grab">
               <Grip className="h-4 w-4" />
             </Button>
@@ -417,7 +426,7 @@ const emojiCategories = {
     'Activities': ['⚽️', '🏀', '🏈', '⚾️', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🪀', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '🥅', '⛳️', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️‍♀️', '🏋️‍♂️', '🤼‍♀️', '🤼‍♂️', '🤸‍♀️', '🤸‍♂️', '🤺', '🤾‍♀️', '🤾‍♂️', '🏌️‍♀️', '🏌️‍♂️', '🏇', '🧘‍♀️', '🧘‍♂️', '🏄‍♀️', '🏄‍♂️', '🏊‍♀️', '🏊‍♂️', '🤽‍♀️', '🤽‍♂️', '🚣‍♀️', '🚣‍♂️', '🧗‍♀️', '🧗‍♂️', '🚵‍♀️', '🚵‍♂️', '🚴‍♀️', '🚴‍♂️', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫', '🎟️', '🎪', '🤹‍♀️', '🤹‍♂️', '🎭', '🩰', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🪕', '🎻', '🎲', '♟️', '🎯', '🎳', '🎮', '🎰', '🧩'],
     'Travel & Places': ['🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜', '🛴', '🚲', '🛵', '🏍️', '🛺', '🚨', '🚔', '🚍', '🚘', '🚖', '🚡', '🚠', '🚟', '🚃', '🚋', '🚞', '🚝', '🚄', '🚅', '🚈', '🚂', '🚆', '🚇', '🚊', '🚉', '✈️', '🛫', '🛬', '💺', '🚀', '🛸', '🚁', '🛶', '⛵️', '🚤', '🛥️', '🛳️', '⛴️', '🚢', '⚓️', '⛽️', '🚧', '🚦', '🚥', '🗺️', '🗿', '🗽', '🗼', '🏰', '🏯', '🏟️', '🎡', '🎢', '🎠', '⛲️', '⛱️', '🏖️', '🏝️', '🏜️', '🌋', '⛰️', '🏔️', '🗻', '🏕️', '⛺️', '🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏭', '🏢', '🏬', '🏣', '🏤', '🏥', '🏦', '🏨', '🏪', '🏫', '🏩', '💒', '🏛️', '⛪️', '🕌', '🕍', '🛕', '🕋', '⛩️', '🛤️', '🛣️', '🗾', '🎑', '🏞️', '🌅', '🌄', '🌠', '🎇', '🎆', '🌉', '🌁', '🏙️', '🌃', '🌌'],
     'Objects': ['⌚️', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', '🕹️', '🗜️', '💽', '💾', '💿', '📀', '📼', '📷', '📸', '📹', '🎥', '🎞️', '📞', '☎️', '📟', '📠', '📺', '📻', '🎙️', '🎚️', '🎛️', '🧭', '⏱️', '⏲️', '⏰', '🕰️', '⌛️', '⏳', '📡', '🔋', '🔌', '💡', '🔦', '🕯️', '🪔', '🧯', '🗑️', '🛢️', '💸', '💵', '💴', '💶', '💷', '💰', '💳', '🧾', '💎', '⚖️', '🦯', '🔧', '🔨', '⚒️', '🛠️', '⛏️', '🔩', '⚙️', '🧱', '⛓️', '🧲', '🔫', '💣', '🧨', '🪓', '🔪', '🗡️', '⚔️', '🛡️', '🚬', '⚰️', '⚱️', '🏺', '🔮', '📿', '🧿', '💈', '⚗️', '🔭', '🔬', '🕳️', '💊', '💉', '🩸', '🧬', '🦠', '🧫', '🧪', '🌡️', '🧹', '🧺', '🧻', '🚽', '🚰', '🚿', '🛁', '🛀', '🧼', '🪒', '🧽', '🧴', '🛎️', '🔑', '🗝️', '🚪', '🪑', '🛋️', '🛏️', '🛌', '🧸', '🖼️', '🛍️', '🛒', '🎁', '🎈', '🎏', '🎀', '🎊', '🎉', '🎎', '🏮', '🎐', '🧧', '✉️', '📩', '📨', '📧', '💌', '📮', '📪', '📫', '📬', '📭', '📦', '🪧', '📄', '📃', '📜', '📑', '📊', '📈', '📉', '🗒️', '🗓️', '📆', '📅', '📇', '🗃️', '🗳️', '🗄️', '📋', '📁', '📂', '🗂️', '🗞️', '📰', '📓', '📔', '📒', '📕', '📗', '📘', '📙', '📚', '📖', '🔖', '🧷', '🔗', '📎', '🖇️', '📐', '📏', '🧮', '📌', '📍', '✂️', '🖊️', '🖋️', '✒️', '🖌️', '🖍️', '📝', '✏️', '🔎', '🔍', '🔏', '🔐', '🔒', '🔓'],
-    'Symbols': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈️', '♉️', '♊️', '♋️', '♌️', '♍️', '♎️', '♏️', '♐️', '♑️', '♒️', '♓️', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚️', '🈸', '🈺', '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴', '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️', '🆘', '❌', '⭕️', '🛑', '⛔️', '📛', '🚫', '💯', '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵', '🚭', '❗️', '❕', '❓', '❔', '‼️', '⁉️', '🔅', '🔆', '〽️', '⚠️', '🚸', '🔱', '⚜️', '🔰', '♻️', '✅', '🈯️', '💹', '❇️', '✳️', '❎', '🌐', '💠', 'Ⓜ️', '🌀', '💤', '🏧', '🚾', '♿️', '🅿️', '🈳', '🈂️', '🛂', '🛃', '🛄', '🛅', '🚹', '🚺', '🚼', '🚻', '🚮', '🎦', '📶', '🈁', '🔣', 'ℹ️', '🔤', '🔡', '🔠', '🆖', '🆗', '🆙', '🆒', '🆕', '🆓', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟', '🔢', '#️⃣', '*️⃣', '⏏️', '▶️', '⏸️', '⏯️', '⏹️', '⏺️', '⏭️', '⏮️', '⏩', '⏪', '⏫', '⏬', '◀️', '🔼', '🔽', '➡️', '⬅️', '⬆️', '⬇️', '↗️', '↘️', '↙️', '↖️', '↕️', '↔️', '↪️', '↩️', '⤴️', '⤵️', '🔀', '🔁', '🔂', '🔄', '🔃', '🎵', '🎶', '➕', '➖', '➗', '✖️', '♾️', '💲', '💱', '™️', '©️', '®️', '👁️‍🗨️', '🔚', '🔙', '🔛', '🔝', '🔜', '✔️', '☑️', '🔘', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️', '🟤', '🔺', '🔻', '🔼', '🔽', '▪️', '▫️', '◾️', '◽️', '◼️', '◻️', '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛️', '⬜️', '🟫', '🔶', '🔷', '🔸', '🔹', '▪️', '▫️', '🔲', '🔳', '💭', '🗯️', '💬', '🗨️', '🀄️', '🃏', '♠️', '♣️', '♥️', '♦️', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚', '🕛', '🕜', '🕝', '🕞', '🕟', '🕠', '🕡', '🕢', '🕣', '🕤', '🕥', '🕦', '🕧']
+    'Symbols': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈️', '♉️', '♊️', '♋️', '♌️', '♍️', '♎️', '♏️', '♐️', '♑️', '♒️', '♓️', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚️', '🈸', '🈺', '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴', '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️', '🆘', '❌', '⭕️', '🛑', '⛔️', '📛', '🚫', '💯', '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵', '🚭', '❗️', '❕', '❓', '❔', '‼️', '⁉️', '🔅', '🔆', '〽️', '⚠️', '🚸', '🔱', '⚜️', '🔰', '♻️', '✅', '🈯️', '💹', '❇️', '✳️', '❎', '🌐', '💠', 'Ⓜ️', '🌀', '💤', '🏧', '🚾', '♿️', '🅿️', '🈳', '🈂️', '🛂', '🛃', '🛄', '🛅', '🚹', '🚺', '🚼', '🚻', '🚮', '🎦', '📶', '🈁', '🔣', 'ℹ️', '🔤', '🔡', '🔠', '🆖', '🆗', '🆙', '🆒', '🆕', '🆓', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟', '🔢', '#️⃣', '*️⃣', '⏏️', '▶️', '⏸️', '⏯️', '⏹️', '⏺️', '⏭️', '⏮️', '⏩', '⏪', '⏫', '⏬', '◀️', '🔼', '🔽', '➡️', '⬅️', '⬆️', '⬇️', '↗️', '↘️', '↙️', '↖️', '↕️', '↔️', '↪️', '↩️', '⤴️', '⤵️', '🔀', '🔁', '🔂', '🔄', '🔃', '🎵', '🎶', '➕', '➖', '➗', '✖️', '♾️', '💲', '💱', '™️', '©️', '®️', '👁️‍🗨️', '🔚', '🔙', '🔛', '🔝', '🔜', '✔️', '☑️', '🔘', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️', '🟤', '🔺', '🔻', '🔼', '🔽', '▪️', '▫️', '◾️', '◽️', '◼️', '◻️', '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛️', '⬜️', '🟫', '🔶', '🔷', '🔸', '🔹', '🔲', '🔳', '💭', '🗯️', '💬', '🗨️', '🀄️', '🃏', '♠️', '♣️', '♥️', '♦️', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚', '🕛', '🕜', '🕝', '🕞', '🕟', '🕠', '🕡', '🕢', '🕣', '🕤', '🕥', '🕦', '🕧']
 };
 
 
@@ -446,6 +455,12 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
     onUpdate({ ...component.props, items: newItems });
   };
 
+  const RichTextToolbarButton = ({ icon, isActive }: { icon: ReactNode, isActive?: boolean }) => (
+    <Button variant="ghost" size="icon" className={cn('h-7 w-7', isActive ? 'text-blue-500' : 'text-white/60')}>
+      {icon}
+    </Button>
+  );
+
   return (
     <div className='space-y-6'>
        <Card className="p-4 bg-muted/20 border-border/50">
@@ -471,30 +486,25 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
 
       <Card className="p-4 bg-muted/20 border-border/50">
           <h3 className="text-sm font-medium text-muted-foreground mb-4">Argumentos</h3>
-          <ScrollArea className="h-72">
+          <ScrollArea className="h-[40rem]">
             <div className="space-y-4 pr-4">
                 {items.map(item => (
-                    <Card key={item.id} className="p-3 bg-card space-y-3 relative">
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="absolute top-2 right-2 h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => handleDeleteItem(item.id)}
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <div className="flex items-start gap-2">
+                    <Card key={item.id} className="p-3 bg-card space-y-3 relative overflow-hidden">
+                        <div className="flex items-center justify-between">
                             <Popover>
                               <PopoverTrigger asChild>
-                                  <Button variant="outline" className="w-12 h-10 text-xl text-center p-0">
+                                  <Button variant="outline" className="w-12 h-10 text-xl text-center p-0 relative">
                                     {item.icon}
+                                     <div className="absolute -top-1 -right-1 h-4 w-4 bg-destructive rounded-full flex items-center justify-center">
+                                       <Trash2 className="h-2 w-2 text-white" />
+                                     </div>
                                   </Button>
                               </PopoverTrigger>
                               <PopoverContent className="w-80 h-96">
                                 <ScrollArea className="h-full w-full">
                                     {Object.entries(emojiCategories).map(([category, emojis]) => (
                                         <div key={category}>
-                                            <h4 className="font-bold text-sm text-muted-foreground mb-2">{category}</h4>
+                                            <h4 className="font-bold text-sm text-muted-foreground mb-2 sticky top-0 bg-popover py-1">{category}</h4>
                                             <div className="grid grid-cols-8 gap-1 mb-4">
                                                 {emojis.map((emoji, index) => (
                                                     <Button
@@ -513,31 +523,62 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
                                 </ScrollArea>
                               </PopoverContent>
                             </Popover>
-
-                            <div className="w-full space-y-2">
-                                <Input 
-                                    value={item.title}
-                                    onChange={(e) => handleUpdateItem(item.id, { title: e.target.value })}
-                                    placeholder="Título"
-                                    className="h-8 font-semibold"
-                                />
-                                <div className='space-y-1'>
-                                    <div className="border rounded-md p-1 flex items-center gap-1">
-                                        <Button variant="ghost" size="icon" className='h-6 w-6'><Bold className="h-4 w-4" /></Button>
-                                        <Button variant="ghost" size="icon" className='h-6 w-6'><Italic className="h-4 w-4" /></Button>
-                                        <Button variant="ghost" size="icon" className='h-6 w-6'><Underline className="h-4 w-4" /></Button>
-                                        <Button variant="ghost" size="icon" className='h-6 w-6'><Strikethrough className="h-4 w-4" /></Button>
-                                    </div>
-                                    <Textarea
-                                        value={item.description}
-                                        onChange={(e) => handleUpdateItem(item.id, { description: e.target.value })}
-                                        placeholder="Descrição"
-                                        className="text-xs"
-                                        rows={3}
-                                    />
-                                </div>
-                            </div>
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                onClick={() => handleDeleteItem(item.id)}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
                         </div>
+                        
+                        <div className="bg-[#1E1E1E] rounded-md">
+                           <div className="bg-[#2C2C2C] p-2 border-b border-[#3A3A3A] rounded-t-md flex flex-wrap items-center gap-1">
+                              <Select defaultValue='normal'>
+                                <SelectTrigger className="w-[100px] h-7 text-xs bg-transparent border-none text-white/80 focus:ring-0">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="normal">Normal</SelectItem>
+                                  <SelectItem value="h1">Título 1</SelectItem>
+                                  <SelectItem value="h2">Título 2</SelectItem>
+                                  <SelectItem value="h3">Título 3</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <Separator orientation="vertical" className="h-5 bg-white/20" />
+                              <RichTextToolbarButton icon={<Bold />} isActive />
+                              <RichTextToolbarButton icon={<Italic />} />
+                              <RichTextToolbarButton icon={<Underline />} />
+                              <RichTextToolbarButton icon={<Strikethrough />} />
+                              <Separator orientation="vertical" className="h-5 bg-white/20" />
+                              <RichTextToolbarButton icon={<AlignLeft />} isActive />
+                              <RichTextToolbarButton icon={<AlignCenter />} />
+                              <RichTextToolbarButton icon={<AlignRight />} />
+                              <RichTextToolbarButton icon={<AlignJustify />} />
+                               <Separator orientation="vertical" className="h-5 bg-white/20" />
+                              <RichTextToolbarButton icon={<Link />} />
+                              <RichTextToolbarButton icon={<List />} />
+                              <RichTextToolbarButton icon={<ListOrdered />} />
+                               <Separator orientation="vertical" className="h-5 bg-white/20" />
+                              <RichTextToolbarButton icon={<RemoveFormatting />} />
+                           </div>
+                           <div className="p-4">
+                               <div
+                                 contentEditable
+                                 className="text-xl font-bold text-white outline-none"
+                                 dangerouslySetInnerHTML={{ __html: item.title }}
+                                 onBlur={(e) => handleUpdateItem(item.id, { title: e.currentTarget.innerHTML })}
+                               />
+                               <div
+                                 contentEditable
+                                 className="text-sm text-[#D1D5DB] outline-none mt-2"
+                                 dangerouslySetInnerHTML={{ __html: item.description }}
+                                  onBlur={(e) => handleUpdateItem(item.id, { description: e.currentTarget.innerHTML })}
+                               />
+                           </div>
+                        </div>
+
                     </Card>
                 ))}
             </div>
@@ -603,7 +644,7 @@ function FunnelEditorContent() {
       defaultProps = {
         layout: 'list',
         items: [
-            { id: 1, icon: '👋', title: 'Argumento 1', description: 'Lorem ipsum dollor sit amet.'}
+            { id: 1, icon: '👋', title: 'Argumento', description: 'Lorem ipsum dollor sit amet.'}
         ],
       };
     }
@@ -773,4 +814,5 @@ export default function EditorPage() {
     
 
     
+
 
