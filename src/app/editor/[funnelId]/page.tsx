@@ -129,7 +129,7 @@ type ArgumentItem = {
     description: string;
 };
 
-type CarouselItem = {
+type CarouselItemData = {
     id: number;
     imageUrl: string;
     caption: string;
@@ -173,7 +173,7 @@ type ComponentProps = {
   showTitle?: boolean;
   showProgress?: boolean;
   // Specific properties for Carrosel
-  slides?: CarouselItem[];
+  slides?: CarouselItemData[];
   loop?: boolean;
   autoplayCarousel?: boolean;
   autoplayDelay?: number;
@@ -481,8 +481,7 @@ const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentDa
 
 const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
   const slides = component.props.slides || [];
-  const loop = component.props.loop || false;
-
+  
   if (slides.length === 0) {
     return (
       <Card className="p-6 text-center border-dashed">
@@ -496,7 +495,7 @@ const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData
   }
 
   return (
-    <Carousel className="w-full" opts={{ loop }}>
+    <Carousel className="w-full" opts={{ loop: true }}>
       <CarouselContent>
         {slides.map((slide) => (
           <CarouselItem key={slide.id}>
@@ -1213,7 +1212,7 @@ const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponen
 const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
   const slides = component.props.slides || [];
 
-  const handleUpdateSlide = (slideId: number, newValues: Partial<CarouselItem>) => {
+  const handleUpdateSlide = (slideId: number, newValues: Partial<CarouselItemData>) => {
     const newSlides = slides.map(slide =>
       slide.id === slideId ? { ...slide, ...newValues } : slide
     );
@@ -1221,7 +1220,7 @@ const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentD
   };
 
   const handleAddSlide = () => {
-    const newSlide: CarouselItem = {
+    const newSlide: CarouselItemData = {
       id: Date.now(),
       imageUrl: `https://picsum.photos/seed/${Date.now()}/400/300`,
       caption: 'Nova Legenda'
@@ -1236,20 +1235,6 @@ const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentD
 
   return (
     <div className='space-y-6'>
-      <Card className="p-4 bg-muted/20 border-border/50">
-        <h3 className="text-sm font-medium text-muted-foreground mb-4">Configurações</h3>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="loop">Navegação Infinita (Loop)</Label>
-            <Switch
-              id="loop"
-              checked={component.props.loop}
-              onCheckedChange={(checked) => onUpdate({ ...component.props, loop: checked })}
-            />
-          </div>
-        </div>
-      </Card>
-
       <Card className="p-4 bg-muted/20 border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Slides</h3>
         <ScrollArea className="h-[40rem]">
@@ -1404,7 +1389,7 @@ function FunnelEditorContent() {
           { id: 1, imageUrl: 'https://picsum.photos/seed/carousel1/400/300', caption: 'Legenda 1' },
           { id: 2, imageUrl: 'https://picsum.photos/seed/carousel2/400/300', caption: 'Legenda 2' }
         ],
-        loop: false,
+        loop: true,
       };
     }
 
@@ -1574,6 +1559,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
