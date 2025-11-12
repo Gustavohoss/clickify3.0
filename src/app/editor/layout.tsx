@@ -1,4 +1,3 @@
-// This is a client component because we need to check for auth state.
 'use client';
 
 import { useUser } from '@/firebase';
