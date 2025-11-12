@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { Suspense, useState, ReactNode } from 'react';
@@ -68,6 +67,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 
 type ComponentType = {
@@ -387,6 +391,8 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
   )
 }
 
+const emojis = ['👋', '🚀', '💡', '🔥', '💰', '✅', '❌', '⚠️', 'ℹ️', '👍', '👎', '❤️'];
+
 const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
   const items = component.props.items || [];
 
@@ -439,7 +445,7 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
           <h3 className="text-sm font-medium text-muted-foreground mb-4">Argumentos</h3>
           <div className="space-y-4">
               {items.map(item => (
-                  <Card key={item.id} className="p-3 bg-card space-y-2 relative">
+                  <Card key={item.id} className="p-3 bg-card space-y-3 relative">
                       <Button 
                           variant="ghost" 
                           size="icon" 
@@ -448,25 +454,43 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
                       >
                           <Trash2 className="h-4 w-4" />
                       </Button>
-                      <div className="flex items-center gap-2">
-                          <Input 
-                              value={item.icon}
-                              onChange={(e) => handleUpdateItem(item.id, { icon: e.target.value })}
-                              className="w-12 h-10 text-xl text-center p-0"
-                              maxLength={2}
-                          />
-                          <div className="w-full space-y-1">
+                      <div className="flex items-start gap-2">
+                           <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" className="w-12 h-10 text-xl text-center p-0">
+                                  {item.icon}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-2">
+                                <div className="grid grid-cols-4 gap-2">
+                                    {emojis.map((emoji) => (
+                                        <Button
+                                            key={emoji}
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-lg"
+                                            onClick={() => handleUpdateItem(item.id, { icon: emoji })}
+                                        >
+                                            {emoji}
+                                        </Button>
+                                    ))}
+                                </div>
+                            </PopoverContent>
+                          </Popover>
+
+                          <div className="w-full space-y-2">
                                <Input 
                                   value={item.title}
                                   onChange={(e) => handleUpdateItem(item.id, { title: e.target.value })}
                                   placeholder="Título"
                                   className="h-8 font-semibold"
                               />
-                              <Input 
+                              <Textarea
                                   value={item.description}
                                   onChange={(e) => handleUpdateItem(item.id, { description: e.target.value })}
                                   placeholder="Descrição"
-                                  className="h-8 text-xs"
+                                  className="text-xs"
+                                  rows={3}
                               />
                           </div>
                       </div>
@@ -698,7 +722,5 @@ export default function EditorPage() {
         </Suspense>
     )
 }
-
-    
 
     
