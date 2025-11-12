@@ -177,7 +177,7 @@ const components: ComponentType[] = [
   { name: 'Opções', icon: <CheckSquare /> },
   { name: 'Preço', icon: <DollarSign /> },
   { name: 'Script', icon: <FileCode /> },
-  { name: 'Termos', icon: <FileText as FileTextIcon /> },
+  { name: 'Termos', icon: <FileTextIcon /> },
   { name: 'Texto', icon: <TextIcon /> },
   { name: 'Título', icon: <Heading1 /> },
   { name: 'Video', icon: <Video /> },
@@ -641,7 +641,7 @@ const colorPalette = [
     '#ffffff', '#ffb6c1', '#fffacd', '#f0f8ff', '#f5f5f5', '#d3d3d3',
     '#fa8072', '#ffdead', '#f0e68c', '#90ee90', '#dda0dd', '#c0c0c0', '#a9a9a9',
     '#800000', '#a52a2a', '#b8860b', '#006400', '#00008b', '#483d8b', '#808080', '#696969',
-    '#400000', '#8b0000', '#808000', '#008000', '#000080', '#4b0082', '#2f4f4f'
+    '#400000', '#8b0000', '#808000', '#008000', '#000080', '#2f4f4f'
 ];
 
 
@@ -1085,5 +1085,7 @@ export default function EditorPage() {
         </Suspense>
     )
 }
+
+    
 
     
