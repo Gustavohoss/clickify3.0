@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { Suspense, useState, ReactNode } from 'react';
@@ -47,6 +46,7 @@ import {
   XCircle,
   CheckCircle,
   Info,
+  AudioWaveform,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -529,3 +529,4 @@ export default function EditorPage() {
     )
 }
 
+    
