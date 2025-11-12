@@ -79,6 +79,7 @@ import {
   Pause,
   Mic,
   CheckCheck,
+  MoreHorizontal,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -206,6 +207,12 @@ type ComponentProps = {
   gradientEndColor?: string;
   showArea?: boolean;
   showGrid?: boolean;
+  // Specific properties for Comparar
+  beforeImageUrl?: string;
+  afterImageUrl?: string;
+  sliderColor?: string;
+  sliderIconColor?: string;
+  sliderPosition?: number;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -627,6 +634,97 @@ const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentDa
   );
 };
 
+const CompararCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+    const { 
+        beforeImageUrl = 'https://picsum.photos/seed/before/600/400',
+        afterImageUrl = 'https://picsum.photos/seed/after/600/400',
+        sliderColor = '#FFFFFF',
+        sliderIconColor = '#000000',
+    } = component.props;
+
+    const [sliderPosition, setSliderPosition] = useState(component.props.sliderPosition || 50);
+    const [isDragging, setIsDragging] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    const handleMove = (clientX: number) => {
+        if (!containerRef.current) return;
+        const rect = containerRef.current.getBoundingClientRect();
+        const x = clientX - rect.left;
+        let percentage = (x / rect.width) * 100;
+        if (percentage < 0) percentage = 0;
+        if (percentage > 100) percentage = 100;
+        setSliderPosition(percentage);
+    };
+
+    const handleMouseDown = () => setIsDragging(true);
+    const handleMouseUp = () => setIsDragging(false);
+    const handleMouseLeave = () => setIsDragging(false);
+    
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (isDragging) handleMove(e.clientX);
+    };
+
+    const handleTouchStart = () => setIsDragging(true);
+    const handleTouchEnd = () => setIsDragging(false);
+    const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+        if (isDragging) handleMove(e.touches[0].clientX);
+    };
+
+    return (
+        <Card className='overflow-hidden'>
+            <div
+                ref={containerRef}
+                className="relative w-full aspect-video select-none group"
+                onMouseDown={handleMouseDown}
+                onMouseUp={handleMouseUp}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                onTouchMove={handleTouchMove}
+            >
+                <div className="absolute inset-0">
+                    <Image
+                        src={beforeImageUrl}
+                        alt="Before"
+                        layout="fill"
+                        objectFit="cover"
+                    />
+                </div>
+                <div
+                    className="absolute inset-0 overflow-hidden"
+                    style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
+                >
+                    <Image
+                        src={afterImageUrl}
+                        alt="After"
+                        layout="fill"
+                        objectFit="cover"
+                    />
+                </div>
+                <div
+                    className="absolute top-0 bottom-0 w-1 cursor-ew-resize"
+                    style={{ 
+                        left: `${sliderPosition}%`, 
+                        transform: 'translateX(-50%)',
+                        backgroundColor: sliderColor
+                    }}
+                >
+                    <div 
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center cursor-ew-resize"
+                        style={{ backgroundColor: sliderColor }}
+                    >
+                        <MoreHorizontal 
+                            className="w-6 h-6 rotate-90"
+                            style={{ color: sliderIconColor }}
+                        />
+                    </div>
+                </div>
+            </div>
+        </Card>
+    );
+};
+
 
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
@@ -646,6 +744,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
         return <CarroselCanvasComponent component={component} />;
       case 'Cartesiano':
         return <CartesianoCanvasComponent component={component} />;
+      case 'Comparar':
+        return <CompararCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -1587,6 +1687,77 @@ const CartesianoSettings = ({ component, onUpdate }: { component: CanvasComponen
     )
 };
 
+const CompararSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+    return (
+        <div className='space-y-6'>
+            <Card className="p-4 bg-muted/20 border-border/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Conteúdo</h3>
+                <div className="space-y-3">
+                    <div>
+                        <UILabel htmlFor="beforeImageUrl" className='text-xs'>URL da Imagem Antes</UILabel>
+                        <Input
+                            id="beforeImageUrl"
+                            value={component.props.beforeImageUrl || ''}
+                            onChange={(e) => onUpdate({ ...component.props, beforeImageUrl: e.target.value })}
+                            className="mt-1"
+                            placeholder="https://..."
+                        />
+                    </div>
+                    <div>
+                        <UILabel htmlFor="afterImageUrl" className='text-xs'>URL da Imagem Depois</UILabel>
+                        <Input
+                            id="afterImageUrl"
+                            value={component.props.afterImageUrl || ''}
+                            onChange={(e) => onUpdate({ ...component.props, afterImageUrl: e.target.value })}
+                            className="mt-1"
+                            placeholder="https://..."
+                        />
+                    </div>
+                </div>
+            </Card>
+            <Card className="p-4 bg-muted/20 border-border/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
+                <div className="space-y-4">
+                    <div>
+                        <UILabel htmlFor="sliderPosition" className='text-xs'>Posição Inicial do Slider (%)</UILabel>
+                        <Slider
+                            id="sliderPosition"
+                            min={0}
+                            max={100}
+                            step={1}
+                            value={[component.props.sliderPosition || 50]}
+                            onValueChange={(value) => onUpdate({ ...component.props, sliderPosition: value[0] })}
+                            className="mt-2"
+                        />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                         <div className='space-y-1'>
+                            <UILabel htmlFor='sliderColor' className='text-xs'>Cor da Barra</UILabel>
+                            <Input 
+                              type='color' 
+                              id='sliderColor' 
+                              className='p-1 h-8 w-full' 
+                              value={component.props.sliderColor || '#FFFFFF'} 
+                              onChange={(e) => onUpdate({ ...component.props, sliderColor: e.target.value })} 
+                            />
+                        </div>
+                        <div className='space-y-1'>
+                            <UILabel htmlFor='sliderIconColor' className='text-xs'>Cor do Ícone</UILabel>
+                            <Input 
+                              type='color' 
+                              id='sliderIconColor' 
+                              className='p-1 h-8 w-full' 
+                              value={component.props.sliderIconColor || '#000000'} 
+                              onChange={(e) => onUpdate({ ...component.props, sliderIconColor: e.target.value })} 
+                            />
+                        </div>
+                    </div>
+                </div>
+            </Card>
+        </div>
+    );
+};
+
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
@@ -1611,6 +1782,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <CarroselSettings component={component} onUpdate={handleUpdate} />;
         case 'Cartesiano':
             return <CartesianoSettings component={component} onUpdate={handleUpdate} />;
+        case 'Comparar':
+            return <CompararSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -1719,6 +1892,16 @@ function FunnelEditorContent() {
         showArea: true,
         showGrid: true,
       };
+    }
+
+    if (component.name === 'Comparar') {
+        defaultProps = {
+            beforeImageUrl: 'https://picsum.photos/seed/before/600/400',
+            afterImageUrl: 'https://picsum.photos/seed/after/600/400',
+            sliderColor: '#FFFFFF',
+            sliderIconColor: '#000000',
+            sliderPosition: 50,
+        };
     }
 
 
@@ -1887,6 +2070,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
