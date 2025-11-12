@@ -25,7 +25,9 @@ export function Footer() {
                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">Pronto para lançar seu negócio digital?</h2>
                  <p className="mt-4 text-muted-foreground">Crie sua conta gratuita agora e comece a construir seu futuro.</p>
                  <div className="mt-6">
-                    <Button size="lg" className="shadow-lg shadow-primary/20">Começar Agora</Button>
+                    <Button size="lg" className="shadow-lg shadow-primary/20" asChild>
+                      <Link href="/signup">Começar Agora</Link>
+                    </Button>
                  </div>
             </div>
             <div className="space-y-4 rounded-lg bg-muted/50 p-6">

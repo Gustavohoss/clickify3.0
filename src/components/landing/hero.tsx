@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
@@ -24,8 +25,8 @@ export function Hero() {
               Crie seu produto, monte seu funil e construa sua presença online em minutos.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center md:justify-start">
-              <Button size="lg" className="shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
-                Começar Agora
+              <Button size="lg" className="shadow-lg shadow-primary/20 hover:scale-105 transition-transform" asChild>
+                <Link href="/signup">Começar Agora</Link>
               </Button>
               <Button size="lg" variant="ghost">
                 Testar Grátis

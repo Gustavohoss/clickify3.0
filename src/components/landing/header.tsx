@@ -71,7 +71,9 @@ export function Header() {
 
         <div className="hidden items-center gap-2 md:flex">
           <ThemeToggleButton />
-          <Button>Começar Agora</Button>
+          <Button asChild>
+            <Link href="/signup">Começar Agora</Link>
+          </Button>
         </div>
 
         <div className="md:hidden">
@@ -96,7 +98,9 @@ export function Header() {
               </Link>
             ))}
             <div className="flex w-full flex-col gap-2">
-              <Button className="w-full">Começar Agora</Button>
+              <Button asChild className="w-full">
+                <Link href="/signup">Começar Agora</Link>
+              </Button>
               <div className="mx-auto">
                 <ThemeToggleButton />
               </div>
