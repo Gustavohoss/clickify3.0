@@ -1,9 +1,9 @@
+// This is a client component because we need to check for auth state.
+'use client';
+
 import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-
-// This is a client component because we need to check for auth state.
-'use client';
 
 export default function EditorLayout({
   children,
