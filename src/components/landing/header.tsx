@@ -29,6 +29,19 @@ export function Header() {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    const targetId = href.replace(/.*#/, "");
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: "smooth" });
+    }
+    if (isMenuOpen) {
+      setIsMenuOpen(false);
+    }
+  };
+
+
   return (
     <header
       className={cn(
@@ -48,6 +61,7 @@ export function Header() {
             <Link
               key={link.href}
               href={link.href}
+              onClick={(e) => handleLinkClick(e, link.href)}
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               {link.label}
@@ -76,7 +90,7 @@ export function Header() {
                 key={link.href}
                 href={link.href}
                 className="text-lg font-medium text-foreground"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={(e) => handleLinkClick(e, link.href)}
               >
                 {link.label}
               </Link>
