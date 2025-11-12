@@ -71,6 +71,14 @@ type ComponentType = {
 
 type AlertModel = 'success' | 'error' | 'warning' | 'info';
 
+const modelColors: Record<AlertModel, { backgroundColor: string; textColor: string; borderColor: string }> = {
+    success: { backgroundColor: '#D1FAE5', textColor: '#065F46', borderColor: '#10B981' },
+    error: { backgroundColor: '#FEE2E2', textColor: '#991B1B', borderColor: '#EF4444' },
+    warning: { backgroundColor: '#FEF3C7', textColor: '#92400E', borderColor: '#F59E0B' },
+    info: { backgroundColor: '#DBEAFE', textColor: '#1E40AF', borderColor: '#3B82F6' },
+};
+
+
 type ComponentProps = {
   // Common properties for all components
   [key: string]: any; 
@@ -126,20 +134,10 @@ const GenericCanvasComponent = ({ component }: { component: CanvasComponentData 
 };
 
 const AlertCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
-    const { title, description, model, backgroundColor, textColor, borderColor } = component.props;
-
-    const modelClasses = {
-        success: 'border-green-500 text-green-500 [&>svg]:text-green-500',
-        error: 'border-red-500 text-red-500 [&>svg]:text-red-500',
-        warning: 'border-yellow-500 text-yellow-500 [&>svg]:text-yellow-500',
-        info: 'border-blue-500 text-blue-500 [&>svg]:text-blue-500',
-    };
-
-    const hasCustomColors = backgroundColor || textColor || borderColor;
+    const { title, description, backgroundColor, textColor, borderColor } = component.props;
 
     return (
         <Alert 
-            className={cn(!hasCustomColors && model && modelClasses[model])}
             style={{
                 backgroundColor: backgroundColor,
                 color: textColor,
@@ -147,8 +145,8 @@ const AlertCanvasComponent = ({ component }: { component: CanvasComponentData })
             }}
         >
             <Check className="h-4 w-4" style={{ color: textColor }} />
-            <AlertTitle>{title || 'Título do Alerta'}</AlertTitle>
-            <AlertDescription>
+            <AlertTitle style={{ color: textColor }}>{title || 'Título do Alerta'}</AlertTitle>
+            <AlertDescription style={{ color: textColor }}>
                 {description || 'Esta é a descrição do alerta.'}
             </AlertDescription>
         </Alert>
@@ -203,6 +201,12 @@ const StepSettings = () => (
 );
 
 const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+
+  const handleModelChange = (model: AlertModel) => {
+    const colors = modelColors[model];
+    onUpdate({ ...component.props, model, ...colors });
+  };
+    
   return (
     <div className='space-y-6'>
        <Card className="p-4 bg-muted/20 border-border/50">
@@ -235,7 +239,7 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
             <Label htmlFor="model" className='text-xs'>Modelo</Label>
             <Select
               value={component.props.model || 'success'}
-              onValueChange={(value: AlertModel) => onUpdate({ ...component.props, model: value })}
+              onValueChange={(value: AlertModel) => handleModelChange(value)}
             >
               <SelectTrigger id="model" className="mt-1">
                 <SelectValue placeholder="Selecione o modelo" />
@@ -259,7 +263,7 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
                     type='color' 
                     id='color' 
                     className='p-1 h-8' 
-                    value={component.props.backgroundColor || '#000000'}
+                    value={component.props.backgroundColor || '#ffffff'}
                     onChange={(e) => onUpdate({ ...component.props, backgroundColor: e.target.value })}
                 />
             </div>
@@ -269,7 +273,7 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
                     type='color' 
                     id='text-color' 
                     className='p-1 h-8'
-                    value={component.props.textColor || '#ffffff'}
+                    value={component.props.textColor || '#000000'}
                     onChange={(e) => onUpdate({ ...component.props, textColor: e.target.value })}
                 />
             </div>
@@ -324,13 +328,12 @@ function FunnelEditorContent() {
   const addComponentToCanvas = (component: ComponentType) => {
     let defaultProps: ComponentProps = {};
     if (component.name === 'Alerta') {
+      const model: AlertModel = 'success';
       defaultProps = {
         title: 'Sucesso!',
         description: 'Seu item foi salvo com sucesso.',
-        model: 'success',
-        backgroundColor: '#D1FAE5',
-        textColor: '#065F46',
-        borderColor: '#10B981'
+        model: model,
+        ...modelColors[model]
       };
     }
     const newComponent: CanvasComponentData = { 
