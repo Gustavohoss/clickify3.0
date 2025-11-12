@@ -372,7 +372,9 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="list">Em Lista</SelectItem>
-                  <SelectItem value="carousel">Carrossel</SelectItem>
+                  <SelectItem value="2-cols">2 Colunas</SelectItem>
+                  <SelectItem value="3-cols">3 Colunas</SelectItem>
+                  <SelectItem value="4-cols">4 Colunas</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -611,3 +613,5 @@ export default function EditorPage() {
         </Suspense>
     )
 }
+
+    
