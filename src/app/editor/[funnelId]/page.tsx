@@ -5,6 +5,17 @@
 import React, { Suspense, useState, ReactNode, useRef, useEffect } from 'react';
 import ReactPlayer from 'react-player';
 import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceDot,
+  Label,
+} from 'recharts';
+import {
   AlertTriangle,
   Plus,
   ArrowLeft,
@@ -72,7 +83,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Label as UILabel } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
@@ -135,6 +146,11 @@ type CarouselItemData = {
     caption: string;
 };
 
+type CartesianChartDataPoint = {
+    name: string;
+    value: number;
+};
+
 
 type ComponentProps = {
   // Common properties for all components
@@ -181,6 +197,14 @@ type ComponentProps = {
   arrowColor?: string;
   arrowTextColor?: string;
   arrowBorderColor?: string;
+  // Specific properties for Cartesiano
+  chartData?: CartesianChartDataPoint[];
+  userPosition?: CartesianChartDataPoint;
+  goalPosition?: CartesianChartDataPoint;
+  userLabel?: string;
+  goalLabel?: string;
+  gradientStartColor?: string;
+  gradientEndColor?: string;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -524,6 +548,99 @@ const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData
   );
 };
 
+const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const {
+    chartData = [],
+    userPosition,
+    goalPosition,
+    userLabel = 'Você',
+    goalLabel = 'Objetivo',
+    gradientStartColor = '#16A34A',
+    gradientEndColor = '#EF4444',
+  } = component.props;
+
+  if (chartData.length === 0) {
+    return (
+      <Card className="p-6 text-center border-dashed">
+        <div className="flex justify-center mb-4">
+          <WavingHandIcon />
+        </div>
+        <h3 className="font-bold text-lg">Gráfico Cartesiano</h3>
+        <p className="text-muted-foreground mt-1">Adicione pontos de dados para começar.</p>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="p-4">
+        <h3 className="font-bold text-lg mb-4">Cartesiano</h3>
+        <ResponsiveContainer width="100%" height={200}>
+            <AreaChart
+                data={chartData}
+                margin={{
+                    top: 5,
+                    right: 20,
+                    left: -20,
+                    bottom: 5,
+                }}
+            >
+                <defs>
+                    <linearGradient id="colorUv" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="5%" stopColor={gradientStartColor} stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor={gradientEndColor} stopOpacity={0.8}/>
+                    </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip 
+                    contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        borderColor: 'hsl(var(--border))'
+                    }}
+                />
+                <Area type="monotone" dataKey="value" stroke="#8884d8" fill="url(#colorUv)" strokeWidth={2} />
+                
+                {userPosition && (
+                    <ReferenceDot x={userPosition.name} y={userPosition.value} r={5} fill="hsl(var(--background))" stroke="hsl(var(--foreground))" strokeWidth={2}>
+                        <Label
+                            value={userLabel}
+                            position="top"
+                            offset={-15}
+                            style={{
+                                fill: 'hsl(var(--background))',
+                                backgroundColor: 'hsl(var(--foreground))',
+                                padding: '4px 8px',
+                                borderRadius: 'var(--radius)',
+                                fontSize: 12,
+                            }}
+                        />
+                    </ReferenceDot>
+                )}
+                 {goalPosition && (
+                    <ReferenceDot x={goalPosition.name} y={goalPosition.value} r={6} fill="white" stroke="transparent" strokeWidth={2}>
+                       <Label
+                            value={goalLabel}
+                            position="top"
+                            offset={-15}
+                            style={{
+                                fill: 'hsl(var(--foreground))',
+                                backgroundColor: 'hsl(var(--card))',
+                                padding: '2px 6px',
+                                borderRadius: 'var(--radius)',
+                                fontSize: 12,
+                                border: '1px solid hsl(var(--border))'
+                            }}
+                        />
+                    </ReferenceDot>
+                )}
+            </AreaChart>
+        </ResponsiveContainer>
+    </Card>
+  );
+};
+
+
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
   const renderComponent = () => {
@@ -540,6 +657,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
         return <CarregandoCanvasComponent component={component} />;
       case 'Carrosel':
         return <CarroselCanvasComponent component={component} />;
+      case 'Cartesiano':
+        return <CartesianoCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -583,15 +702,15 @@ const StepSettings = () => (
             <h3 className="text-sm font-medium text-muted-foreground">Header</h3>
             <div className="mt-4 space-y-3">
                 <div className="flex items-center justify-between">
-                    <Label htmlFor="show-logo">Mostrar Logo</Label>
+                    <UILabel htmlFor="show-logo">Mostrar Logo</UILabel>
                     <Switch id="show-logo" defaultChecked />
                 </div>
                 <div className="flex items-center justify-between">
-                    <Label htmlFor="show-progress">Mostrar Progresso</Label>
+                    <UILabel htmlFor="show-progress">Mostrar Progresso</UILabel>
                     <Switch id="show-progress" defaultChecked />
                 </div>
                 <div className="flex items-center justify-between">
-                    <Label htmlFor="allow-back">Permitir Voltar</Label>
+                    <UILabel htmlFor="allow-back">Permitir Voltar</UILabel>
                     <Switch id="allow-back" defaultChecked />
                 </div>
             </div>
@@ -619,7 +738,7 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Informações</h3>
         <div className="space-y-3">
             <div>
-              <Label htmlFor="title" className='text-xs'>Título</Label>
+              <UILabel htmlFor="title" className='text-xs'>Título</UILabel>
               <Input
                 id="title"
                 value={component.props.title || ''}
@@ -628,7 +747,7 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
               />
             </div>
             <div>
-              <Label htmlFor="description" className='text-xs'>Descrição</Label>
+              <UILabel htmlFor="description" className='text-xs'>Descrição</UILabel>
               <Textarea
                 id="description"
                 value={component.props.description || ''}
@@ -642,7 +761,7 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
       <Card className="p-4 bg-muted/20 border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Estilo</h3>
          <div>
-            <Label htmlFor="model" className='text-xs'>Modelo</Label>
+            <UILabel htmlFor="model" className='text-xs'>Modelo</UILabel>
             <Select
               value={component.props.model || 'success'}
               onValueChange={(value: AlertModel) => handleModelChange(value)}
@@ -664,7 +783,7 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
         <div className="grid grid-cols-3 gap-4">
             <div className='space-y-1'>
-                <Label htmlFor='color' className='text-xs'>Cor</Label>
+                <UILabel htmlFor='color' className='text-xs'>Cor</UILabel>
                 <div className="relative">
                     <Input 
                         type='color' 
@@ -677,7 +796,7 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
                 </div>
             </div>
             <div className='space-y-1'>
-                <Label htmlFor='text-color' className='text-xs'>Texto</Label>
+                <UILabel htmlFor='text-color' className='text-xs'>Texto</UILabel>
                  <div className="relative">
                     <Input 
                         type='color' 
@@ -690,7 +809,7 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
                 </div>
             </div>
             <div className='space-y-1'>
-                <Label htmlFor='border-color' className='text-xs'>Borda</Label>
+                <UILabel htmlFor='border-color' className='text-xs'>Borda</UILabel>
                  <div className="relative">
                     <Input 
                         type='color' 
@@ -716,7 +835,7 @@ const AudioSettings = ({ component, onUpdate }: { component: CanvasComponentData
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Conteúdo</h3>
         <div className="space-y-3">
             <div>
-              <Label htmlFor="sendTime" className='text-xs'>Horário de Envio</Label>
+              <UILabel htmlFor="sendTime" className='text-xs'>Horário de Envio</UILabel>
               <Input
                 id="sendTime"
                 type="time"
@@ -726,7 +845,7 @@ const AudioSettings = ({ component, onUpdate }: { component: CanvasComponentData
               />
             </div>
             <div>
-              <Label htmlFor="audioUrl" className='text-xs'>URL do Áudio</Label>
+              <UILabel htmlFor="audioUrl" className='text-xs'>URL do Áudio</UILabel>
               <Input
                 id="audioUrl"
                 value={component.props.audioUrl || ''}
@@ -736,7 +855,7 @@ const AudioSettings = ({ component, onUpdate }: { component: CanvasComponentData
               />
             </div>
             <div>
-              <Label htmlFor="avatarUrl" className='text-xs'>URL do Avatar</Label>
+              <UILabel htmlFor="avatarUrl" className='text-xs'>URL do Avatar</UILabel>
               <Input
                 id="avatarUrl"
                 value={component.props.avatarUrl || ''}
@@ -752,7 +871,7 @@ const AudioSettings = ({ component, onUpdate }: { component: CanvasComponentData
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Configurações</h3>
          <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <Label htmlFor="showAvatar">Mostrar Avatar</Label>
+                <UILabel htmlFor="showAvatar">Mostrar Avatar</UILabel>
                 <Switch 
                     id="showAvatar"
                     checked={component.props.showAvatar}
@@ -760,7 +879,7 @@ const AudioSettings = ({ component, onUpdate }: { component: CanvasComponentData
                 />
             </div>
             <div className="flex items-center justify-between">
-                <Label htmlFor="autoplay">Autoplay</Label>
+                <UILabel htmlFor="autoplay">Autoplay</UILabel>
                 <Switch 
                     id="autoplay"
                     checked={component.props.autoplay}
@@ -774,15 +893,15 @@ const AudioSettings = ({ component, onUpdate }: { component: CanvasComponentData
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
         <div className="grid grid-cols-3 gap-4">
             <div className='space-y-1'>
-                <Label htmlFor='bg-color' className='text-xs'>Fundo</Label>
+                <UILabel htmlFor='bg-color' className='text-xs'>Fundo</UILabel>
                 <Input type='color' id='bg-color' className='p-1 h-8 w-full' value={component.props.bgColor || '#005C4B'} onChange={(e) => onUpdate({ ...component.props, bgColor: e.target.value })} />
             </div>
             <div className='space-y-1'>
-                <Label htmlFor='progress-color' className='text-xs'>Progresso</Label>
+                <UILabel htmlFor='progress-color' className='text-xs'>Progresso</UILabel>
                 <Input type='color' id='progress-color' className='p-1 h-8 w-full' value={component.props.progressColor || '#00A884'} onChange={(e) => onUpdate({ ...component.props, progressColor: e.target.value })} />
             </div>
             <div className='space-y-1'>
-                <Label htmlFor='icon-color' className='text-xs'>Ícones</Label>
+                <UILabel htmlFor='icon-color' className='text-xs'>Ícones</UILabel>
                 <Input type='color' id='icon-color' className='p-1 h-8 w-full' value={component.props.iconColor || '#8696A0'} onChange={(e) => onUpdate({ ...component.props, iconColor: e.target.value })} />
             </div>
         </div>
@@ -890,7 +1009,7 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
        <Card className="p-4 bg-muted/20 border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Layout</h3>
         <div>
-            <Label htmlFor="layout" className='text-xs'>Layout</Label>
+            <UILabel htmlFor="layout" className='text-xs'>Layout</UILabel>
             <Select
               value={component.props.layout || 'list'}
               onValueChange={(value) => onUpdate({ ...component.props, layout: value })}
@@ -1026,7 +1145,7 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Conteúdo</h3>
         <div className="space-y-3">
             <div>
-              <Label htmlFor="text" className='text-xs'>Texto do Botão</Label>
+              <UILabel htmlFor="text" className='text-xs'>Texto do Botão</UILabel>
               <Input
                 id="text"
                 value={component.props.text || ''}
@@ -1035,7 +1154,7 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
               />
             </div>
             <div>
-              <Label htmlFor="action" className='text-xs'>Ação</Label>
+              <UILabel htmlFor="action" className='text-xs'>Ação</UILabel>
               <Select
                 value={component.props.action || 'next_step'}
                 onValueChange={(value: 'next_step' | 'open_url') => onUpdate({ ...component.props, action: value })}
@@ -1051,7 +1170,7 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
             </div>
             {component.props.action === 'open_url' && (
               <div>
-                <Label htmlFor="url" className='text-xs'>URL</Label>
+                <UILabel htmlFor="url" className='text-xs'>URL</UILabel>
                 <Input
                   id="url"
                   value={component.props.url || ''}
@@ -1068,7 +1187,7 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Estilo</h3>
          <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <Label htmlFor="fullWidth">Largura Total</Label>
+                <UILabel htmlFor="fullWidth">Largura Total</UILabel>
                 <Switch 
                     id="fullWidth"
                     checked={component.props.fullWidth}
@@ -1076,7 +1195,7 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
                 />
             </div>
             <div>
-              <Label htmlFor="variant" className='text-xs'>Modelo</Label>
+              <UILabel htmlFor="variant" className='text-xs'>Modelo</UILabel>
               <Select
                 value={component.props.variant || 'default'}
                 onValueChange={(value: 'default' | 'destructive' | 'outline' | 'ghost' | 'link' | 'secondary') => onUpdate({ ...component.props, variant: value })}
@@ -1101,7 +1220,7 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
         <div className="grid grid-cols-2 gap-4">
             <div className='space-y-1'>
-                <Label htmlFor='bg-color' className='text-xs'>Cor do Fundo</Label>
+                <UILabel htmlFor='bg-color' className='text-xs'>Cor do Fundo</UILabel>
                 <Input 
                   type='color' 
                   id='bg-color' 
@@ -1111,7 +1230,7 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
                 />
             </div>
             <div className='space-y-1'>
-                <Label htmlFor='text-color' className='text-xs'>Cor do Texto</Label>
+                <UILabel htmlFor='text-color' className='text-xs'>Cor do Texto</UILabel>
                 <Input 
                   type='color' 
                   id='text-color' 
@@ -1133,7 +1252,7 @@ const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponen
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Progresso</h3>
         <div className="space-y-3">
           <div>
-            <Label htmlFor="duration" className='text-xs'>Duração</Label>
+            <UILabel htmlFor="duration" className='text-xs'>Duração</UILabel>
             <Input
               id="duration"
               type="number"
@@ -1143,7 +1262,7 @@ const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponen
             />
           </div>
           <div>
-            <Label htmlFor="limit" className='text-xs'>Limite</Label>
+            <UILabel htmlFor="limit" className='text-xs'>Limite</UILabel>
             <Input
               id="limit"
               type="number"
@@ -1153,7 +1272,7 @@ const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponen
             />
           </div>
           <div>
-            <Label htmlFor="action" className='text-xs'>Ação</Label>
+            <UILabel htmlFor="action" className='text-xs'>Ação</UILabel>
             <Select
               value={component.props.action || 'next_step'}
               onValueChange={(value: 'next_step' | 'open_url') => onUpdate({ ...component.props, action: value })}
@@ -1174,7 +1293,7 @@ const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponen
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Estilo</h3>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="loadingText" className='text-xs'>Título</Label>
+            <UILabel htmlFor="loadingText" className='text-xs'>Título</UILabel>
             <Input
               id="loadingText"
               value={component.props.loadingText || ''}
@@ -1183,7 +1302,7 @@ const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponen
             />
           </div>
           <div>
-            <Label htmlFor="loadingDescription" className='text-xs'>Descrição</Label>
+            <UILabel htmlFor="loadingDescription" className='text-xs'>Descrição</UILabel>
             <Input
               id="loadingDescription"
               value={component.props.loadingDescription || ''}
@@ -1192,7 +1311,7 @@ const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponen
             />
           </div>
           <div className="flex items-center justify-between">
-              <Label htmlFor="showTitle">Mostrar Título</Label>
+              <UILabel htmlFor="showTitle">Mostrar Título</UILabel>
               <Switch 
                   id="showTitle"
                   checked={component.props.showTitle}
@@ -1200,7 +1319,7 @@ const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponen
               />
           </div>
           <div className="flex items-center justify-between">
-              <Label htmlFor="showProgress">Mostrar Progresso</Label>
+              <UILabel htmlFor="showProgress">Mostrar Progresso</UILabel>
               <Switch 
                   id="showProgress"
                   checked={component.props.showProgress}
@@ -1255,7 +1374,7 @@ const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentD
                 </Button>
                 <div className="space-y-2">
                   <div>
-                    <Label htmlFor={`imageUrl-${slide.id}`} className='text-xs'>URL da Imagem</Label>
+                    <UILabel htmlFor={`imageUrl-${slide.id}`} className='text-xs'>URL da Imagem</UILabel>
                     <Input
                       id={`imageUrl-${slide.id}`}
                       value={slide.imageUrl}
@@ -1264,7 +1383,7 @@ const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentD
                     />
                   </div>
                   <div>
-                    <Label htmlFor={`caption-${slide.id}`} className='text-xs'>Legenda</Label>
+                    <UILabel htmlFor={`caption-${slide.id}`} className='text-xs'>Legenda</UILabel>
                     <Input
                       id={`caption-${slide.id}`}
                       value={slide.caption}
@@ -1287,7 +1406,7 @@ const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentD
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Interação</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <Label htmlFor="loop">Loop</Label>
+            <UILabel htmlFor="loop">Loop</UILabel>
             <Switch
               id="loop"
               checked={component.props.loop}
@@ -1295,7 +1414,7 @@ const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentD
             />
           </div>
           <div className="flex items-center justify-between">
-            <Label htmlFor="autoplayCarousel">Autoplay</Label>
+            <UILabel htmlFor="autoplayCarousel">Autoplay</UILabel>
             <Switch
               id="autoplayCarousel"
               checked={component.props.autoplayCarousel}
@@ -1303,7 +1422,7 @@ const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentD
             />
           </div>
           <div className="flex items-center justify-between">
-            <Label htmlFor="showPagination">Paginação</Label>
+            <UILabel htmlFor="showPagination">Paginação</UILabel>
             <Switch
               id="showPagination"
               checked={component.props.showPagination}
@@ -1311,7 +1430,7 @@ const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentD
             />
           </div>
           <div>
-            <Label htmlFor="autoplayDelay" className='text-xs'>Delay do Autoplay</Label>
+            <UILabel htmlFor="autoplayDelay" className='text-xs'>Delay do Autoplay</UILabel>
             <Input
               id="autoplayDelay"
               type="number"
@@ -1327,21 +1446,124 @@ const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentD
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
         <div className="grid grid-cols-3 gap-4">
           <div className='space-y-1'>
-            <Label htmlFor='arrowColor' className='text-xs'>Cor</Label>
+            <UILabel htmlFor='arrowColor' className='text-xs'>Cor</UILabel>
             <Input type='color' id='arrowColor' className='p-1 h-8 w-full' value={component.props.arrowColor || '#000000'} onChange={(e) => onUpdate({ ...component.props, arrowColor: e.target.value })} />
           </div>
           <div className='space-y-1'>
-            <Label htmlFor='arrowTextColor' className='text-xs'>Texto</Label>
+            <UILabel htmlFor='arrowTextColor' className='text-xs'>Texto</UILabel>
             <Input type='color' id='arrowTextColor' className='p-1 h-8 w-full' value={component.props.arrowTextColor || '#ffffff'} onChange={(e) => onUpdate({ ...component.props, arrowTextColor: e.target.value })} />
           </div>
           <div className='space-y-1'>
-            <Label htmlFor='arrowBorderColor' className='text-xs'>Borda</Label>
+            <UILabel htmlFor='arrowBorderColor' className='text-xs'>Borda</UILabel>
             <Input type='color' id='arrowBorderColor' className='p-1 h-8 w-full' value={component.props.arrowBorderColor || '#000000'} onChange={(e) => onUpdate({ ...component.props, arrowBorderColor: e.target.value })} />
           </div>
         </div>
       </Card>
     </div>
   );
+};
+
+const CartesianoSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+    const data = component.props.chartData || [];
+
+    const handleUpdateDataPoint = (index: number, key: 'name' | 'value', value: string | number) => {
+        const newData = [...data];
+        newData[index] = { ...newData[index], [key]: value };
+        onUpdate({ ...component.props, chartData: newData });
+    };
+
+    const handleAddDataPoint = () => {
+        const newPoint = { name: `Ponto ${data.length + 1}`, value: Math.floor(Math.random() * 100) };
+        onUpdate({ ...component.props, chartData: [...data, newPoint] });
+    };
+
+    const handleDeleteDataPoint = (index: number) => {
+        const newData = data.filter((_, i) => i !== index);
+        onUpdate({ ...component.props, chartData: newData });
+    };
+    
+    return (
+        <div className='space-y-6'>
+             <Card className="p-4 bg-muted/20 border-border/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Pontos de Dados</h3>
+                <ScrollArea className="h-[20rem]">
+                    <div className="space-y-4 pr-4">
+                        {data.map((point, index) => (
+                            <Card key={index} className="p-3 bg-card space-y-3 relative">
+                                <div className="flex items-center gap-2">
+                                    <Input
+                                        value={point.name}
+                                        onChange={(e) => handleUpdateDataPoint(index, 'name', e.target.value)}
+                                        className="h-8"
+                                        placeholder="Rótulo (e.g., A)"
+                                    />
+                                    <Input
+                                        type="number"
+                                        value={point.value}
+                                        onChange={(e) => handleUpdateDataPoint(index, 'value', Number(e.target.value))}
+                                        className="h-8"
+                                        placeholder="Valor"
+                                    />
+                                     <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                                        onClick={() => handleDeleteDataPoint(index)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                </ScrollArea>
+                 <Button variant="outline" className="w-full mt-4" onClick={handleAddDataPoint}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Adicionar Ponto
+                </Button>
+            </Card>
+
+             <Card className="p-4 bg-muted/20 border-border/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Marcadores</h3>
+                <div className="space-y-3">
+                    <div>
+                      <UILabel className='text-xs'>Posição do Usuário (Eixo X)</UILabel>
+                      <Select
+                        value={component.props.userPosition?.name}
+                        onValueChange={(name) => {
+                           const point = data.find(p => p.name === name);
+                           if (point) onUpdate({ ...component.props, userPosition: point })
+                        }}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Selecione um ponto"/>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {data.map(p => <SelectItem key={p.name} value={p.name}>{p.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <UILabel className='text-xs'>Posição do Objetivo (Eixo X)</UILabel>
+                      <Select
+                         value={component.props.goalPosition?.name}
+                         onValueChange={(name) => {
+                           const point = data.find(p => p.name === name);
+                           if (point) onUpdate({ ...component.props, goalPosition: point })
+                        }}
+                      >
+                        <SelectTrigger className="mt-1">
+                           <SelectValue placeholder="Selecione um ponto"/>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {data.map(p => <SelectItem key={p.name} value={p.name}>{p.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                </div>
+            </Card>
+        </div>
+    )
 };
 
 
@@ -1366,6 +1588,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <CarregandoSettings component={component} onUpdate={handleUpdate} />;
         case 'Carrosel':
             return <CarroselSettings component={component} onUpdate={handleUpdate} />;
+        case 'Cartesiano':
+            return <CartesianoSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -1458,6 +1682,23 @@ function FunnelEditorContent() {
         arrowColor: '#FFFFFF',
         arrowTextColor: '#000000',
         arrowBorderColor: '#DDDDDD',
+      };
+    }
+
+    if (component.name === 'Cartesiano') {
+        const data = [
+            { name: 'A', value: 20 },
+            { name: 'B', value: 50 },
+            { name: 'C', value: 80 },
+        ];
+      defaultProps = {
+        chartData: data,
+        userPosition: data[1], // 'B'
+        goalPosition: data[2], // 'C'
+        userLabel: 'Você',
+        goalLabel: 'Objetivo',
+        gradientStartColor: '#16A34A',
+        gradientEndColor: '#EF4444',
       };
     }
 
@@ -1627,6 +1868,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
