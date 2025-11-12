@@ -287,6 +287,7 @@ const AudioCanvasComponent = ({ component }: { component: CanvasComponentData })
               max={duration || 100} 
               step={0.1} 
               onValueChange={handleSliderChange}
+              disabled={!isReady}
               className="w-full [&>span:first-child]:h-1 [&>span:first-child>span]:bg-transparent"
               style={{ '--slider-track': progressColor, '--slider-thumb': progressColor } as React.CSSProperties}
             />
@@ -629,7 +630,7 @@ const emojiCategories = {
 
 const colorPalette = [
     '#000000', '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3',
-    '#ffffff', '#ffb6c1', '#fffacd', '#f0f8ff', '#f5f5f5', '#d3d3d3',
+    '#ffffff', '#ffb6c1', '#fffacd', '#f0f8ff', '#f5f5f5', '#d3d3d3', '#add8e6',
     '#fa8072', '#ffdead', '#f0e68c', '#90ee90', '#dda0dd', '#c0c0c0', '#a9a9a9',
     '#800000', '#a52a2a', '#b8860b', '#006400', '#00008b', '#483d8b', '#808080', '#696969',
     '#400000', '#8b0000', '#808000', '#008000', '#000080', '#2f4f4f'
@@ -904,7 +905,7 @@ function FunnelEditorContent() {
 
     if (component.name === 'Audio') {
         defaultProps = {
-            audioUrl: '',
+            audioUrl: 'https://www.youtube.com/watch?v=OtL_2dOiIMY',
             avatarUrl: 'https://picsum.photos/seed/audio-avatar/40/40',
             showAvatar: true,
             autoplay: false,
@@ -1078,6 +1079,3 @@ export default function EditorPage() {
 }
 
     
-
-    
-
