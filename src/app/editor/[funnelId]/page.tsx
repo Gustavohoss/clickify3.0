@@ -5,6 +5,7 @@
 import React, { Suspense, useState, ReactNode, useRef, useEffect, useCallback } from 'react';
 import ReactPlayer from 'react-player';
 import confetti from "canvas-confetti";
+import type { Options as ConfettiOptions } from 'canvas-confetti';
 
 import {
   AreaChart,
@@ -220,6 +221,7 @@ type ComponentProps = {
   spread?: number;
   originX?: number;
   originY?: number;
+  fullscreen?: boolean;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -737,23 +739,49 @@ const ConfettiCanvasComponent = ({ component }: { component: CanvasComponentData
     particleCount = 200,
     spread = 70,
     originX = 0.5,
-    originY = 0.6
+    originY = 0.6,
+    fullscreen = false,
   } = component.props;
 
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [instance, setInstance] = useState<confetti.CreateTypes | null>(null);
+
+  useEffect(() => {
+    if (canvasRef.current && !fullscreen) {
+      setInstance(() => 
+        confetti.create(canvasRef.current!, {
+          resize: true,
+          useWorker: true,
+        })
+      );
+    } else {
+      setInstance(null);
+    }
+  }, [fullscreen]);
+  
   const fire = useCallback(() => {
-    confetti({
+    const options: ConfettiOptions = {
       particleCount,
       spread,
-      origin: { x: originX, y: originY }
-    });
-  }, [particleCount, spread, originX, originY]);
+      origin: { x: originX, y: originY },
+    };
+
+    if (instance && !fullscreen) {
+      instance(options);
+    } else if (fullscreen) {
+      confetti(options);
+    }
+  }, [instance, fullscreen, particleCount, spread, originX, originY]);
 
   useEffect(() => {
     fire();
   }, [fire]);
 
   return (
-    <Card className="p-4 flex items-center justify-center gap-4 bg-muted/20 border-dashed">
+    <Card className="p-4 flex items-center justify-center gap-4 bg-muted/20 border-dashed relative">
+      {!fullscreen && (
+        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+      )}
       <div className='text-primary'><Sparkles /></div>
       <p className="font-semibold">Efeito Confete</p>
       <Badge variant="outline">Invisível</Badge>
@@ -1802,6 +1830,14 @@ const ConfettiSettings = ({ component, onUpdate }: { component: CanvasComponentD
        <Card className="p-4 bg-muted/20 border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Configuração do Efeito</h3>
         <div className="space-y-4">
+             <div className="flex items-center justify-between">
+                <UILabel htmlFor="fullscreen">Preencher tela inteira?</UILabel>
+                <Switch 
+                    id="fullscreen"
+                    checked={component.props.fullscreen}
+                    onCheckedChange={(checked) => onUpdate({ ...component.props, fullscreen: checked })}
+                />
+            </div>
             <div>
               <UILabel htmlFor="particleCount" className='text-xs'>Quantidade de Partículas</UILabel>
               <Slider
@@ -1856,11 +1892,20 @@ const ConfettiSettings = ({ component, onUpdate }: { component: CanvasComponentD
               </div>
             </div>
              <Button className="w-full" variant="outline" onClick={() => {
-                confetti({
+                 const options: ConfettiOptions = {
                     particleCount: component.props.particleCount,
                     spread: component.props.spread,
                     origin: { x: component.props.originX, y: component.props.originY }
-                });
+                };
+                if (!component.props.fullscreen) {
+                    // This is a bit of a hack to re-trigger the effect for test
+                    // In a real app, you might find a better way to get the instance
+                    const tempCanvas = document.createElement('canvas');
+                    const instance = confetti.create(tempCanvas, { resize: true });
+                    instance(options);
+                } else {
+                    confetti(options);
+                }
              }}>
                 Testar Efeito
              </Button>
@@ -2024,6 +2069,7 @@ function FunnelEditorContent() {
             spread: 70,
             originX: 0.5,
             originY: 0.6,
+            fullscreen: false,
         };
     }
 
@@ -2193,6 +2239,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
