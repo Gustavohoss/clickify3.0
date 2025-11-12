@@ -25,11 +25,15 @@ import {
   Minus,
   HelpCircle,
   BarChart2,
-  Image as ImageIcon,
+  ImageIcon,
   List,
   Text,
   CheckSquare,
   ChevronsRight,
+  Quote,
+  TextCursorInput,
+  SlidersHorizontal,
+  Rows,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -52,15 +56,15 @@ const components = [
   { name: 'Cartesiano', icon: <TrendingUp /> },
   { name: 'Comparar', icon: <GitCompareArrows />, isNew: true },
   { name: 'Confetti', icon: <Sparkles />, isNew: true },
-  { name: 'Depoimentos', icon: <Star /> },
-  { name: 'Entrada', icon: <LogIn /> },
-  { name: 'Espaçador', icon: <Minus /> },
+  { name: 'Depoimentos', icon: <Quote /> },
+  { name: 'Entrada', icon: <TextCursorInput /> },
+  { name: 'Espaçador', icon: <Rows /> },
   { name: 'FAQ', icon: <HelpCircle />, isNew: true },
   { name: 'Gráficos', icon: <BarChart2 /> },
   { name: 'Imagem', icon: <ImageIcon /> },
   { name: 'Lista', icon: <List />, isNew: true },
   { name: 'Marquise', icon: <ChevronsRight />, isNew: true },
-  { name: 'Nível', icon: <TrendingUp /> },
+  { name: 'Nível', icon: <SlidersHorizontal /> },
   { name: 'Opções', icon: <CheckSquare /> },
 ];
 
