@@ -1,6 +1,7 @@
 
 'use client';
 
+import React, { Suspense, useState, ReactNode } from 'react';
 import {
   AlertTriangle,
   Plus,
@@ -53,7 +54,6 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useState, ReactNode } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import {
