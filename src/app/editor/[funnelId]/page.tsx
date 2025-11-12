@@ -54,7 +54,7 @@ import {
   Strikethrough,
   Heading2,
   Heading3,
-  Link,
+  Link as LinkIcon,
   ListOrdered,
   AlignLeft,
   AlignCenter,
@@ -62,7 +62,10 @@ import {
   AlignJustify,
   RemoveFormatting,
   Baseline,
-  Highlighter
+  Highlighter,
+  Play,
+  Mic,
+  CheckCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -88,6 +91,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Slider } from '@/components/ui/slider';
 
 
 type ComponentType = {
@@ -134,6 +139,14 @@ type ComponentProps = {
   layout?: 'list' | '2-cols' | '3-cols' | '4-cols';
   disposition?: string;
   items?: ArgumentItem[];
+  // Specific properties for Audio
+  audioUrl?: string;
+  avatarUrl?: string;
+  showAvatar?: boolean;
+  autoplay?: boolean;
+  progressColor?: string;
+  bgColor?: string;
+  iconColor?: string;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -182,6 +195,58 @@ const GenericCanvasComponent = ({ component }: { component: CanvasComponentData 
     </Card>
   );
 };
+
+const AudioCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const { 
+    avatarUrl = 'https://picsum.photos/seed/audio-avatar/40/40',
+    showAvatar = true,
+    bgColor = '#005C4B',
+    progressColor = '#00A884',
+    iconColor = '#8696A0'
+  } = component.props;
+
+  return (
+    <div 
+        className="w-full max-w-sm p-2 rounded-lg flex items-center gap-2"
+        style={{ backgroundColor: bgColor }}
+    >
+        {showAvatar && (
+            <div className="relative">
+                <Avatar className="h-10 w-10">
+                    <AvatarImage src={avatarUrl} alt="Avatar" />
+                    <AvatarFallback>A</AvatarFallback>
+                </Avatar>
+                <div 
+                    className="absolute bottom-[-2px] right-[-2px] rounded-full p-0.5"
+                    style={{ backgroundColor: bgColor }}
+                >
+                    <Mic className="h-3 w-3" style={{ color: progressColor }} />
+                </div>
+            </div>
+        )}
+        <Button variant="ghost" size="icon" className="h-10 w-10 flex-shrink-0">
+            <Play className="h-6 w-6" style={{ color: iconColor }} />
+        </Button>
+        <div className="flex-grow flex flex-col justify-center">
+            <Slider 
+              defaultValue={[30]} 
+              max={100} 
+              step={1} 
+              className="w-full [&>span:first-child]:h-1 [&>span:first-child>span]:bg-transparent"
+              style={{ '--slider-track': progressColor, '--slider-thumb': progressColor } as React.CSSProperties}
+            />
+             <div className="flex justify-between text-xs mt-1" style={{ color: iconColor }}>
+                <span>03:02</span>
+                <div className="flex items-center gap-1">
+                    <span>12:30</span>
+                    <CheckCheck className="h-4 w-4" style={{color: progressColor }} />
+                </div>
+            </div>
+        </div>
+    </div>
+  );
+};
+
 
 const ArgumentoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
   const layout = component.props.layout || 'list';
@@ -253,6 +318,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
         return <AlertCanvasComponent component={component} />;
       case 'Argumentos':
         return <ArgumentoCanvasComponent component={component} />;
+      case 'Audio':
+        return <AudioCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -422,9 +489,82 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
   )
 }
 
+const AudioSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  return (
+    <div className='space-y-6'>
+       <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Conteúdo</h3>
+        <div className="space-y-3">
+            <div>
+              <Label htmlFor="audioUrl" className='text-xs'>URL do Áudio</Label>
+              <Input
+                id="audioUrl"
+                value={component.props.audioUrl || ''}
+                onChange={(e) => onUpdate({ ...component.props, audioUrl: e.target.value })}
+                className="mt-1"
+                placeholder="https://..."
+              />
+            </div>
+            <div>
+              <Label htmlFor="avatarUrl" className='text-xs'>URL do Avatar</Label>
+              <Input
+                id="avatarUrl"
+                value={component.props.avatarUrl || ''}
+                onChange={(e) => onUpdate({ ...component.props, avatarUrl: e.target.value })}
+                className="mt-1"
+                placeholder="https://..."
+              />
+            </div>
+        </div>
+      </Card>
+      
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Configurações</h3>
+         <div className="space-y-4">
+            <div className="flex items-center justify-between">
+                <Label htmlFor="showAvatar">Mostrar Avatar</Label>
+                <Switch 
+                    id="showAvatar"
+                    checked={component.props.showAvatar}
+                    onCheckedChange={(checked) => onUpdate({ ...component.props, showAvatar: checked })}
+                />
+            </div>
+            <div className="flex items-center justify-between">
+                <Label htmlFor="autoplay">Autoplay</Label>
+                <Switch 
+                    id="autoplay"
+                    checked={component.props.autoplay}
+                    onCheckedChange={(checked) => onUpdate({ ...component.props, autoplay: checked })}
+                />
+            </div>
+        </div>
+      </Card>
+
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
+        <div className="grid grid-cols-3 gap-4">
+            <div className='space-y-1'>
+                <Label htmlFor='bg-color' className='text-xs'>Fundo</Label>
+                <Input type='color' id='bg-color' className='p-1 h-8 w-full' value={component.props.bgColor || '#005C4B'} onChange={(e) => onUpdate({ ...component.props, bgColor: e.target.value })} />
+            </div>
+            <div className='space-y-1'>
+                <Label htmlFor='progress-color' className='text-xs'>Progresso</Label>
+                <Input type='color' id='progress-color' className='p-1 h-8 w-full' value={component.props.progressColor || '#00A884'} onChange={(e) => onUpdate({ ...component.props, progressColor: e.target.value })} />
+            </div>
+            <div className='space-y-1'>
+                <Label htmlFor='icon-color' className='text-xs'>Ícones</Label>
+                <Input type='color' id='icon-color' className='p-1 h-8 w-full' value={component.props.iconColor || '#8696A0'} onChange={(e) => onUpdate({ ...component.props, iconColor: e.target.value })} />
+            </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+
 const emojiCategories = {
     'Smileys & People': ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾', '👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '🖕', '👇', '☝️', '👍', '👎', '✊', '👊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️', '💅', '🤳', '💪', '🦾', '🦵', '🦿', '🦶', '👂', '🦻', '👃', '🧠', '🦷', '🦴', '👀', '👁️', '👅', '👄'],
-    'Animals & Nature': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐽', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦟', '🦗', '🕷️', '🕸️', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🦧', '🐘', '🦛', '🦏', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🦙', '🐐', '🦌', '🐕', '🐩', '🦮', '🐕‍🦺', '🐈', '🐓', '🦃', '🦚', '🦜', '🦢', '🦩', '🕊️', '🐇', '🦝', '🦨', '🦡', '🦦', '🦥', '🐁', '🐀', '🐿️', '🦔', '🐾', '🐉', '🐲', '🌵', '🎄', '🌲', '🌳', '🌴', '🌱', '🌿', '☘️', '🍀', '🎍', '🎋', '🍃', '🍂', '🍁', '🍄', '🐚', '🌾', '💐', '🌷', '🌹', '🥀', '🌺', '🌸', '🌼', '🌻', '🌞', '🌝', '🌛', '🌜', '🌚', '🌕', '🌖', '🌗', '🌘', '🌑', '🌒', '🌓', '🌔', '🌙', '🌎', '🌍', '🌏', '💫', '⭐️', '🌟', '✨', '⚡️', '☄️', '💥', '🔥', '🌪️', '🌈', '☀️', '🌤️', '⛅️', '🌥️', '☁️', '🌦️', '🌧️', '⛈️', '🌩️', '🌨️', '❄️', '☃️', '⛄️', '🌬️', '💨', '💧', '💦', '☔️', '☂️', '🌊', '🌫️'],
+    'Animals & Nature': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐽', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦟', '🦗', '🕷️', '🕸️', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🦧', '🐘', '🦛', '🦏', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🦙', '🐐', '🦌', '🐕', '🐩', '🦮', '🐕‍', '🐈', '🐓', '🦃', '🦚', '🦜', '🦢', '🦩', '🕊️', '🐇', '🦝', '🦨', '🦡', '🦦', '🦥', '🐁', '🐀', '🐿️', '🦔', '🐾', '🐉', '🐲', '🌵', '🎄', '🌲', '🌳', '🌴', '🌱', '🌿', '☘️', '🍀', '🎍', '🎋', '🍃', '🍂', '🍁', '🍄', '🐚', '🌾', '💐', '🌷', '🌹', '🥀', '🌺', '🌸', '🌼', '🌻', '🌞', '🌝', '🌛', '🌜', '🌚', '🌕', '🌖', '🌗', '🌘', '🌑', '🌒', '🌓', '🌔', '🌙', '🌎', '🌍', '🌏', '💫', '⭐️', '🌟', '✨', '⚡️', '☄️', '💥', '🔥', '🌪️', '🌈', '☀️', '🌤️', '⛅️', '🌥️', '☁️', '🌦️', '🌧️', '⛈️', '🌩️', '🌨️', '❄️', '☃️', '⛄️', '🌬️', '💨', '💧', '💦', '☔️', '☂️', '🌊', '🌫️'],
     'Food & Drink': ['🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕', '🧄', '🧅', '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🧈', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🦴', '핫도그', '🍔', '🍟', '🍕', '🥪', '🥙', '🧆', '🌮', '🌯', '🥗', '🥘', '🥫', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🍤', '🍙', '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🌰', '🥜', '🍯', '🥛', '🍼', '☕️', '🍵', '🧃', '🥤', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🧉', '🍾', '🧊', '🥄', '🍴', '🍽️', '🥣', '🥡', '🥢', '🧂'],
     'Activities': ['⚽️', '🏀', '🏈', '⚾️', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🪀', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '🥅', '⛳️', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️‍♀️', '🏋️‍♂️', '🤼‍♀️', '🤼‍♂️', '🤸‍♀️', '🤸‍♂️', '🤺', '🤾‍♀️', '🤾‍♂️', '🏌️‍♀️', '🏌️‍♂️', '🏇', '🧘‍♀️', '🧘‍♂️', '🏄‍♀️', '🏄‍♂️', '🏊‍♀️', '🏊‍♂️', '🤽‍♀️', '🤽‍♂️', '🚣‍♀️', '🚣‍♂️', '🧗‍♀️', '🧗‍♂️', '🚵‍♀️', '🚵‍♂️', '🚴‍♀️', '🚴‍♂️', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫', '🎟️', '🎪', '🤹‍♀️', '🤹‍♂️', '🎭', '🩰', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🪕', '🎻', '🎲', '♟️', '🎯', '🎳', '🎮', '🎰', '🧩'],
     'Travel & Places': ['🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜', '🛴', '🚲', '🛵', '🏍️', '🛺', '🚨', '🚔', '🚍', '🚘', '🚖', '🚡', '🚠', '🚟', '🚃', '🚋', '🚞', '🚝', '🚄', '🚅', '🚈', '🚂', '🚆', '🚇', '🚊', '🚉', '✈️', '🛫', '🛬', '💺', '🚀', '🛸', '🚁', '🛶', '⛵️', '🚤', '🛥️', '🛳️', '⛴️', '🚢', '⚓️', '⛽️', '🚧', '🚦', '🚥', '🗺️', '🗿', '🗽', '🗼', '🏰', '🏯', '🏟️', '🎡', '🎢', '🎠', '⛲️', '⛱️', '🏖️', '🏝️', '🏜️', '🌋', '⛰️', '🏔️', '🗻', '🏕️', '⛺️', '🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏭', '🏢', '🏬', '🏤', '🏥', '🏦', '🏨', '🏪', '🏫', '🏩', '💒', '🏛️', '⛪️', '🕌', '🕍', '🛕', '🕋', '⛩️', '🛤️', '🛣️', '🗾', '🎑', '🏞️', '🌅', '🌄', '🌠', '🎇', '🎆', '🌁', '🏙️', '🌃', '🌌'],
@@ -434,7 +574,7 @@ const emojiCategories = {
 
 const colorPalette = [
     '#000000', '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3',
-    '#ffffff', '#ffb6c1', '#fffacd', '#add8e6', '#e0ffff', '#f0f8ff', '#f5f5f5', '#d3d3d3',
+    '#ffffff', '#ffb6c1', '#fffacd', '#add8e6', '#f0f8ff', '#f5f5f5', '#d3d3d3',
     '#fa8072', '#ffdead', '#f0e68c', '#90ee90', '#dda0dd', '#c0c0c0', '#a9a9a9',
     '#800000', '#a52a2a', '#b8860b', '#006400', '#00008b', '#483d8b', '#808080', '#696969',
     '#400000', '#8b0000', '#808000', '#008000', '#000080', '#4b0082', '#2f4f4f'
@@ -611,7 +751,7 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
                               <RichTextToolbarButton icon={<AlignRight />} command="justifyRight" />
                               <RichTextToolbarButton icon={<AlignJustify />} command="justifyFull" />
                                <Separator orientation="vertical" className="h-5 bg-white/20" />
-                              <RichTextToolbarButton icon={<Link />} command="createLink" />
+                              <RichTextToolbarButton icon={<LinkIcon />} command="createLink" />
                               <RichTextToolbarButton icon={<List />} command="insertUnorderedList" />
                               <RichTextToolbarButton icon={<ListOrdered />} command="insertOrderedList" />
                                <Separator orientation="vertical" className="h-5 bg-white/20" />
@@ -662,6 +802,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
           return <AlertSettings component={component} onUpdate={handleUpdate} />;
         case 'Argumentos':
           return <ArgumentosSettings component={component} onUpdate={handleUpdate} />;
+        case 'Audio':
+            return <AudioSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -704,6 +846,19 @@ function FunnelEditorContent() {
         ],
       };
     }
+
+    if (component.name === 'Audio') {
+        defaultProps = {
+            audioUrl: '',
+            avatarUrl: 'https://picsum.photos/seed/audio-avatar/40/40',
+            showAvatar: true,
+            autoplay: false,
+            progressColor: '#00A884',
+            bgColor: '#005C4B',
+            iconColor: '#8696A0'
+        };
+    }
+
 
     const newComponent: CanvasComponentData = { 
         ...component, 
@@ -868,3 +1023,4 @@ export default function EditorPage() {
 }
 
     
+
