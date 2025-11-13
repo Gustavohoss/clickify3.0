@@ -1,6 +1,7 @@
 
 
 
+
 'use client';
 
 import React, { Suspense, useState, ReactNode, useRef, useEffect, useCallback } from 'react';
@@ -235,6 +236,11 @@ type ComponentProps = {
   cardBackgroundColor?: string;
   cardTextColor?: string;
   cardBorderColor?: string;
+  // Specific properties for Entrada
+  label?: string;
+  placeholder?: string;
+  inputType?: 'text' | 'email' | 'password' | 'number' | 'tel';
+  required?: boolean;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -841,6 +847,29 @@ const DepoimentosCanvasComponent = ({ component }: { component: CanvasComponentD
   );
 };
 
+const EntradaCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const {
+    label = 'Seu e-mail',
+    placeholder = 'Digite aqui...',
+    inputType = 'text',
+    required = false,
+  } = component.props;
+
+  return (
+    <div className="w-full space-y-2">
+      <UILabel htmlFor={`input-${component.id}`}>
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </UILabel>
+      <Input 
+        id={`input-${component.id}`}
+        type={inputType}
+        placeholder={placeholder}
+      />
+    </div>
+  );
+};
+
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
   const renderComponent = () => {
@@ -865,6 +894,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
         return <ConfettiCanvasComponent component={component} />;
       case 'Depoimentos':
         return <DepoimentosCanvasComponent component={component} />;
+      case 'Entrada':
+        return <EntradaCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -1987,87 +2018,87 @@ const DepoimentosSettings = ({ component, onUpdate }: { component: CanvasCompone
     <div className='space-y-6'>
       <Card className="p-4 bg-muted/20 border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Depoimentos</h3>
-        <div className='space-y-4'>
-            <ScrollArea className="h-[40rem] pr-4">
-              <div className="space-y-4">
-                {testimonials.map(item => (
-                  <Card key={item.id} className="p-4 bg-card space-y-4 relative">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => handleDeleteItem(item.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-14 w-14 border">
-                        <AvatarImage src={item.imageUrl} alt={item.name} />
-                        <AvatarFallback>{item.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div className='w-full'>
-                        <UILabel htmlFor={`imageUrl-${item.id}`} className='text-xs'>URL da Imagem</UILabel>
-                        <Input
-                          id={`imageUrl-${item.id}`}
-                          value={item.imageUrl}
-                          onChange={(e) => handleUpdateItem(item.id, { imageUrl: e.target.value })}
-                          className="mt-1 h-9"
-                        />
-                      </div>
+        <div className="flex flex-col h-full">
+          <ScrollArea className="flex-grow">
+            <div className="space-y-4 pr-4">
+              {testimonials.map(item => (
+                <Card key={item.id} className="p-4 bg-card space-y-4 relative">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => handleDeleteItem(item.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-14 w-14 border">
+                      <AvatarImage src={item.imageUrl} alt={item.name} />
+                      <AvatarFallback>{item.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className='w-full'>
+                      <UILabel htmlFor={`imageUrl-${item.id}`} className='text-xs'>URL da Imagem</UILabel>
+                      <Input
+                        id={`imageUrl-${item.id}`}
+                        value={item.imageUrl}
+                        onChange={(e) => handleUpdateItem(item.id, { imageUrl: e.target.value })}
+                        className="mt-1 h-9"
+                      />
                     </div>
+                  </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <UILabel htmlFor={`name-${item.id}`} className='text-xs'>Nome</UILabel>
-                        <Input
-                          id={`name-${item.id}`}
-                          value={item.name}
-                          onChange={(e) => handleUpdateItem(item.id, { name: e.target.value })}
-                          className="mt-1 h-9"
-                        />
-                      </div>
-                      <div>
-                        <UILabel htmlFor={`handle-${item.id}`} className='text-xs'>Handle (@)</UILabel>
-                        <Input
-                          id={`handle-${item.id}`}
-                          value={item.handle}
-                          onChange={(e) => handleUpdateItem(item.id, { handle: e.target.value })}
-                          className="mt-1 h-9"
-                        />
-                      </div>
-                    </div>
-
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                        <UILabel htmlFor={`rating-${item.id}`} className='text-xs'>Avaliação ({item.rating})</UILabel>
-                        <Slider
-                          id={`rating-${item.id}`}
-                          min={1}
-                          max={5}
-                          step={1}
-                          value={[item.rating]}
-                          onValueChange={(value) => handleUpdateItem(item.id, { rating: value[0] })}
-                          className="mt-3"
-                        />
+                      <UILabel htmlFor={`name-${item.id}`} className='text-xs'>Nome</UILabel>
+                      <Input
+                        id={`name-${item.id}`}
+                        value={item.name}
+                        onChange={(e) => handleUpdateItem(item.id, { name: e.target.value })}
+                        className="mt-1 h-9"
+                      />
                     </div>
-
                     <div>
-                        <UILabel htmlFor={`testimonial-${item.id}`} className='text-xs'>Texto do Depoimento</UILabel>
-                        <Textarea
-                          id={`testimonial-${item.id}`}
-                          value={item.testimonial}
-                          onChange={(e) => handleUpdateItem(item.id, { testimonial: e.target.value })}
-                          className="mt-1"
-                          rows={3}
-                        />
+                      <UILabel htmlFor={`handle-${item.id}`} className='text-xs'>Handle (@)</UILabel>
+                      <Input
+                        id={`handle-${item.id}`}
+                        value={item.handle}
+                        onChange={(e) => handleUpdateItem(item.id, { handle: e.target.value })}
+                        className="mt-1 h-9"
+                      />
                     </div>
-                  </Card>
-                ))}
-              </div>
-            </ScrollArea>
-            <Button variant="outline" className="w-full" onClick={handleAddItem}>
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar Depoimento
-            </Button>
+                  </div>
+
+                  <div>
+                      <UILabel htmlFor={`rating-${item.id}`} className='text-xs'>Avaliação ({item.rating})</UILabel>
+                      <Slider
+                        id={`rating-${item.id}`}
+                        min={1}
+                        max={5}
+                        step={1}
+                        value={[item.rating]}
+                        onValueChange={(value) => handleUpdateItem(item.id, { rating: value[0] })}
+                        className="mt-3"
+                      />
+                  </div>
+
+                  <div>
+                      <UILabel htmlFor={`testimonial-${item.id}`} className='text-xs'>Texto do Depoimento</UILabel>
+                      <Textarea
+                        id={`testimonial-${item.id}`}
+                        value={item.testimonial}
+                        onChange={(e) => handleUpdateItem(item.id, { testimonial: e.target.value })}
+                        className="mt-1"
+                        rows={3}
+                      />
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </ScrollArea>
+          <Button variant="outline" className="w-full mt-4 flex-shrink-0" onClick={handleAddItem}>
+            <Plus className="h-4 w-4 mr-2" />
+            Adicionar Depoimento
+          </Button>
         </div>
       </Card>
       
@@ -2119,6 +2150,64 @@ const DepoimentosSettings = ({ component, onUpdate }: { component: CanvasCompone
   );
 };
 
+const EntradaSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  return (
+    <div className='space-y-6'>
+       <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Configurações do Campo</h3>
+        <div className="space-y-3">
+            <div>
+              <UILabel htmlFor="label" className='text-xs'>Rótulo</UILabel>
+              <Input
+                id="label"
+                value={component.props.label || ''}
+                onChange={(e) => onUpdate({ ...component.props, label: e.target.value })}
+                className="mt-1"
+                placeholder="Ex: Seu nome"
+              />
+            </div>
+            <div>
+              <UILabel htmlFor="placeholder" className='text-xs'>Placeholder</UILabel>
+              <Input
+                id="placeholder"
+                value={component.props.placeholder || ''}
+                onChange={(e) => onUpdate({ ...component.props, placeholder: e.target.value })}
+                className="mt-1"
+                placeholder="Ex: Digite seu nome completo"
+              />
+            </div>
+            <div>
+              <UILabel htmlFor="inputType" className='text-xs'>Tipo de Campo</UILabel>
+              <Select
+                value={component.props.inputType || 'text'}
+                onValueChange={(value: 'text' | 'email' | 'password' | 'number' | 'tel') => onUpdate({ ...component.props, inputType: value })}
+              >
+                <SelectTrigger id="inputType" className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="text">Texto</SelectItem>
+                  <SelectItem value="email">E-mail</SelectItem>
+                  <SelectItem value="password">Senha</SelectItem>
+                  <SelectItem value="number">Número</SelectItem>
+                  <SelectItem value="tel">Telefone</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center justify-between pt-2">
+                <UILabel htmlFor="required">Obrigatório</UILabel>
+                <Switch 
+                    id="required"
+                    checked={component.props.required}
+                    onCheckedChange={(checked) => onUpdate({ ...component.props, required: checked })}
+                />
+            </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
@@ -2149,6 +2238,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <ConfettiSettings component={component} onUpdate={handleUpdate} />;
         case 'Depoimentos':
             return <DepoimentosSettings component={component} onUpdate={handleUpdate} />;
+        case 'Entrada':
+            return <EntradaSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -2290,6 +2381,15 @@ function FunnelEditorContent() {
             testimonial: 'Lorem ipsum dollor sit amet, consectetur adipiscing elit.'
           }
         ]
+      };
+    }
+    
+    if (component.name === 'Entrada') {
+      defaultProps = {
+        label: 'Seu e-mail',
+        placeholder: 'Digite aqui...',
+        inputType: 'email',
+        required: true,
       };
     }
 
@@ -2459,6 +2559,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
