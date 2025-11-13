@@ -1,9 +1,3 @@
-
-
-
-
-
-
 'use client';
 
 import React, { Suspense, useState, ReactNode, useRef, useEffect, useCallback } from 'react';
@@ -117,6 +111,7 @@ import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Image from 'next/image';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 
 type ComponentType = {
@@ -168,6 +163,12 @@ type TestimonialItem = {
   handle: string;
   rating: number;
   testimonial: string;
+};
+
+type FaqItem = {
+    id: number;
+    question: string;
+    answer: string;
 };
 
 type ComponentProps = {
@@ -248,6 +249,8 @@ type ComponentProps = {
   padding?: 'sm' | 'base' | 'lg';
   // Specific properties for Espaçador
   height?: number;
+  // Specific properties for FAQ
+  faqItems?: FaqItem[];
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -919,6 +922,33 @@ const EspacadorCanvasComponent = ({ component }: { component: CanvasComponentDat
   );
 };
 
+const FaqCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+    const faqItems = component.props.faqItems || [];
+
+    if (faqItems.length === 0) {
+        return (
+            <Card className="p-6 text-center border-dashed">
+                <div className="flex justify-center mb-4">
+                    <WavingHandIcon />
+                </div>
+                <h3 className="font-bold text-lg">FAQ</h3>
+                <p className="text-muted-foreground mt-1">Adicione perguntas para começar.</p>
+            </Card>
+        );
+    }
+
+    return (
+        <Accordion type="single" collapsible className="w-full">
+            {faqItems.map((item, index) => (
+                <AccordionItem value={`item-${index}`} key={item.id}>
+                    <AccordionTrigger>{item.question}</AccordionTrigger>
+                    <AccordionContent>{item.answer}</AccordionContent>
+                </AccordionItem>
+            ))}
+        </Accordion>
+    );
+};
+
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
   const renderComponent = () => {
@@ -947,6 +977,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
         return <EntradaCanvasComponent component={component} />;
       case 'Espaçador':
         return <EspacadorCanvasComponent component={component} />;
+      case 'FAQ':
+        return <FaqCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -2383,6 +2415,77 @@ const EspacadorSettings = ({ component, onUpdate }: { component: CanvasComponent
   );
 };
 
+const FaqSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+    const faqItems = component.props.faqItems || [];
+
+    const handleUpdateItem = (itemId: number, newValues: Partial<FaqItem>) => {
+        const newItems = faqItems.map(item =>
+            item.id === itemId ? { ...item, ...newValues } : item
+        );
+        onUpdate({ ...component.props, faqItems: newItems });
+    };
+
+    const handleAddItem = () => {
+        const newItem: FaqItem = {
+            id: Date.now(),
+            question: 'Nova Pergunta?',
+            answer: 'Esta é a resposta para a nova pergunta.'
+        };
+        onUpdate({ ...component.props, faqItems: [...faqItems, newItem] });
+    };
+
+    const handleDeleteItem = (itemId: number) => {
+        const newItems = faqItems.filter(item => item.id !== itemId);
+        onUpdate({ ...component.props, faqItems: newItems });
+    };
+
+    return (
+        <div className='space-y-6'>
+            <Card className="p-4 bg-muted/20 border-border/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Perguntas e Respostas</h3>
+                <ScrollArea className="h-[40rem]">
+                    <div className="space-y-4 pr-4">
+                        {faqItems.map(item => (
+                            <Card key={item.id} className="p-3 bg-card space-y-3 relative">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                    onClick={() => handleDeleteItem(item.id)}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                                <div>
+                                    <UILabel htmlFor={`question-${item.id}`} className='text-xs'>Pergunta</UILabel>
+                                    <Input
+                                        id={`question-${item.id}`}
+                                        value={item.question}
+                                        onChange={(e) => handleUpdateItem(item.id, { question: e.target.value })}
+                                        className="mt-1"
+                                    />
+                                </div>
+                                <div>
+                                    <UILabel htmlFor={`answer-${item.id}`} className='text-xs'>Resposta</UILabel>
+                                    <Textarea
+                                        id={`answer-${item.id}`}
+                                        value={item.answer}
+                                        onChange={(e) => handleUpdateItem(item.id, { answer: e.target.value })}
+                                        className="mt-1"
+                                    />
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                </ScrollArea>
+                <Button variant="outline" className="w-full mt-4" onClick={handleAddItem}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Adicionar Pergunta
+                </Button>
+            </Card>
+        </div>
+    );
+};
+
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
@@ -2417,6 +2520,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <EntradaSettings component={component} onUpdate={handleUpdate} />;
         case 'Espaçador':
             return <EspacadorSettings component={component} onUpdate={handleUpdate} />;
+        case 'FAQ':
+            return <FaqSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -2577,6 +2682,15 @@ function FunnelEditorContent() {
       defaultProps = {
         height: 50,
       };
+    }
+
+    if (component.name === 'FAQ') {
+        defaultProps = {
+            faqItems: [
+                { id: 1, question: 'Qual a primeira dúvida a ser resolvida?', answer: 'Texto genérico de demonstração. Serve apenas como modelo visual para representar uma resposta real a ser inserida posteriormente.' },
+                { id: 2, question: 'Qual a segunda dúvida a ser resolvida?', answer: 'Texto genérico de demonstração. Serve apenas como modelo visual para representar uma resposta real a ser inserida posteriormente.' }
+            ]
+        };
     }
 
 
@@ -2745,6 +2859,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
