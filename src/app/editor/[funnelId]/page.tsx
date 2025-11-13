@@ -3,6 +3,7 @@
 
 
 
+
 'use client';
 
 import React, { Suspense, useState, ReactNode, useRef, useEffect, useCallback } from 'react';
@@ -245,6 +246,8 @@ type ComponentProps = {
   textAlign?: 'left' | 'center' | 'right';
   fontSize?: 'sm' | 'base' | 'lg';
   padding?: 'sm' | 'base' | 'lg';
+  // Specific properties for Espaçador
+  height?: number;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -903,6 +906,19 @@ const EntradaCanvasComponent = ({ component }: { component: CanvasComponentData 
   );
 };
 
+const EspacadorCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const { height = 50 } = component.props;
+
+  return (
+    <div 
+      className="w-full flex items-center justify-center bg-muted/20 border-2 border-dashed border-border rounded-lg"
+      style={{ height: `${height}px` }}
+    >
+      <span className="text-sm text-muted-foreground">Espaçador ({height}px)</span>
+    </div>
+  );
+};
+
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
   const renderComponent = () => {
@@ -929,6 +945,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
         return <DepoimentosCanvasComponent component={component} />;
       case 'Entrada':
         return <EntradaCanvasComponent component={component} />;
+      case 'Espaçador':
+        return <EspacadorCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -2343,6 +2361,28 @@ const EntradaSettings = ({ component, onUpdate }: { component: CanvasComponentDa
   );
 };
 
+const EspacadorSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  return (
+    <div className='space-y-6'>
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Ajustes</h3>
+        <div className="space-y-2">
+          <UILabel htmlFor="height" className='text-xs'>Altura ({component.props.height || 50}px)</UILabel>
+          <Slider
+            id="height"
+            min={10}
+            max={300}
+            step={1}
+            value={[component.props.height || 50]}
+            onValueChange={(value) => onUpdate({ ...component.props, height: value[0] })}
+            className="mt-2"
+          />
+        </div>
+      </Card>
+    </div>
+  );
+};
+
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
@@ -2375,6 +2415,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <DepoimentosSettings component={component} onUpdate={handleUpdate} />;
         case 'Entrada':
             return <EntradaSettings component={component} onUpdate={handleUpdate} />;
+        case 'Espaçador':
+            return <EspacadorSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -2528,6 +2570,12 @@ function FunnelEditorContent() {
         textAlign: 'left',
         fontSize: 'base',
         padding: 'base',
+      };
+    }
+
+    if (component.name === 'Espaçador') {
+      defaultProps = {
+        height: 50,
       };
     }
 
@@ -2697,6 +2745,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
