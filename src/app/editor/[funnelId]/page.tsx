@@ -2,6 +2,7 @@
 
 
 
+
 'use client';
 
 import React, { Suspense, useState, ReactNode, useRef, useEffect, useCallback } from 'react';
@@ -241,6 +242,9 @@ type ComponentProps = {
   placeholder?: string;
   inputType?: 'text' | 'email' | 'password' | 'number' | 'tel';
   required?: boolean;
+  textAlign?: 'left' | 'center' | 'right';
+  fontSize?: 'sm' | 'base' | 'lg';
+  padding?: 'sm' | 'base' | 'lg';
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -853,7 +857,26 @@ const EntradaCanvasComponent = ({ component }: { component: CanvasComponentData 
     placeholder = 'Digite aqui...',
     inputType = 'text',
     required = false,
+    textAlign = 'left',
+    fontSize = 'base',
+    padding = 'base',
+    backgroundColor,
+    textColor,
+    borderColor
   } = component.props;
+
+  const fontSizeClasses: { [key: string]: string } = {
+    sm: 'text-sm',
+    base: 'text-base',
+    lg: 'text-lg',
+  };
+
+  const paddingClasses: { [key: string]: string } = {
+      sm: 'h-8 px-2 py-1',
+      base: 'h-10 px-3 py-2',
+      lg: 'h-12 px-4 py-3',
+  };
+
 
   return (
     <div className="w-full space-y-2">
@@ -865,6 +888,16 @@ const EntradaCanvasComponent = ({ component }: { component: CanvasComponentData 
         id={`input-${component.id}`}
         type={inputType}
         placeholder={placeholder}
+        className={cn(
+            `text-${textAlign}`,
+            fontSizeClasses[fontSize],
+            paddingClasses[padding]
+        )}
+        style={{
+            backgroundColor,
+            color: textColor,
+            borderColor
+        }}
       />
     </div>
   );
@@ -1150,7 +1183,7 @@ const AudioSettings = ({ component, onUpdate }: { component: CanvasComponentData
 
 const emojiCategories = {
     'Smileys & People': ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾', '👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '🖕', '👇', '☝️', '👍', '👎', '✊', '👊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️', '💅', '🤳', '💪', '🦾', '🦵', '🦿', '🦶', '👂', '🦻', '👃', '🧠', '🦷', '🦴', '👀', '👁️', '👅', '👄'],
-    'Animals & Nature': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐽', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦟', '🦗', '🕷️', '🕸️', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🦧', '🐘', '🦛', '🦏', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🦙', '🐐', '🦌', '🐕', '🐩', '🦮', '🐕‍', '🐈', '🐓', '🦃', '🦜', '🦢', '🦩', '🕊️', '🐇', '🦝', '🦨', '🦡', '🦦', '🦥', '🐁', '🐀', '🐿️', '🦔', '🐾', '🐉', '🐲', '🌵', '🎄', '🌲', '🌳', '🌴', '🌱', '🌿', '☘️', '🍀', '🎍', '🎋', '🍃', '🍂', '🍁', '🍄', '🐚', '🌾', '💐', '🌷', '🌹', '🥀', '🌺', '🌸', '🌼', '🌻', '🌞', '🌝', '🌛', '🌜', '🌚', '🌕', '🌖', '🌗', '🌘', '🌑', '🌒', '🌓', '🌔', '🌙', '🌎', '🌍', '🌏', '💫', '⭐️', '🌟', '✨', '⚡️', '☄️', '💥', '🔥', '🌪️', '🌈', '☀️', '🌤️', '⛅️', '🌥️', '☁️', '🌦️', '🌧️', '⛈️', '🌩️', '🌨️', '❄️', '☃️', '⛄️', '🌬️', '💨', '💧', '💦', '☔️', '☂️', '🌊', '🌫️'],
+    'Animals & Nature': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐽', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦟', '🦗', '🕷️', '🕸️', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🦧', '🐘', '🦛', '🦏', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🦙', '🐐', '🦌', '🐕', '🐩', '🦮', '🐕‍🦺', '🐈', '🐓', '🦃', '🦜', '🦢', '🦩', '🕊️', '🐇', '🦝', '🦨', '🦡', '🦦', '🦥', '🐁', '🐀', '🐿️', '🦔', '🐾', '🐉', '🐲', '🌵', '🎄', '🌲', '🌳', '🌴', '🌱', '🌿', '☘️', '🍀', '🎍', '🎋', '🍃', '🍂', '🍁', '🍄', '🐚', '🌾', '💐', '🌷', '🌹', '🥀', '🌺', '🌸', '🌼', '🌻', '🌞', '🌝', '🌛', '🌜', '🌚', '🌕', '🌖', '🌗', '🌘', '🌑', '🌒', '🌓', '🌔', '🌙', '🌎', '🌍', '🌏', '💫', '⭐️', '🌟', '✨', '⚡️', '☄️', '💥', '🔥', '🌪️', '🌈', '☀️', '🌤️', '⛅️', '🌥️', '☁️', '🌦️', '🌧️', '⛈️', '🌩️', '🌨️', '❄️', '☃️', '⛄️', '🌬️', '💨', '💧', '💦', '☔️', '☂️', '🌊', '🌫️'],
     'Food & Drink': ['🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕', '🧄', '🧅', '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🧈', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🦴', '핫도그', '🍔', '🍟', '🍕', '🥪', '🥙', '🧆', '🌮', '🌯', '🥗', '🥘', '🥫', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🍤', '🍙', '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🌰', '🥜', '🍯', '🥛', '🍼', '☕️', '🍵', '🧃', '🥤', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🧉', '🍾', '🧊', '🥄', '🍴', '🍽️', '🥣', '🥡', '🥢', '🧂'],
     'Activities': ['⚽️', '🏀', '🏈', '⚾️', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '🥅', '⛳️', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️‍♀️', '🏋️‍♂️', '🤸‍♀️', '🤸‍♂️', '🤺', '🏌️‍♀️', '🏌️‍♂️', '🏇', '🧘‍♀️', '🧘‍♂️', '🏄‍♀️', '🏄‍♂️', '🏊‍♀️', '🏊‍♂️', '🤽‍♀️', '🤽‍♂️', '🚣‍♀️', '🚣‍♂️', '🧗‍♀️', '🧗‍♂️', '🚵‍♀️', '🚵‍♂️', '🚴‍♀️', '🚴‍♂️', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫', '🎟️', '🎪', '🤹‍♀️', '🤹‍♂️', '🎭', '🩰', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🎻', '🎲', '♟️', '🎯', '🎳', '🎮', '🎰', '🧩'],
     'Travel & Places': ['🚗', '🚕', '🚙', '🚌', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜', '🛴', '🚲', '🛵', '🏍️', '🛺', '🚨', '🚔', '🚍', '🚘', '🚖', '🚡', '🚠', '🚟', '🚃', '🚋', '🚞', '🚄', '🚅', '🚈', '🚂', '🚆', '🚇', '🚊', '🚉', '✈️', '🛫', '🛬', '💺', '🚀', '🛸', '🚁', '🛶', '⛵️', '🚤', '🛥️', '🛳️', '⛴️', '🚢', '⚓️', '⛽️', '🚧', '🚦', '🚥', '🗺️', '🗿', '🗽', '🗼', '🏰', '🏯', '🏟️', '🎡', '🎢', '🎠', '⛲️', '⛱️', '🏖️', '🏝️', '🏜️', '🌋', '⛰️', '🏔️', '🗻', '🏕️', '⛺️', '🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏭', '🏢', '🏬', '🏤', '🏥', '🏦', '🏨', '🏪', '🏫', '🏩', '💒', '🏛️', '⛪️', '🕌', '🕍', '🛕', '🕋', '⛩️', '🛤️', '🛣️', '🗾', '🎑', '🏞️', '🌅', '🌄', '🌠', '🎇', '🎆', '🌉', '🌁', '🏙️', '🌃', '🌌'],
@@ -2019,7 +2052,7 @@ const DepoimentosSettings = ({ component, onUpdate }: { component: CanvasCompone
       <Card className="p-4 bg-muted/20 border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Depoimentos</h3>
         <div className="flex flex-col h-full">
-          <ScrollArea className="flex-grow">
+          <ScrollArea className="flex-grow max-h-[30rem]">
             <div className="space-y-4 pr-4">
               {testimonials.map(item => (
                 <Card key={item.id} className="p-4 bg-card space-y-4 relative">
@@ -2151,6 +2184,9 @@ const DepoimentosSettings = ({ component, onUpdate }: { component: CanvasCompone
 };
 
 const EntradaSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  const handleColorReset = (colorType: 'backgroundColor' | 'textColor' | 'borderColor') => {
+    onUpdate({ ...component.props, [colorType]: undefined });
+  };
   return (
     <div className='space-y-6'>
        <Card className="p-4 bg-muted/20 border-border/50">
@@ -2201,6 +2237,105 @@ const EntradaSettings = ({ component, onUpdate }: { component: CanvasComponentDa
                     checked={component.props.required}
                     onCheckedChange={(checked) => onUpdate({ ...component.props, required: checked })}
                 />
+            </div>
+        </div>
+      </Card>
+      
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Estilo</h3>
+        <div className="space-y-3">
+          <div>
+            <UILabel htmlFor="textAlign" className='text-xs'>Alinhamento</UILabel>
+            <Select
+              value={component.props.textAlign || 'left'}
+              onValueChange={(value: 'left' | 'center' | 'right') => onUpdate({ ...component.props, textAlign: value })}
+            >
+              <SelectTrigger id="textAlign" className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="left">Esquerda</SelectItem>
+                <SelectItem value="center">Centro</SelectItem>
+                <SelectItem value="right">Direita</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <UILabel htmlFor="fontSize" className='text-xs'>Tamanho do Texto</UILabel>
+            <Select
+              value={component.props.fontSize || 'base'}
+              onValueChange={(value: 'sm' | 'base' | 'lg') => onUpdate({ ...component.props, fontSize: value })}
+            >
+              <SelectTrigger id="fontSize" className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="sm">Pequeno</SelectItem>
+                <SelectItem value="base">Normal</SelectItem>
+                <SelectItem value="lg">Grande</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <UILabel htmlFor="padding" className='text-xs'>Espaçamento</UILabel>
+            <Select
+              value={component.props.padding || 'base'}
+              onValueChange={(value: 'sm' | 'base' | 'lg') => onUpdate({ ...component.props, padding: value })}
+            >
+              <SelectTrigger id="padding" className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="sm">Pequeno</SelectItem>
+                <SelectItem value="base">Normal</SelectItem>
+                <SelectItem value="lg">Grande</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </Card>
+
+       <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
+        <div className="grid grid-cols-3 gap-4">
+            <div className='space-y-1'>
+                <UILabel htmlFor='color' className='text-xs'>Cor</UILabel>
+                <div className="relative">
+                    <Input 
+                        type='color' 
+                        id='color' 
+                        className='p-1 h-8 w-full' 
+                        value={component.props.backgroundColor || ''}
+                        onChange={(e) => onUpdate({ ...component.props, backgroundColor: e.target.value })}
+                    />
+                    <Button variant="ghost" size="icon" className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => handleColorReset('backgroundColor')}><XCircle className="h-4 w-4"/></Button>
+                </div>
+            </div>
+            <div className='space-y-1'>
+                <UILabel htmlFor='text-color' className='text-xs'>Texto</UILabel>
+                 <div className="relative">
+                    <Input 
+                        type='color' 
+                        id='text-color' 
+                        className='p-1 h-8 w-full'
+                        value={component.props.textColor || ''}
+                        onChange={(e) => onUpdate({ ...component.props, textColor: e.target.value })}
+                    />
+                    <Button variant="ghost" size="icon" className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => handleColorReset('textColor')}><XCircle className="h-4 w-4"/></Button>
+                </div>
+            </div>
+            <div className='space-y-1'>
+                <UILabel htmlFor='border-color' className='text-xs'>Borda</UILabel>
+                 <div className="relative">
+                    <Input 
+                        type='color' 
+                        id='border-color' 
+                        className='p-1 h-8 w-full'
+                        value={component.props.borderColor || ''}
+                        onChange={(e) => onUpdate({ ...component.props, borderColor: e.target.value })}
+                    />
+                    <Button variant="ghost" size="icon" className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => handleColorReset('borderColor')}><XCircle className="h-4 w-4"/></Button>
+                </div>
             </div>
         </div>
       </Card>
@@ -2390,6 +2525,9 @@ function FunnelEditorContent() {
         placeholder: 'Digite aqui...',
         inputType: 'email',
         required: true,
+        textAlign: 'left',
+        fontSize: 'base',
+        padding: 'base',
       };
     }
 
@@ -2559,6 +2697,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
