@@ -251,6 +251,9 @@ type ComponentProps = {
   height?: number;
   // Specific properties for FAQ
   faqItems?: FaqItem[];
+  faqBackgroundColor?: string;
+  faqTextColor?: string;
+  faqBorderColor?: string;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -924,6 +927,7 @@ const EspacadorCanvasComponent = ({ component }: { component: CanvasComponentDat
 
 const FaqCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
     const faqItems = component.props.faqItems || [];
+    const { faqBackgroundColor, faqBorderColor, faqTextColor } = component.props;
 
     if (faqItems.length === 0) {
         return (
@@ -938,11 +942,25 @@ const FaqCanvasComponent = ({ component }: { component: CanvasComponentData }) =
     }
 
     return (
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion 
+            type="single" 
+            collapsible 
+            className="w-full rounded-lg"
+            style={{ 
+                backgroundColor: faqBackgroundColor,
+                borderColor: faqBorderColor,
+                borderWidth: faqBorderColor ? '1px' : '',
+            }}
+        >
             {faqItems.map((item, index) => (
-                <AccordionItem value={`item-${index}`} key={item.id}>
-                    <AccordionTrigger>{item.question}</AccordionTrigger>
-                    <AccordionContent>{item.answer}</AccordionContent>
+                <AccordionItem 
+                    value={`item-${index}`} 
+                    key={item.id} 
+                    className="border-b"
+                    style={{ borderColor: faqBorderColor }}
+                >
+                    <AccordionTrigger style={{ color: faqTextColor }}>{item.question}</AccordionTrigger>
+                    <AccordionContent style={{ color: faqTextColor }}>{item.answer}</AccordionContent>
                 </AccordionItem>
             ))}
         </Accordion>
@@ -2102,86 +2120,86 @@ const DepoimentosSettings = ({ component, onUpdate }: { component: CanvasCompone
       <Card className="p-4 bg-muted/20 border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Depoimentos</h3>
         <div className="flex flex-col h-full">
-          <ScrollArea className="flex-grow max-h-[30rem]">
-            <div className="space-y-4 pr-4">
-              {testimonials.map(item => (
-                <Card key={item.id} className="p-4 bg-card space-y-4 relative">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => handleDeleteItem(item.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-14 w-14 border">
-                      <AvatarImage src={item.imageUrl} alt={item.name} />
-                      <AvatarFallback>{item.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className='w-full'>
-                      <UILabel htmlFor={`imageUrl-${item.id}`} className='text-xs'>URL da Imagem</UILabel>
-                      <Input
-                        id={`imageUrl-${item.id}`}
-                        value={item.imageUrl}
-                        onChange={(e) => handleUpdateItem(item.id, { imageUrl: e.target.value })}
-                        className="mt-1 h-9"
-                      />
+            <ScrollArea className="flex-grow max-h-[30rem]">
+                <div className="space-y-4 pr-4">
+                {testimonials.map(item => (
+                    <Card key={item.id} className="p-4 bg-card space-y-4 relative">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => handleDeleteItem(item.id)}
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <div className="flex items-center gap-3">
+                        <Avatar className="h-14 w-14 border">
+                        <AvatarImage src={item.imageUrl} alt={item.name} />
+                        <AvatarFallback>{item.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div className='w-full'>
+                        <UILabel htmlFor={`imageUrl-${item.id}`} className='text-xs'>URL da Imagem</UILabel>
+                        <Input
+                            id={`imageUrl-${item.id}`}
+                            value={item.imageUrl}
+                            onChange={(e) => handleUpdateItem(item.id, { imageUrl: e.target.value })}
+                            className="mt-1 h-9"
+                        />
+                        </div>
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                        <UILabel htmlFor={`name-${item.id}`} className='text-xs'>Nome</UILabel>
+                        <Input
+                            id={`name-${item.id}`}
+                            value={item.name}
+                            onChange={(e) => handleUpdateItem(item.id, { name: e.target.value })}
+                            className="mt-1 h-9"
+                        />
+                        </div>
+                        <div>
+                        <UILabel htmlFor={`handle-${item.id}`} className='text-xs'>Handle (@)</UILabel>
+                        <Input
+                            id={`handle-${item.id}`}
+                            value={item.handle}
+                            onChange={(e) => handleUpdateItem(item.id, { handle: e.target.value })}
+                            className="mt-1 h-9"
+                        />
+                        </div>
+                    </div>
+
                     <div>
-                      <UILabel htmlFor={`name-${item.id}`} className='text-xs'>Nome</UILabel>
-                      <Input
-                        id={`name-${item.id}`}
-                        value={item.name}
-                        onChange={(e) => handleUpdateItem(item.id, { name: e.target.value })}
-                        className="mt-1 h-9"
-                      />
+                        <UILabel htmlFor={`rating-${item.id}`} className='text-xs'>Avaliação ({item.rating})</UILabel>
+                        <Slider
+                            id={`rating-${item.id}`}
+                            min={1}
+                            max={5}
+                            step={1}
+                            value={[item.rating]}
+                            onValueChange={(value) => handleUpdateItem(item.id, { rating: value[0] })}
+                            className="mt-3"
+                        />
                     </div>
+
                     <div>
-                      <UILabel htmlFor={`handle-${item.id}`} className='text-xs'>Handle (@)</UILabel>
-                      <Input
-                        id={`handle-${item.id}`}
-                        value={item.handle}
-                        onChange={(e) => handleUpdateItem(item.id, { handle: e.target.value })}
-                        className="mt-1 h-9"
-                      />
+                        <UILabel htmlFor={`testimonial-${item.id}`} className='text-xs'>Texto do Depoimento</UILabel>
+                        <Textarea
+                            id={`testimonial-${item.id}`}
+                            value={item.testimonial}
+                            onChange={(e) => handleUpdateItem(item.id, { testimonial: e.target.value })}
+                            className="mt-1"
+                            rows={3}
+                        />
                     </div>
-                  </div>
-
-                  <div>
-                      <UILabel htmlFor={`rating-${item.id}`} className='text-xs'>Avaliação ({item.rating})</UILabel>
-                      <Slider
-                        id={`rating-${item.id}`}
-                        min={1}
-                        max={5}
-                        step={1}
-                        value={[item.rating]}
-                        onValueChange={(value) => handleUpdateItem(item.id, { rating: value[0] })}
-                        className="mt-3"
-                      />
-                  </div>
-
-                  <div>
-                      <UILabel htmlFor={`testimonial-${item.id}`} className='text-xs'>Texto do Depoimento</UILabel>
-                      <Textarea
-                        id={`testimonial-${item.id}`}
-                        value={item.testimonial}
-                        onChange={(e) => handleUpdateItem(item.id, { testimonial: e.target.value })}
-                        className="mt-1"
-                        rows={3}
-                      />
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </ScrollArea>
-          <Button variant="outline" className="w-full mt-4 flex-shrink-0" onClick={handleAddItem}>
-            <Plus className="h-4 w-4 mr-2" />
-            Adicionar Depoimento
-          </Button>
+                    </Card>
+                ))}
+                </div>
+            </ScrollArea>
+            <Button variant="outline" className="w-full mt-4 flex-shrink-0" onClick={handleAddItem}>
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar Depoimento
+            </Button>
         </div>
       </Card>
       
@@ -2439,6 +2457,10 @@ const FaqSettings = ({ component, onUpdate }: { component: CanvasComponentData, 
         onUpdate({ ...component.props, faqItems: newItems });
     };
 
+    const handleColorReset = (colorType: 'faqBackgroundColor' | 'faqTextColor' | 'faqBorderColor') => {
+        onUpdate({ ...component.props, [colorType]: undefined });
+    };
+
     return (
         <div className='space-y-6'>
             <Card className="p-4 bg-muted/20 border-border/50">
@@ -2481,6 +2503,50 @@ const FaqSettings = ({ component, onUpdate }: { component: CanvasComponentData, 
                     <Plus className="h-4 w-4 mr-2" />
                     Adicionar Pergunta
                 </Button>
+            </Card>
+            <Card className="p-4 bg-muted/20 border-border/50">
+              <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
+              <div className="grid grid-cols-3 gap-4">
+                  <div className='space-y-1'>
+                      <UILabel htmlFor='faq-bg-color' className='text-xs'>Cor</UILabel>
+                      <div className="relative">
+                          <Input 
+                              type='color' 
+                              id='faq-bg-color' 
+                              className='p-1 h-8 w-full' 
+                              value={component.props.faqBackgroundColor || ''}
+                              onChange={(e) => onUpdate({ ...component.props, faqBackgroundColor: e.target.value })}
+                          />
+                          <Button variant="ghost" size="icon" className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => handleColorReset('faqBackgroundColor')}><XCircle className="h-4 w-4"/></Button>
+                      </div>
+                  </div>
+                  <div className='space-y-1'>
+                      <UILabel htmlFor='faq-text-color' className='text-xs'>Texto</UILabel>
+                      <div className="relative">
+                          <Input 
+                              type='color' 
+                              id='faq-text-color' 
+                              className='p-1 h-8 w-full'
+                              value={component.props.faqTextColor || ''}
+                              onChange={(e) => onUpdate({ ...component.props, faqTextColor: e.target.value })}
+                          />
+                          <Button variant="ghost" size="icon" className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => handleColorReset('faqTextColor')}><XCircle className="h-4 w-4"/></Button>
+                      </div>
+                  </div>
+                  <div className='space-y-1'>
+                      <UILabel htmlFor='faq-border-color' className='text-xs'>Borda</UILabel>
+                      <div className="relative">
+                          <Input 
+                              type='color' 
+                              id='faq-border-color' 
+                              className='p-1 h-8 w-full'
+                              value={component.props.faqBorderColor || ''}
+                              onChange={(e) => onUpdate({ ...component.props, faqBorderColor: e.target.value })}
+                          />
+                          <Button variant="ghost" size="icon" className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => handleColorReset('faqBorderColor')}><XCircle className="h-4 w-4"/></Button>
+                      </div>
+                  </div>
+              </div>
             </Card>
         </div>
     );
@@ -2859,6 +2925,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
