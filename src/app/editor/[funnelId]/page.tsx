@@ -269,6 +269,10 @@ type ComponentProps = {
   trackColor?: string;
   graficosLayout?: '1-col' | '2-cols' | '3-cols' | '4-cols';
   disposition?: 'top' | 'side';
+  // Specific properties for Imagem
+  imageUrl?: string;
+  altText?: string;
+  borderRadius?: 'none' | 'sm' | 'md' | 'lg' | 'full';
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -1056,6 +1060,45 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
     );
 };
 
+const ImagemCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const {
+    imageUrl = '',
+    altText = 'Imagem',
+    borderRadius = 'md',
+  } = component.props;
+
+  const borderRadiusClasses: Record<string, string> = {
+    none: 'rounded-none',
+    sm: 'rounded-sm',
+    md: 'rounded-md',
+    lg: 'rounded-lg',
+    full: 'rounded-full',
+  };
+
+  if (!imageUrl) {
+    return (
+      <div className="flex aspect-video w-full items-center justify-center rounded-md border-2 border-dashed bg-gray-100">
+        <div className="text-center text-gray-500">
+          <ImageIcon className="mx-auto h-12 w-12" />
+          <p className="mt-2 text-sm font-semibold text-black">Adicione uma imagem</p>
+          <p className="mt-1 text-xs text-gray-500">Insira uma URL nas configurações.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn("relative aspect-video w-full overflow-hidden", borderRadiusClasses[borderRadius])}>
+        <Image
+          src={imageUrl}
+          alt={altText}
+          layout="fill"
+          objectFit="cover"
+        />
+    </div>
+  );
+};
+
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
   const renderComponent = () => {
@@ -1088,6 +1131,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
         return <FaqCanvasComponent component={component} />;
       case 'Gráficos':
           return <GraficosCanvasComponent component={component} />;
+      case 'Imagem':
+          return <ImagemCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -1931,7 +1976,7 @@ const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentD
           </div>
           <div className='space-y-1'>
             <UILabel htmlFor='arrowBorderColor' className='text-xs'>Borda</UILabel>
-            <Input type='color' id='arrowBorderColor' className='p-1 h-8 w-full' value={component.props.arrowBorderColor || '#000000'} onChange={(e) => onUpdate({ ...component.props, arrowBorderColor: e.target.value })} />
+            <Input type='color' id='arrowBorderColor' className='p-1 h-8 w-full' value={component.props.arrowBorderColor || '#DDDDDD'} onChange={(e) => onUpdate({ ...component.props, arrowBorderColor: e.target.value })} />
           </div>
         </div>
       </Card>
@@ -2816,6 +2861,61 @@ const GraficosSettings = ({ component, onUpdate }: { component: CanvasComponentD
     );
 };
 
+const ImagemSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  return (
+    <div className='space-y-6'>
+       <Card className="p-4 bg-card border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Conteúdo da Imagem</h3>
+        <div className="space-y-3">
+            <div>
+              <UILabel htmlFor="imageUrl" className='text-xs'>URL da Imagem</UILabel>
+              <Input
+                id="imageUrl"
+                value={component.props.imageUrl || ''}
+                onChange={(e) => onUpdate({ ...component.props, imageUrl: e.target.value })}
+                className="mt-1"
+                placeholder="https://example.com/imagem.png"
+              />
+            </div>
+            <div>
+              <UILabel htmlFor="altText" className='text-xs'>Texto Alternativo</UILabel>
+              <Input
+                id="altText"
+                value={component.props.altText || ''}
+                onChange={(e) => onUpdate({ ...component.props, altText: e.target.value })}
+                className="mt-1"
+                placeholder="Descrição da imagem"
+              />
+            </div>
+        </div>
+      </Card>
+      
+      <Card className="p-4 bg-card border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Estilo</h3>
+         <div>
+            <UILabel htmlFor="borderRadius" className='text-xs'>Arredondamento da Borda</UILabel>
+            <Select
+              value={component.props.borderRadius || 'md'}
+              onValueChange={(value: 'none' | 'sm' | 'md' | 'lg' | 'full') => onUpdate({ ...component.props, borderRadius: value })}
+            >
+              <SelectTrigger id="borderRadius" className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Nenhum</SelectItem>
+                <SelectItem value="sm">Pequeno</SelectItem>
+                <SelectItem value="md">Médio</SelectItem>
+                <SelectItem value="lg">Grande</SelectItem>
+                <SelectItem value="full">Total (Círculo)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+      </Card>
+    </div>
+  );
+};
+
+
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
@@ -2854,6 +2954,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <FaqSettings component={component} onUpdate={handleUpdate} />;
         case 'Gráficos':
             return <GraficosSettings component={component} onUpdate={handleUpdate} />;
+        case 'Imagem':
+            return <ImagemSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -3042,6 +3144,14 @@ function FunnelEditorContent() {
       };
     }
 
+    if (component.name === 'Imagem') {
+      defaultProps = {
+        imageUrl: `https://picsum.photos/seed/image${Date.now()}/600/400`,
+        altText: 'Imagem de exemplo',
+        borderRadius: 'md',
+      };
+    }
+
 
     const newComponent: CanvasComponentData = { 
         ...component, 
@@ -3164,7 +3274,7 @@ function FunnelEditorContent() {
                 
                 <div className="mt-8 flex min-h-[400px] flex-col gap-4">
                     {canvasComponents.length === 0 ? (
-                        <div className="flex-1 flex items-center justify-center text-center text-black rounded-lg border-2 border-dashed border-gray-300 bg-card/50 p-4">
+                        <div className="flex-1 flex items-center justify-center text-center text-black rounded-lg border-2 border-dashed border-gray-300 bg-transparent p-4">
                             <div>
                                 <p className="text-lg font-semibold">Nada por aqui 😔</p>
                                 <p className="text-sm text-gray-500">Adicione um componente para começar.</p>
