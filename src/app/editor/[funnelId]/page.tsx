@@ -313,6 +313,14 @@ type ComponentProps = {
    tooltipTextColor?: string;
   // Specific properties for Opcoes
   opcoesItems?: OpcaoItem[];
+  multipleChoice?: boolean;
+  opcoesRequired?: boolean;
+  autoAdvance?: boolean;
+  borderStyle?: 'pequena' | 'media' | 'grande';
+  shadowStyle?: 'pequena' | 'media' | 'grande';
+  spacingStyle?: 'pequeno' | 'medio' | 'grande';
+  detailStyle?: 'nenhum' | 'borda_superior' | 'icone';
+  styleType?: 'simples' | 'card';
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -559,7 +567,7 @@ const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentDa
     progressColor = '#000000',
     progressTrackColor = '#E5E7EB',
     titleColor = '#000000',
-    descriptionColor = '#6b7280',
+    descriptionColor = '#000000',
     duration = 5,
     limit = 100,
     showTitle = true,
@@ -597,7 +605,7 @@ const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentDa
   const displayProgress = Math.floor(animatedProgress);
 
   return (
-    <div className="w-full space-y-2">
+    <div className="w-full space-y-2 text-center">
       {showTitle && (
         <div className="flex justify-between items-center text-sm font-medium">
           <span style={{ color: titleColor }} className="text-black">{loadingText}</span>
@@ -614,7 +622,7 @@ const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentDa
             } as React.CSSProperties}
           />
       )}
-      <p className="text-sm text-center pt-1 text-gray-500" style={{ color: descriptionColor }}>{loadingDescription}</p>
+      <p className="text-sm pt-1" style={{ color: descriptionColor }}>{loadingDescription}</p>
     </div>
   );
 };
@@ -1049,7 +1057,7 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
     };
 
     const gridClass = layoutClasses[graficosLayout] || 'grid-cols-2';
-    const dispositionClass = disposition === 'top' ? 'flex-col items-center' : 'flex-row';
+    const dispositionClass = disposition === 'top' ? 'flex-col items-center' : 'flex-row items-center';
 
     if (graficosItems.length === 0) {
         return (
@@ -1158,7 +1166,7 @@ const ListaCanvasComponent = ({ component }: { component: CanvasComponentData })
   return (
     <div className="space-y-3 w-full max-w-md mx-auto">
       {items.map((item) => (
-        <div key={item.id} className="p-3 bg-white border border-black/10 transition-shadow">
+        <div key={item.id} className="p-3 bg-white border border-black transition-shadow">
           <div className="flex items-center gap-4">
             <div 
               className="h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0" 
@@ -1329,6 +1337,25 @@ const NivelCanvasComponent = ({ component }: { component: CanvasComponentData })
 const OpcoesCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
   const items = component.props.opcoesItems || [];
   
+  const { borderStyle, shadowStyle, spacingStyle } = component.props;
+
+  const borderClasses: Record<string, string> = {
+    pequena: 'rounded-md',
+    media: 'rounded-lg',
+    grande: 'rounded-xl',
+  };
+  const shadowClasses: Record<string, string> = {
+    pequena: 'shadow-sm',
+    media: 'shadow-md',
+    grande: 'shadow-lg',
+  };
+  const spacingClasses: Record<string, string> = {
+    pequeno: 'p-2 gap-2',
+    medio: 'p-3 gap-3',
+    grande: 'p-4 gap-4',
+  };
+
+
   if (items.length === 0) {
       return (
         <div className="p-6 text-center bg-transparent border-0 shadow-none">
@@ -1344,7 +1371,15 @@ const OpcoesCanvasComponent = ({ component }: { component: CanvasComponentData }
   return (
       <div className="w-full space-y-2">
           {items.map((item) => (
-              <button key={item.id} className="w-full p-3 bg-white border border-gray-300 rounded-lg flex items-center gap-3 text-left">
+              <button 
+                key={item.id} 
+                className={cn(
+                  'w-full bg-white border border-gray-300 flex items-center text-left',
+                   borderClasses[borderStyle || 'media'],
+                   shadowClasses[shadowStyle || 'pequena'],
+                   spacingClasses[spacingStyle || 'medio']
+                )}
+              >
                   <span className="text-2xl">{item.icon}</span>
                   <span className="font-medium text-black">{item.text}</span>
               </button>
@@ -3488,7 +3523,7 @@ const OpcoesSettings = ({ component, onUpdate }: { component: CanvasComponentDat
     <div className='space-y-6'>
       <Card className="p-4 bg-card border-border/50">
           <h3 className="text-sm font-medium text-muted-foreground mb-4">Opções</h3>
-          <ScrollArea className="h-[40rem]">
+          <ScrollArea className="h-[25rem]">
             <div className="space-y-4 pr-4">
                 {items.map((item, itemIndex) => (
                     <Card key={item.id} className="p-3 bg-card relative">
@@ -3545,6 +3580,111 @@ const OpcoesSettings = ({ component, onUpdate }: { component: CanvasComponentDat
                 <Plus className="h-4 w-4 mr-2" />
                 Adicionar Opção
             </Button>
+      </Card>
+
+      <Card className="p-4 bg-card border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Validações</h3>
+        <div className="space-y-6">
+            <div className="flex items-start gap-4">
+                <Switch 
+                  id="multipleChoice" 
+                  checked={component.props.multipleChoice} 
+                  onCheckedChange={(checked) => onUpdate({...component.props, multipleChoice: checked})}
+                  className="mt-1"
+                />
+                <div className='grid gap-1.5'>
+                    <UILabel htmlFor="multipleChoice" className="font-medium">Múltipla Escolha</UILabel>
+                    <p className="text-xs text-muted-foreground">O usuário poderá selecionar múltiplas opções, entretanto, o avanço para a próxima etapa deve ser definido através de um componente de Botão.</p>
+                </div>
+            </div>
+            <div className="flex items-start gap-4">
+                <Switch 
+                  id="opcoesRequired" 
+                  checked={component.props.opcoesRequired} 
+                  onCheckedChange={(checked) => onUpdate({...component.props, opcoesRequired: checked})}
+                  className="mt-1"
+                />
+                <div className='grid gap-1.5'>
+                    <UILabel htmlFor="opcoesRequired" className="font-medium">Obrigatório</UILabel>
+                    <p className="text-xs text-muted-foreground">O usuário é obrigado a selecionar alguma opção para poder avançar.</p>
+                </div>
+            </div>
+            <div className="flex items-start gap-4">
+                <Switch 
+                  id="autoAdvance" 
+                  checked={component.props.autoAdvance} 
+                  onCheckedChange={(checked) => onUpdate({...component.props, autoAdvance: checked})}
+                  className="mt-1"
+                />
+                <div className='grid gap-1.5'>
+                    <UILabel htmlFor="autoAdvance" className="font-medium">Auto-avançar</UILabel>
+                    <p className="text-xs text-muted-foreground">O funil avançará para a etapa seguinte definida na opção selecionada. Caso contrário, o usuário deverá clicar em um componente de Botão para poder prosseguir.</p>
+                </div>
+            </div>
+        </div>
+      </Card>
+      
+      <Card className="p-4 bg-card border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Estilização</h3>
+        <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <UILabel htmlFor="borderStyle" className='text-xs'>Bordas</UILabel>
+                  <Select value={component.props.borderStyle || 'media'} onValueChange={(value) => onUpdate({...component.props, borderStyle: value})}>
+                      <SelectTrigger id="borderStyle" className="mt-1 h-9"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="pequena">Pequena</SelectItem>
+                          <SelectItem value="media">Média</SelectItem>
+                          <SelectItem value="grande">Grande</SelectItem>
+                      </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <UILabel htmlFor="shadowStyle" className='text-xs'>Sombras</UILabel>
+                  <Select value={component.props.shadowStyle || 'pequena'} onValueChange={(value) => onUpdate({...component.props, shadowStyle: value})}>
+                      <SelectTrigger id="shadowStyle" className="mt-1 h-9"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="nenhuma">Nenhuma</SelectItem>
+                          <SelectItem value="pequena">Pequena</SelectItem>
+                          <SelectItem value="media">Média</SelectItem>
+                          <SelectItem value="grande">Grande</SelectItem>
+                      </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <UILabel htmlFor="spacingStyle" className='text-xs'>Espaçamento</UILabel>
+                  <Select value={component.props.spacingStyle || 'medio'} onValueChange={(value) => onUpdate({...component.props, spacingStyle: value})}>
+                      <SelectTrigger id="spacingStyle" className="mt-1 h-9"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="pequeno">Pequeno</SelectItem>
+                          <SelectItem value="medio">Médio</SelectItem>
+                          <SelectItem value="grande">Grande</SelectItem>
+                      </SelectContent>
+                  </Select>
+                </div>
+            </div>
+            <div>
+              <UILabel htmlFor="detailStyle" className='text-xs'>Detalhe</UILabel>
+              <Select value={component.props.detailStyle || 'nenhum'} onValueChange={(value) => onUpdate({...component.props, detailStyle: value})}>
+                  <SelectTrigger id="detailStyle" className="mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="nenhum">Nenhum</SelectItem>
+                      <SelectItem value="borda_superior">Borda Superior</SelectItem>
+                      <SelectItem value="icone">Ícone</SelectItem>
+                  </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <UILabel htmlFor="styleType" className='text-xs'>Estilo</UILabel>
+              <Select value={component.props.styleType || 'simples'} onValueChange={(value) => onUpdate({...component.props, styleType: value})}>
+                  <SelectTrigger id="styleType" className="mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="simples">Simples</SelectItem>
+                      <SelectItem value="card">Card</SelectItem>
+                  </SelectContent>
+              </Select>
+            </div>
+        </div>
       </Card>
     </div>
   );
@@ -3672,7 +3812,7 @@ function FunnelEditorContent() {
         progressColor: '#000000',
         progressTrackColor: '#E5E7EB',
         titleColor: '#000000',
-        descriptionColor: '#6b7280',
+        descriptionColor: '#000000',
         duration: 5,
         limit: 100,
         action: 'next_step',
@@ -3839,7 +3979,15 @@ function FunnelEditorContent() {
         opcoesItems: [
           { id: 1, icon: '👋', text: 'Opção 1' },
           { id: 2, icon: '🤔', text: 'Opção 2' }
-        ]
+        ],
+        multipleChoice: false,
+        opcoesRequired: false,
+        autoAdvance: false,
+        borderStyle: 'media',
+        shadowStyle: 'pequena',
+        spacingStyle: 'medio',
+        detailStyle: 'nenhum',
+        styleType: 'simples',
       };
     }
 
