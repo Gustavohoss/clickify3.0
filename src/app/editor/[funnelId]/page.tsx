@@ -2183,8 +2183,8 @@ const DepoimentosSettings = ({ component, onUpdate }: { component: CanvasCompone
     <div className='space-y-6'>
       <Card className="p-4 bg-muted/20 border-border/50 flex flex-col h-full">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Depoimentos</h3>
-        <ScrollArea className="flex-grow">
-            <div className="space-y-4 pr-4">
+        <ScrollArea className="flex-grow pr-4">
+            <div className="space-y-4">
             {testimonials.map(item => (
                 <Card key={item.id} className="p-4 bg-card space-y-4 relative">
                 <Button
@@ -3035,16 +3035,14 @@ function FunnelEditorContent() {
         <main className="flex-1 overflow-y-auto bg-white p-4" onClick={() => setSelectedComponentId(null)}>
             <div className="mx-auto w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
                 <div className="relative mb-4 h-10">
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm">
-                      <div className="relative h-2 rounded-full bg-gray-200">
-                          <div className="h-2 rounded-full bg-black" style={{ width: `50%` }} />
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 flex justify-center">
+                      <div className="w-10 h-10 bg-white border-2 border-black rounded-md flex items-center justify-center p-0.5 z-10">
+                        <ImageIcon className="h-6 w-6 text-gray-400" />
                       </div>
-                      <div 
-                          className="absolute -top-5 w-10 h-10 bg-white border-2 border-black rounded-md flex items-center justify-center p-0.5"
-                          style={{ left: `calc(50% - 20px)` }}
-                      >
-                          <ImageIcon className="h-6 w-6 text-gray-400" />
-                      </div>
+                    </div>
+                    <div className="absolute top-1/2 left-0 w-full h-0.5">
+                      <div className="h-full w-full bg-gray-200" />
+                      <div className="absolute top-0 left-0 h-full w-1/2 bg-black" />
                     </div>
                 </div>
 
@@ -3052,7 +3050,7 @@ function FunnelEditorContent() {
                     {canvasComponents.length === 0 ? (
                         <div className="flex-1 flex items-center justify-center text-center text-muted-foreground">
                             <div>
-                                <p className="text-lg">Nada por aqui 😔</p>
+                                <p className="text-lg font-semibold">Nada por aqui 😔</p>
                                 <p className="text-sm">Adicione um componente para começar.</p>
                             </div>
                         </div>
