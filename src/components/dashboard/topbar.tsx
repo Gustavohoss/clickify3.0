@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Menu, Zap } from 'lucide-react';
-import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '../ui/sheet';
 import { Sidebar } from './sidebar';
 
 export function Topbar() {
@@ -39,6 +39,10 @@ export function Topbar() {
                 </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-64 p-0">
+                <SheetHeader className="sr-only">
+                  <SheetTitle>Menu</SheetTitle>
+                  <SheetDescription>Navegação principal do painel</SheetDescription>
+                </SheetHeader>
                 <Sidebar />
             </SheetContent>
         </Sheet>
