@@ -3032,7 +3032,7 @@ function FunnelEditorContent() {
         </aside>
 
         {/* Center Canvas */}
-        <main className="flex-1 overflow-y-auto bg-muted/20 p-4" onClick={() => setSelectedComponentId(null)}>
+        <main className="flex-1 overflow-y-auto bg-white p-4" onClick={() => setSelectedComponentId(null)}>
             <div className="mx-auto w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-4 text-muted-foreground">
                     <ArrowLeft className="h-5 w-5 cursor-pointer hover:text-foreground" />
@@ -3092,6 +3092,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
