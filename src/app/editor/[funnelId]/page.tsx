@@ -3034,18 +3034,26 @@ function FunnelEditorContent() {
         {/* Center Canvas */}
         <main className="flex-1 overflow-y-auto bg-white p-4" onClick={() => setSelectedComponentId(null)}>
             <div className="mx-auto w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
-                <div className="flex items-center gap-4 text-muted-foreground">
-                    <ArrowLeft className="h-5 w-5 cursor-pointer hover:text-foreground" />
-                    <Separator className="flex-1" />
-                    <ImageIcon className="h-8 w-8 text-primary" />
-                    <Separator className="flex-1" />
+                <div className="relative mb-4 h-10">
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm">
+                      <div className="relative h-2 rounded-full bg-gray-200">
+                          <div className="h-2 rounded-full bg-black" style={{ width: `50%` }} />
+                      </div>
+                      <div 
+                          className="absolute -top-5 w-10 h-10 bg-white border-2 border-black rounded-md flex items-center justify-center p-0.5"
+                          style={{ left: `calc(50% - 20px)` }}
+                      >
+                          <ImageIcon className="h-6 w-6 text-gray-400" />
+                      </div>
+                    </div>
                 </div>
+
                 <div className="mt-8 flex min-h-[400px] flex-col gap-4 rounded-lg border-2 border-dashed border-border bg-card/50 p-4">
                     {canvasComponents.length === 0 ? (
                         <div className="flex-1 flex items-center justify-center text-center text-muted-foreground">
                             <div>
                                 <p className="text-lg">Nada por aqui 😔</p>
-                                <p className="text-sm">Clique em um componente para começar.</p>
+                                <p className="text-sm">Adicione um componente para começar.</p>
                             </div>
                         </div>
                     ) : (
@@ -3088,34 +3096,3 @@ export default function EditorPage() {
         </Suspense>
     )
 }
-
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
