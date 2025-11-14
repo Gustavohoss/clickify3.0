@@ -200,6 +200,12 @@ type OpcaoItem = {
     text: string;
 };
 
+type TermosLinkItem = {
+  id: number;
+  text: string;
+  url: string;
+};
+
 
 type ComponentProps = {
   // Common properties for all components
@@ -334,6 +340,12 @@ type ComponentProps = {
   priceTextColor?: string;
   popularBannerColor?: string;
   popularTextColor?: string;
+  // Specific properties for Termos
+  mainText?: string;
+  links?: TermosLinkItem[];
+  termosTextColor?: string;
+  termosFontSize?: 'xs' | 'sm' | 'base' | 'lg';
+  termosTextAlign?: 'left' | 'center' | 'right';
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -1463,6 +1475,45 @@ const PrecoCanvasComponent = ({ component }: { component: CanvasComponentData })
   );
 };
 
+const TermosCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const {
+    mainText = 'Ao clicar em alguma das opções, você concorda com os',
+    links = [],
+    termosTextColor = '#6B7280',
+    termosFontSize = 'sm',
+    termosTextAlign = 'center',
+  } = component.props;
+
+  const fontSizeClasses: { [key: string]: string } = {
+    xs: 'text-xs',
+    sm: 'text-sm',
+    base: 'text-base',
+    lg: 'text-lg',
+  };
+
+  return (
+    <p
+      className={cn(
+        'w-full',
+        `text-${termosTextAlign}`,
+        fontSizeClasses[termosFontSize]
+      )}
+      style={{ color: termosTextColor }}
+    >
+      {mainText}{' '}
+      {links.map((link, index) => (
+        <React.Fragment key={link.id}>
+          <a href={link.url} target="_blank" rel="noopener noreferrer" className="font-bold underline">
+            {link.text}
+          </a>
+          {index < links.length - 2 ? ', ' : (index === links.length - 2 ? ' e ' : '')}
+        </React.Fragment>
+      ))}
+    </p>
+  );
+};
+
+
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
   const renderComponent = () => {
@@ -1507,6 +1558,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
           return <OpcoesCanvasComponent component={component} />;
       case 'Preço':
           return <PrecoCanvasComponent component={component} />;
+      case 'Termos':
+          return <TermosCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -1763,7 +1816,7 @@ const emojiCategories = {
     'Smileys & People': ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾', '👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '🖕', '👇', '☝️', '👍', '👎', '✊', '👊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️', '💅', '🤳', '💪', '🦾', '🦵', '🦿', '🦶', '👂', '🦻', '👃', '🧠', '🦷', '🦴', '👀', '👁️', '👅', '👄'],
     'Animals & Nature': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐽', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦟', '🦗', '🕷️', '🕸️', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🦧', '🐘', '🦛', '🦏', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🦙', '🐐', '🦌', '🐕', '🐩', '🦮', '🐕‍', '🐈', '🐓', '🦃', '🦜', '🦢', '🦩', '🕊️', '🐇', '🦝', '🦨', '🦡', '🦦', '🦥', '🐁', '🐀', '🐿️', '🦔', '🐾', '🐉', '🐲', '🌵', '🎄', '🌲', '🌳', '🌴', '🌱', '🌿', '☘️', '🍀', '🎍', '🎋', '🍃', '🍂', '🍁', '🍄', '🐚', '🌾', '💐', '🌷', '🌹', '🥀', '🌺', '🌸', '🌼', '🌻', '🌞', '🌝', '🌛', '🌜', '🌚', '🌕', '🌖', '🌗', '🌘', '🌑', '🌒', '🌓', '🌔', '🌙', '🌎', '🌍', '🌏', '💫', '⭐️', '🌟', '✨', '⚡️', '☄️', '💥', '🔥', '🌪️', '🌈', '☀️', '🌤️', '⛅️', '🌥️', '☁️', '🌦️', '🌧️', '⛈️', '🌩️', '🌨️', '❄️', '☃️', '⛄️', '🌬️', '💨', '💧', '💦', '☔️', '☂️', '🌊', '🌫️'],
     'Food & Drink': ['🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕', '🧄', '🧅', '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🧈', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🦴', '핫도그', '🍔', '🍟', '🍕', '🥪', '🥙', '🧆', '🌮', 'Burrito', '🥗', '🥘', '🥫', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🍤', '🍙', '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🌰', '🥜', '🍯', '🥛', '🍼', '☕️', '🍵', '🧃', '🥤', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🧉', '🍾', '🧊', '🥄', '🍴', '🍽️', '🥣', '🥡', '🥢', '🧂'],
-    'Activities': ['⚽️', '🏀', '🏈', '⚾️', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🏓', '🏸', '🏒', '🏑', '𥍍', '🏏', '🥅', '⛳️', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️‍♀️', '🏋️‍♂️', '🤸‍♀️', '🤸‍♂️', '🤺', '🏌️‍♀️', '🏌️‍♂️', '🏇', '🧘‍♀️', '🧘‍♂️', '🏄‍♀️', '🏄‍♂️', '🏊‍♀️', '🏊‍♂️', '🤽‍♀️', '🤽‍♂️', '🚣‍♀️', '🚣‍♂️', '🧗‍♀️', '🧗‍♂️', '🚵‍♀️', '🚵‍♂️', '🚴‍♀️', '🚴‍♂️', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫', '🎟️', '🎪', '🤹‍♀️', '𤹹‍♂️', '🎭', '🩰', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🎻', '🎲', '♟️', '🎯', '🎳', '🎮', '🎰', '🧩'],
+    'Activities': ['⚽️', '🏀', '🏈', '⚾️', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🏓', '🏸', '🏒', '🏑', '', '🏏', '🥅', '⛳️', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️‍♀️', '🏋️‍♂️', '🤸‍♀️', '🤸‍♂️', '🤺', '🏌️‍♀️', '🏌️‍♂️', '🏇', '🧘‍♀️', '🧘‍♂️', '🏄‍♀️', '🏄‍♂️', '🏊‍♀️', '🏊‍♂️', '🤽‍♀️', '🤽‍♂️', '🚣‍♀️', '🚣‍♂️', '🧗‍♀️', '🧗‍♂️', '🚵‍♀️', '🚵‍♂️', '🚴‍♀️', '🚴‍♂️', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫', '🎟️', '🎪', '🤹‍♀️', '𤹹‍♂️', '🎭', '🩰', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🎻', '🎲', '♟️', '🎯', '🎳', '🎮', '🎰', '🧩'],
     'Travel & Places': ['🚗', '🚕', '🚙', '🚌', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜', '🛴', '🚲', '🛵', '🏍️', '🛺', '🚨', '🚔', '🚍', '🚘', '', '🚡', '🚠', '🚟', '🚃', '🚋', '🚞', '🚄', '🚅', '🚈', '🚂', '🚆', '🚇', '🚊', '🚉', '✈️', '🛫', '🛬', '💺', '🚀', '🛸', '🚁', '🛶', '⛵️', '🚤', '🛥️', '🛳️', '⛴️', '🚢', '⚓️', '⛽️', '🚧', '🚦', '🚥', '🗺️', '🗿', '🗽', '🗼', '🏰', '🏯', '🏟️', '🎡', '🎢', '🎠', '⛲️', '⛱️', '🏖️', '🏝️', '🏜️', '🌋', '⛰️', '🏔️', '🗻', '🏕️', '⛺️', '🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏭', '🏢', '🏬', '🏤', '🏥', '🏦', '🏨', '🏪', '🏫', '🏩', '💒', '🏛️', '⛪️', '🕌', '🕍', '🛕', '🕋', '⛩️', '🛤️', '🛣️', '🗾', '🎑', '🏞️', '🌅', '🌄', '🌠', '🎇', '🎆', '🌉', '🌁', '🏙️', '🌃', '🌌'],
     'Objects': ['⌚️', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', 'Joystick', '💽', '💾', '💿', '📀', 'VHS', '📷', '📸', '📹', '🎥', 'Film', '📞', '☎️', '📟', 'Fax', '📺', '📻', '🎙️', '️', 'Mixer', '🧭', '⏱️', 'Timer', '⏰', 'Clock', '⌛️', 'Hourglass', '📡', '🔋', '🔌', '💡', '🔦', 'Candle', '🪔', 'Extinguisher', '🗑️', 'Drum', '💸', '💵', '💴', '💶', '💷', '💰', '💳', 'Receipt', '💎', '⚖️', '🦯', 'Wrench', 'Hammer', 'Tools', 'Pick', 'Screw', 'Gear', '🧱', '⛓️', '🧲', 'Gun', '💣', '🧨', 'Knife', 'Sword', 'Battle', 'Shield', '🚬', 'Coffin', 'Urn', 'Vase', '🔮', 'Bead', 'Amulet', 'Barber', 'Alembic', 'Telescope', 'Microscope', 'Well', 'Pill', 'Injection', 'Blood', 'DNA', 'Germ', 'Plate', 'Thermometer', 'Broom', 'Basket', 'Tissue', 'Toilet', 'Faucet', 'Shower', 'Bath', 'Soap', 'Razor', 'Sponge', 'Lotion', 'Bell', 'Key', 'Lock', 'Door', 'Chair', 'Couch', 'Bed', 'Sleeping', 'Teddy', 'Picture', 'Bag', 'Cart', 'Gift', 'Balloon', 'Cometa', 'Ribbon', 'Confetti', 'Party', 'Doll', 'Lantern', 'Wind', 'Aviso', 'Envelope', 'Enviando', 'Chegou', 'Email', 'Love', 'Postbox', 'Puxar', 'Enfiando', 'Mandou', 'Pacote', 'Listas', 'A4', 'Rolo', 'Folhas', 'Grafico', 'Aumento', 'Caindo', 'Caderno', 'Contatos', 'Calendário', 'Cartão', 'Arquivo', 'Votos', 'Gaveta', 'Organizado', 'Pasta', 'Pressionado', 'Livro', 'Ler', 'Marca', 'Alfinete', 'Clipe', 'Tesoura', 'Caneta', 'Pincel', 'Escrever', 'Lupa', 'Seguro', 'Trancado', 'Desbloqueado'],
     'Symbols': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈️', '♉️', '♊️', '♋️', '♌️', '♍️', '♎️', '♏️', '♐️', '♑️', '♒️', '♓️', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚️', '🈸', '🈺', '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴', '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️', '🆘', '❌', '⭕️', '🛑', '⛔️', '📛', '🚫', '💯', '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵', '🚭', '❗️', '❕', '❓', '❔', '‼️', '⁉️', '🔅', '🔆', '〽️', '⚠️', '🚸', '🔱', '⚜️', '🔰', '♻️', '✅', '🈯️', '💹', '❇️', '✳️', '❎', '🌐', '💠', 'Ⓜ️', '🌀', '💤', 'ATM', 'ge', '♿️', '🅿️', '🈳', '🈂️', '🛂', '🛃', '🛄', '🛅', '🚹', '🚺', '🚼', '🚻', '🚮', '🎦', '📶', '🈁', '🔣', 'ℹ️', '🔤', '🔡', '🔠', '🆖', '🆗', '🆙', '🆒', '🆕', '🆓', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟', '🔢', '#️⃣', '*️⃣', '⏏️', '▶️', '⏸️', '⏯️', '⏹️', '⏺️', '⏭️', '⏮️', '⏩', '⏪', '⏫', '⏬', '◀️', '🔼', '🔽', '➡️', '⬅️', '⬆️', '⬇️', '↗️', '↘️', '↙️', '↖️', '↕️', '↔️', '↪️', '↩️', '⤴️', '⤵️', '🔀', '🔁', '🔂', '🔄', '🔃', '🎵', '🎶', '➕', '➖', '➗', '✖️', '♾️', '💲', '💱', '™️', '©️', '®️', '👁️‍🗨️', '🔚', '🔙', '🔛', '🔝', '🔜', '✔️', '☑️', '🔘', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️', '🟤', '🔺', '🔻', '🔼', '🔽', '▪️', '▫️', '◾️', '◽️', '◼️', '◻️', '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛️', '⬜️', '🟫', '🔶', '🔷', '🔸', '🔹', '🔳', '💭', '🗯️', '💬', '🗨️', '🀄️', '🃏', '♠️', '♣️', '♥️', '♦️', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚', '🕛', '🕜', '🕝', '🕟', '🕠', '🕡', '🕢', '🕣', '🕤', '🕥', '🕦', '🕧']
@@ -3133,42 +3186,42 @@ const GraficosSettings = ({ component, onUpdate }: { component: CanvasComponentD
 
     return (
         <div className='space-y-6'>
-            <Card className="p-4 bg-card border-border/50">
-                <h3 className="text-sm font-medium text-muted-foreground mb-4">Layout</h3>
-                <div className="space-y-3">
-                    <div>
-                        <UILabel htmlFor="graficosLayout" className='text-xs'>Layout</UILabel>
-                        <Select
-                        value={component.props.graficosLayout || '2-cols'}
-                        onValueChange={(value) => onUpdate({ ...component.props, graficosLayout: value })}
-                        >
-                        <SelectTrigger id="graficosLayout" className="mt-1">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="1-col">1 Coluna</SelectItem>
-                            <SelectItem value="2-cols">2 Colunas</SelectItem>
-                            <SelectItem value="3-cols">3 Colunas</SelectItem>
-                            <SelectItem value="4-cols">4 Colunas</SelectItem>
-                        </SelectContent>
-                        </Select>
-                    </div>
-                    <div>
-                        <UILabel htmlFor="disposition" className='text-xs'>Disposição</UILabel>
-                        <Select
-                            value={component.props.disposition || 'top'}
-                            onValueChange={(value) => onUpdate({ ...component.props, disposition: value })}
-                        >
-                        <SelectTrigger id="disposition" className="mt-1">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="top">Gráfico Acima</SelectItem>
-                            <SelectItem value="side">Gráfico ao Lado</SelectItem>
-                        </SelectContent>
-                        </Select>
-                    </div>
+           <Card className="p-4 bg-card border-border/50">
+             <h3 className="text-sm font-medium text-muted-foreground mb-4">Layout</h3>
+             <div className="space-y-3">
+                <div>
+                    <UILabel htmlFor="graficosLayout" className='text-xs'>Layout</UILabel>
+                    <Select
+                    value={component.props.graficosLayout || '2-cols'}
+                    onValueChange={(value) => onUpdate({ ...component.props, graficosLayout: value })}
+                    >
+                    <SelectTrigger id="graficosLayout" className="mt-1">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="1-col">1 Coluna</SelectItem>
+                        <SelectItem value="2-cols">2 Colunas</SelectItem>
+                        <SelectItem value="3-cols">3 Colunas</SelectItem>
+                        <SelectItem value="4-cols">4 Colunas</SelectItem>
+                    </SelectContent>
+                    </Select>
                 </div>
+                <div>
+                    <UILabel htmlFor="disposition" className='text-xs'>Disposição</UILabel>
+                    <Select
+                        value={component.props.disposition || 'top'}
+                        onValueChange={(value) => onUpdate({ ...component.props, disposition: value })}
+                    >
+                    <SelectTrigger id="disposition" className="mt-1">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="top">Gráfico Acima</SelectItem>
+                        <SelectItem value="side">Gráfico ao Lado</SelectItem>
+                    </SelectContent>
+                    </Select>
+                </div>
+             </div>
             </Card>
             <Card className="p-4 bg-card border-border/50">
                 <h3 className="text-sm font-medium text-muted-foreground mb-4">Itens do Gráfico</h3>
@@ -3829,6 +3882,132 @@ const PrecoSettings = ({ component, onUpdate }: { component: CanvasComponentData
   );
 };
 
+const TermosSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  const links = component.props.links || [];
+
+  const handleUpdateLink = (linkId: number, newValues: Partial<TermosLinkItem>) => {
+    const newLinks = links.map(link =>
+      link.id === linkId ? { ...link, ...newValues } : link
+    );
+    onUpdate({ ...component.props, links: newLinks });
+  };
+
+  const handleAddLink = () => {
+    const newLink: TermosLinkItem = {
+      id: Date.now(),
+      text: 'Nova Política',
+      url: '#'
+    };
+    onUpdate({ ...component.props, links: [...links, newLink] });
+  };
+
+  const handleDeleteLink = (linkId: number) => {
+    const newLinks = links.filter(link => link.id !== linkId);
+    onUpdate({ ...component.props, links: newLinks });
+  };
+
+  return (
+    <div className='space-y-6'>
+      <Card className="p-4 bg-card border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Conteúdo</h3>
+        <div className="space-y-3">
+          <div>
+            <UILabel htmlFor="mainText" className='text-xs'>Texto Principal</UILabel>
+            <Textarea
+              id="mainText"
+              value={component.props.mainText || ''}
+              onChange={(e) => onUpdate({ ...component.props, mainText: e.target.value })}
+              className="mt-1"
+            />
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-4 bg-card border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Links</h3>
+        <ScrollArea className="h-[20rem]">
+          <div className="space-y-4 pr-4">
+            {links.map(link => (
+              <Card key={link.id} className="p-3 bg-card space-y-3 relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  onClick={() => handleDeleteLink(link.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+                <div>
+                  <UILabel htmlFor={`link-text-${link.id}`} className='text-xs'>Texto do Link</UILabel>
+                  <Input
+                    id={`link-text-${link.id}`}
+                    value={link.text}
+                    onChange={(e) => handleUpdateLink(link.id, { text: e.target.value })}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <UILabel htmlFor={`link-url-${link.id}`} className='text-xs'>URL do Link</UILabel>
+                  <Input
+                    id={`link-url-${link.id}`}
+                    value={link.url}
+                    onChange={(e) => handleUpdateLink(link.id, { url: e.target.value })}
+                    className="mt-1"
+                  />
+                </div>
+              </Card>
+            ))}
+          </div>
+        </ScrollArea>
+        <Button variant="outline" className="w-full mt-4" onClick={handleAddLink}>
+          <Plus className="h-4 w-4 mr-2" />
+          Adicionar Link
+        </Button>
+      </Card>
+
+      <Card className="p-4 bg-card border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Estilo do Texto</h3>
+        <div className="space-y-3">
+          <div>
+            <UILabel htmlFor="termosTextAlign" className='text-xs'>Alinhamento</UILabel>
+            <Select
+              value={component.props.termosTextAlign || 'center'}
+              onValueChange={(value: 'left' | 'center' | 'right') => onUpdate({ ...component.props, termosTextAlign: value })}
+            >
+              <SelectTrigger id="termosTextAlign" className="mt-1"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="left">Esquerda</SelectItem>
+                <SelectItem value="center">Centro</SelectItem>
+                <SelectItem value="right">Direita</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <UILabel htmlFor="termosFontSize" className='text-xs'>Tamanho</UILabel>
+            <Select
+              value={component.props.termosFontSize || 'sm'}
+              onValueChange={(value: 'xs' | 'sm' | 'base' | 'lg') => onUpdate({ ...component.props, termosFontSize: value })}
+            >
+              <SelectTrigger id="termosFontSize" className="mt-1"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="xs">Extra Pequeno</SelectItem>
+                <SelectItem value="sm">Pequeno</SelectItem>
+                <SelectItem value="base">Normal</SelectItem>
+                <SelectItem value="lg">Grande</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <UILabel htmlFor='termosTextColor' className='text-xs'>Cor</UILabel>
+            <Input type='color' id='termosTextColor' className='p-1 h-8 w-full mt-1' value={component.props.termosTextColor || '#6B7280'} onChange={(e) => onUpdate({ ...component.props, termosTextColor: e.target.value })} />
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
@@ -3879,6 +4058,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <OpcoesSettings component={component} onUpdate={handleUpdate} />;
         case 'Preço':
             return <PrecoSettings component={component} onUpdate={handleUpdate} />;
+        case 'Termos':
+            return <TermosSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -4146,6 +4327,22 @@ function FunnelEditorContent() {
         popularTextColor: '#FFFFFF',
       };
     }
+
+    if (component.name === 'Termos') {
+      defaultProps = {
+        mainText: 'Ao clicar em alguma das opções, você concorda com os',
+        links: [
+          { id: 1, text: 'Termos de utilização e serviço', url: '#' },
+          { id: 2, text: 'Política de privacidade', url: '#' },
+          { id: 3, text: 'Política de subscrição', url: '#' },
+          { id: 4, text: 'Política de cookies', url: '#' },
+        ],
+        termosTextColor: '#6B7280',
+        termosFontSize: 'sm',
+        termosTextAlign: 'center',
+      };
+    }
+
 
 
     const newComponent: CanvasComponentData = { 
