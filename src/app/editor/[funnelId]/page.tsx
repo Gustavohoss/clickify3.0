@@ -3036,8 +3036,8 @@ function FunnelEditorContent() {
         <main className="flex-1 overflow-y-auto bg-white p-4" onClick={() => setSelectedComponentId(null)}>
             <div className="mx-auto w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
                 <div className="relative mb-4 h-10">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 flex justify-center">
-                      <div className="w-10 h-10 bg-white border-2 border-black rounded-md flex items-center justify-center p-0.5 z-10">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 flex justify-center z-10">
+                      <div className="w-10 h-10 bg-white border-2 border-black rounded-md flex items-center justify-center p-0.5">
                         <ImageIcon className="h-6 w-6 text-gray-400" />
                       </div>
                     </div>
@@ -3056,8 +3056,7 @@ function FunnelEditorContent() {
                             </div>
                         </div>
                     ) : (
-                      <div className="flex flex-col gap-4 rounded-lg bg-card/50 p-4">
-                        {canvasComponents.map((comp) => (
+                        canvasComponents.map((comp) => (
                             <CanvasComponent 
                                 key={comp.id} 
                                 component={comp} 
@@ -3066,8 +3065,7 @@ function FunnelEditorContent() {
                                 onDuplicate={() => duplicateComponent(comp.id)}
                                 onDelete={() => deleteComponent(comp.id)}
                             />
-                        ))}
-                      </div>
+                        ))
                     )}
                 </div>
             </div>
