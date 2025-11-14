@@ -225,7 +225,6 @@ type ComponentProps = {
   // Specific properties for Carregando
   loadingText?: string;
   loadingDescription?: string;
-  progressColor?: string;
   progressTrackColor?: string;
   duration?: number;
   limit?: number;
@@ -297,6 +296,15 @@ type ComponentProps = {
   speed?: number;
   direction?: 'left' | 'right';
   pauseOnHover?: boolean;
+   // Specific properties for Nível
+   value?: number;
+   tooltipText?: string;
+   showTooltip?: boolean;
+   nivelTrackColor?: string;
+   nivelProgressColor?: string;
+   nivelThumbColor?: string;
+   tooltipColor?: string;
+   tooltipTextColor?: string;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -322,7 +330,7 @@ const components: ComponentType[] = [
   { name: 'Imagem', icon: <ImageIcon /> },
   { name: 'Lista', icon: <ListIcon />, isNew: true },
   { name: 'Marquise', icon: <ChevronsRight />, isNew: true },
-  { name: 'Nível', icon: <SlidersHorizontal /> },
+  { name: 'Nível', icon: <SlidersHorizontal />, isNew: true },
   { name: 'Opções', icon: <CheckSquare /> },
   { name: 'Preço', icon: <DollarSign /> },
   { name: 'Script', icon: <FileCode /> },
@@ -543,7 +551,7 @@ const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentDa
     progressColor = '#000000',
     progressTrackColor = '#E5E7EB',
     titleColor = '#000000',
-    descriptionColor = '#000000',
+    descriptionColor = '#6b7280',
     duration = 5,
     limit = 100,
     showTitle = true,
@@ -598,7 +606,7 @@ const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentDa
             } as React.CSSProperties}
           />
       )}
-      <p className="text-sm text-center pt-1 text-black" style={{ color: descriptionColor }}>{loadingDescription}</p>
+      <p className="text-sm text-center pt-1 text-gray-500" style={{ color: descriptionColor }}>{loadingDescription}</p>
     </div>
   );
 };
@@ -633,7 +641,7 @@ const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData
                   )}
                 </div>
               </div>
-              {slide.caption && <p className="text-center text-sm text-black mt-2">{slide.caption}</p>}
+              {slide.caption && <p className="text-center text-sm text-gray-600 mt-2">{slide.caption}</p>}
             </div>
           </CarouselItem>
         ))}
@@ -844,7 +852,7 @@ const ConfettiCanvasComponent = ({ component }: { component: CanvasComponentData
 
 const DepoimentosCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
   const testimonials = component.props.testimonials || [];
-  const { cardBackgroundColor, cardTextColor, cardBorderColor } = component.props;
+  const { cardBackgroundColor, cardBorderColor } = component.props;
 
 
   if (testimonials.length === 0) {
@@ -892,7 +900,7 @@ const DepoimentosCanvasComponent = ({ component }: { component: CanvasComponentD
               <AvatarImage src={item.imageUrl} alt={item.name} />
               <AvatarFallback>{item.name.charAt(0)}</AvatarFallback>
             </Avatar>
-            <div className="w-full" style={{ color: cardTextColor }}>
+            <div className="w-full">
                 <StarRating rating={item.rating} />
                 <div className="mt-2">
                     <p className="font-bold text-black">{item.name}</p>
@@ -1050,7 +1058,7 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
     return (
         <div className={cn('grid gap-4', gridClass)}>
             {graficosItems.map((item) => (
-                <div key={item.id} className={cn("p-4 flex gap-4 items-center", dispositionClass)}>
+                <div key={item.id} className={cn("p-4 flex gap-4", dispositionClass)}>
                     <div 
                         className={cn(
                             "rounded-lg flex justify-end overflow-hidden relative border",
@@ -1142,7 +1150,7 @@ const ListaCanvasComponent = ({ component }: { component: CanvasComponentData })
   return (
     <div className="space-y-3 w-full max-w-md mx-auto">
       {items.map((item) => (
-        <Card key={item.id} className="p-3 bg-white border border-black/10 shadow-sm hover:shadow-md transition-shadow">
+        <div key={item.id} className="p-3 bg-white border border-black/10 transition-shadow">
           <div className="flex items-center gap-4">
             <div 
               className="h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0" 
@@ -1155,7 +1163,7 @@ const ListaCanvasComponent = ({ component }: { component: CanvasComponentData })
               <p className="text-sm text-gray-500">{item.subtitle}</p>
             </div>
           </div>
-        </Card>
+        </div>
       ))}
     </div>
   );
@@ -1234,6 +1242,82 @@ const MarquiseCanvasComponent = ({ component }: { component: CanvasComponentData
   );
 };
 
+const NivelCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+    const { 
+        title = "Nível",
+        subtitle = "Lorem ipsum",
+        value = 75,
+        tooltipText = "Você está aqui",
+        showTooltip = true,
+        nivelTrackColor = '#E5E7EB',
+        nivelProgressColor = '#111827',
+        nivelThumbColor = '#FFFFFF',
+        tooltipColor = '#111827',
+        tooltipTextColor = '#FFFFFF',
+    } = component.props;
+
+    const labels = ["Baixo", "Médio", "Alto"];
+    const tooltipRef = useRef<HTMLDivElement>(null);
+    const [tooltipWidth, setTooltipWidth] = useState(0);
+
+    useEffect(() => {
+        if (tooltipRef.current) {
+            setTooltipWidth(tooltipRef.current.offsetWidth);
+        }
+    }, [tooltipText]);
+
+
+    return (
+        <div className="w-full max-w-md mx-auto p-4">
+            <div className="flex justify-between items-end mb-1">
+                <div>
+                    <h4 className="font-bold text-black">{title}</h4>
+                    <p className="text-sm text-gray-500">{subtitle}</p>
+                </div>
+                <span className="font-semibold text-gray-600">{value}%</span>
+            </div>
+            <div className="relative">
+                <Slider
+                    value={[value]}
+                    max={100}
+                    step={1}
+                    disabled
+                    className="w-full"
+                    style={{
+                        '--slider-track': nivelProgressColor,
+                        '--slider-thumb': nivelThumbColor,
+                        '--slider-track-bg': nivelTrackColor
+                    } as React.CSSProperties}
+                />
+                 {showTooltip && (
+                    <div 
+                        ref={tooltipRef}
+                        className="absolute bottom-full mb-3"
+                        style={{
+                            left: `${value}%`,
+                            transform: `translateX(calc(-50% + ${tooltipWidth * ( (50 - value) / 100)}px))`,
+                        }}
+                    >
+                        <div 
+                            className="text-sm px-3 py-1 rounded-md relative"
+                            style={{ backgroundColor: tooltipColor, color: tooltipTextColor }}
+                        >
+                            {tooltipText}
+                            <div 
+                                className="absolute left-1/2 top-full -translate-x-1/2 w-0 h-0 border-x-8 border-x-transparent border-t-[8px]"
+                                style={{ borderTopColor: tooltipColor }}
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
+            <div className="flex justify-between text-sm text-gray-500 mt-1">
+                {labels.map(label => <span key={label}>{label}</span>)}
+            </div>
+        </div>
+    );
+};
+
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
   const renderComponent = () => {
@@ -1272,6 +1356,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
           return <ListaCanvasComponent component={component} />;
       case 'Marquise':
           return <MarquiseCanvasComponent component={component} />;
+      case 'Nível':
+          return <NivelCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -1530,8 +1616,8 @@ const emojiCategories = {
     'Food & Drink': ['🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕', '🧄', '🧅', '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🧈', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🦴', '핫도그', '🍔', '🍟', '🍕', '🥪', '🥙', '🧆', '🌮', 'Burrito', '🥗', '🥘', '🥫', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🍤', '🍙', '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🌰', '🥜', '🍯', '🥛', '🍼', '☕️', '🍵', '🧃', '🥤', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🧉', '🍾', '🧊', '🥄', '🍴', '🍽️', '🥣', '🥡', '🥢', '🧂'],
     'Activities': ['⚽️', '🏀', '🏈', '⚾️', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🏓', '🏸', '🏒', '🏑', '𥍍', '🏏', '🥅', '⛳️', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️‍♀️', '🏋️‍♂️', '🤸‍♀️', '🤸‍♂️', '🤺', '🏌️‍♀️', '🏌️‍♂️', '🏇', '🧘‍♀️', '🧘‍♂️', '🏄‍♀️', '🏄‍♂️', '🏊‍♀️', '🏊‍♂️', '🤽‍♀️', '🤽‍♂️', '🚣‍♀️', '🚣‍♂️', '🧗‍♀️', '🧗‍♂️', '🚵‍♀️', '🚵‍♂️', '🚴‍♀️', '🚴‍♂️', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫', '🎟️', '🎪', '🤹‍♀️', '𤹹‍♂️', '🎭', '🩰', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🎻', '🎲', '♟️', '🎯', '🎳', '🎮', '🎰', '🧩'],
     'Travel & Places': ['🚗', '🚕', '🚙', '🚌', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜', '🛴', '🚲', '🛵', '🏍️', '🛺', '🚨', '🚔', '🚍', '🚘', '', '🚡', '🚠', '🚟', '🚃', '🚋', '🚞', '🚄', '🚅', '🚈', '🚂', '🚆', '🚇', '🚊', '🚉', '✈️', '🛫', '🛬', '💺', '🚀', '🛸', '🚁', '🛶', '⛵️', '🚤', '🛥️', '🛳️', '⛴️', '🚢', '⚓️', '⛽️', '🚧', '🚦', '🚥', '🗺️', '🗿', '🗽', '🗼', '🏰', '🏯', '🏟️', '🎡', '🎢', '🎠', '⛲️', '⛱️', '🏖️', '🏝️', '🏜️', '🌋', '⛰️', '🏔️', '🗻', '🏕️', '⛺️', '🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏭', '🏢', '🏬', '🏤', '🏥', '🏦', '🏨', '🏪', '🏫', '🏩', '💒', '🏛️', '⛪️', '🕌', '🕍', '🛕', '🕋', '⛩️', '🛤️', '🛣️', '🗾', '🎑', '🏞️', '🌅', '🌄', '🌠', '🎇', '🎆', '🌉', '🌁', '🏙️', '🌃', '🌌'],
-    'Objects': ['⌚️', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', 'Joystick', '💽', '💾', '💿', '📀', 'VHS', '📷', '📸', '📹', '🎥', 'Film', '📞', '☎️', '📟', 'Fax', '📺', '📻', '🎙️', '🎚️', 'Mixer', '🧭', '⏱️', 'Timer', '⏰', 'Clock', '⌛️', 'Hourglass', '📡', '🔋', '🔌', '💡', '🔦', 'Candle', '🪔', 'Extinguisher', '🗑️', 'Drum', '💸', '💵', '💴', '💶', '💷', '💰', '💳', 'Receipt', '💎', '⚖️', '🦯', 'Wrench', 'Hammer', 'Tools', 'Pick', 'Screw', 'Gear', '🧱', '⛓️', '🧲', 'Gun', '💣', '🧨', 'Knife', 'Sword', 'Battle', 'Shield', '🚬', 'Coffin', 'Urn', 'Vase', '🔮', 'Bead', 'Amulet', 'Barber', 'Alembic', 'Telescope', 'Microscope', 'Well', 'Pill', 'Injection', 'Blood', 'DNA', 'Germ', 'Plate', 'Thermometer', 'Broom', 'Basket', 'Tissue', 'Toilet', 'Faucet', 'Shower', 'Bath', 'Soap', 'Razor', 'Sponge', 'Lotion', 'Bell', 'Key', 'Lock', 'Door', 'Chair', 'Couch', 'Bed', 'Sleeping', 'Teddy', 'Picture', 'Bag', 'Cart', 'Gift', 'Balloon', 'Cometa', 'Ribbon', 'Confetti', 'Party', 'Doll', 'Lantern', 'Wind', 'Aviso', 'Envelope', 'Enviando', 'Chegou', 'Email', 'Love', 'Postbox', 'Puxar', 'Enfiando', 'Mandou', 'Pacote', 'Listas', 'A4', 'Rolo', 'Folhas', 'Grafico', 'Aumento', 'Caindo', 'Caderno', 'Contatos', 'Calendário', 'Cartão', 'Arquivo', 'Votos', 'Gaveta', 'Organizado', 'Pasta', 'Pressionado', 'Livro', 'Ler', 'Marca', 'Alfinete', 'Clipe', 'Tesoura', 'Caneta', 'Pincel', 'Escrever', 'Lupa', 'Seguro', 'Trancado', 'Desbloqueado'],
-    'Symbols': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈️', '♉️', '♊️', '♋️', '♌️', '♍️', '♎️', '♏️', '♐️', '♑️', '♒️', '♓️', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚️', '🈸', '🈺', '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴', '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️', '🆘', '❌', '⭕️', '🛑', '⛔️', '📛', '🚫', '💯', '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵', '🚭', '❗️', '❕', '❓', '❔', '‼️', '⁉️', '🔅', '🔆', '〽️', '⚠️', '🚸', '🔱', '⚜️', '🔰', '♻️', '✅', '🈯️', '💹', '❇️', '✳️', '❎', '🌐', '💠', 'Ⓜ️', '🌀', '💤', 'ATM', '🚾', '♿️', '🅿️', '🈳', '🈂️', '🛂', '🛃', '🛄', '🛅', '🚹', '🚺', '🚼', '🚻', '🚮', '🎦', '📶', '🈁', '🔣', 'ℹ️', '🔤', '🔡', '🔠', '🆖', '🆗', '🆙', '🆒', '🆕', '🆓', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟', '🔢', '#️⃣', '*️⃣', '⏏️', '▶️', '⏸️', '⏯️', '⏹️', '⏺️', '⏭️', '⏮️', '⏩', '⏪', '⏫', '⏬', '◀️', '🔼', '🔽', '➡️', '⬅️', '⬆️', '⬇️', '↗️', '↘️', '↙️', '↖️', '↕️', '↔️', '↪️', '↩️', '⤴️', '⤵️', '🔀', '🔁', '🔂', '🔄', '🔃', '🎵', '🎶', '➕', '➖', '➗', '✖️', '♾️', '💲', '💱', '™️', '©️', '®️', '👁️‍🗨️', '🔚', '🔙', '🔛', '🔝', '🔜', '✔️', '☑️', '🔘', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️', '🟤', '🔺', '🔻', '🔼', '🔽', '▪️', '▫️', '◾️', '◽️', '◼️', '◻️', '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛️', '⬜️', '🟫', '🔶', '🔷', '🔸', '🔹', '🔳', '💭', '🗯️', '💬', '🗨️', '🀄️', '🃏', '♠️', '♣️', '♥️', '♦️', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚', '🕛', '🕜', '🕝', '🕟', '🕠', '🕡', '🕢', '🕣', '🕤', '🕥', '🕦', '🕧']
+    'Objects': ['⌚️', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', 'Joystick', '💽', '💾', '💿', '📀', 'VHS', '📷', '📸', '📹', '🎥', 'Film', '📞', '☎️', '📟', 'Fax', '📺', '📻', '🎙️', '️', 'Mixer', '🧭', '⏱️', 'Timer', '⏰', 'Clock', '⌛️', 'Hourglass', '📡', '🔋', '🔌', '💡', '🔦', 'Candle', '🪔', 'Extinguisher', '🗑️', 'Drum', '💸', '💵', '💴', '💶', '💷', '💰', '💳', 'Receipt', '💎', '⚖️', '🦯', 'Wrench', 'Hammer', 'Tools', 'Pick', 'Screw', 'Gear', '🧱', '⛓️', '🧲', 'Gun', '💣', '🧨', 'Knife', 'Sword', 'Battle', 'Shield', '🚬', 'Coffin', 'Urn', 'Vase', '🔮', 'Bead', 'Amulet', 'Barber', 'Alembic', 'Telescope', 'Microscope', 'Well', 'Pill', 'Injection', 'Blood', 'DNA', 'Germ', 'Plate', 'Thermometer', 'Broom', 'Basket', 'Tissue', 'Toilet', 'Faucet', 'Shower', 'Bath', 'Soap', 'Razor', 'Sponge', 'Lotion', 'Bell', 'Key', 'Lock', 'Door', 'Chair', 'Couch', 'Bed', 'Sleeping', 'Teddy', 'Picture', 'Bag', 'Cart', 'Gift', 'Balloon', 'Cometa', 'Ribbon', 'Confetti', 'Party', 'Doll', 'Lantern', 'Wind', 'Aviso', 'Envelope', 'Enviando', 'Chegou', 'Email', 'Love', 'Postbox', 'Puxar', 'Enfiando', 'Mandou', 'Pacote', 'Listas', 'A4', 'Rolo', 'Folhas', 'Grafico', 'Aumento', 'Caindo', 'Caderno', 'Contatos', 'Calendário', 'Cartão', 'Arquivo', 'Votos', 'Gaveta', 'Organizado', 'Pasta', 'Pressionado', 'Livro', 'Ler', 'Marca', 'Alfinete', 'Clipe', 'Tesoura', 'Caneta', 'Pincel', 'Escrever', 'Lupa', 'Seguro', 'Trancado', 'Desbloqueado'],
+    'Symbols': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈️', '♉️', '♊️', '♋️', '♌️', '♍️', '♎️', '♏️', '♐️', '♑️', '♒️', '♓️', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚️', '🈸', '🈺', '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴', '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️', '🆘', '❌', '⭕️', '🛑', '⛔️', '📛', '🚫', '💯', '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵', '🚭', '❗️', '❕', '❓', '❔', '‼️', '⁉️', '🔅', '🔆', '〽️', '⚠️', '🚸', '🔱', '⚜️', '🔰', '♻️', '✅', '🈯️', '💹', '❇️', '✳️', '❎', '🌐', '💠', 'Ⓜ️', '🌀', '💤', 'ATM', 'ge', '♿️', '🅿️', '🈳', '🈂️', '🛂', '🛃', '🛄', '🛅', '🚹', '🚺', '🚼', '🚻', '🚮', '🎦', '📶', '🈁', '🔣', 'ℹ️', '🔤', '🔡', '🔠', '🆖', '🆗', '🆙', '🆒', '🆕', '🆓', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟', '🔢', '#️⃣', '*️⃣', '⏏️', '▶️', '⏸️', '⏯️', '⏹️', '⏺️', '⏭️', '⏮️', '⏩', '⏪', '⏫', '⏬', '◀️', '🔼', '🔽', '➡️', '⬅️', '⬆️', '⬇️', '↗️', '↘️', '↙️', '↖️', '↕️', '↔️', '↪️', '↩️', '⤴️', '⤵️', '🔀', '🔁', '🔂', '🔄', '🔃', '🎵', '🎶', '➕', '➖', '➗', '✖️', '♾️', '💲', '💱', '™️', '©️', '®️', '👁️‍🗨️', '🔚', '🔙', '🔛', '🔝', '🔜', '✔️', '☑️', '🔘', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️', '🟤', '🔺', '🔻', '🔼', '🔽', '▪️', '▫️', '◾️', '◽️', '◼️', '◻️', '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛️', '⬜️', '🟫', '🔶', '🔷', '🔸', '🔹', '🔳', '💭', '🗯️', '💬', '🗨️', '🀄️', '🃏', '♠️', '♣️', '♥️', '♦️', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚', '🕛', '🕜', '🕝', '🕟', '🕠', '🕡', '🕢', '🕣', '🕤', '🕥', '🕦', '🕧']
 };
 
 const colorPalette = [
@@ -3278,6 +3364,66 @@ const MarquiseSettings = ({ component, onUpdate }: { component: CanvasComponentD
     );
 };
 
+const NivelSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+    return (
+        <div className='space-y-6'>
+            <Card className="p-4 bg-card border-border/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Conteúdo</h3>
+                <div className="space-y-3">
+                    <div>
+                        <UILabel htmlFor="title" className='text-xs'>Título</UILabel>
+                        <Input id="title" value={component.props.title || ''} onChange={(e) => onUpdate({ ...component.props, title: e.target.value })} className="mt-1" />
+                    </div>
+                    <div>
+                        <UILabel htmlFor="subtitle" className='text-xs'>Subtítulo</UILabel>
+                        <Input id="subtitle" value={component.props.subtitle || ''} onChange={(e) => onUpdate({ ...component.props, subtitle: e.target.value })} className="mt-1" />
+                    </div>
+                    <div>
+                        <UILabel htmlFor="tooltipText" className='text-xs'>Texto do Tooltip</UILabel>
+                        <Input id="tooltipText" value={component.props.tooltipText || ''} onChange={(e) => onUpdate({ ...component.props, tooltipText: e.target.value })} className="mt-1" />
+                    </div>
+                </div>
+            </Card>
+
+            <Card className="p-4 bg-card border-border/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Configurações</h3>
+                <div className="space-y-4">
+                     <div>
+                        <UILabel htmlFor="value" className='text-xs'>Valor ({component.props.value}%)</UILabel>
+                        <Slider id="value" min={0} max={100} step={1} value={[component.props.value || 0]} onValueChange={(value) => onUpdate({ ...component.props, value: value[0] })} className="mt-2" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <UILabel htmlFor="showTooltip">Mostrar Tooltip</UILabel>
+                        <Switch id="showTooltip" checked={component.props.showTooltip} onCheckedChange={(checked) => onUpdate({ ...component.props, showTooltip: checked })} />
+                    </div>
+                </div>
+            </Card>
+             <Card className="p-4 bg-card border-border/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className='space-y-1'>
+                        <UILabel htmlFor='nivelProgressColor' className='text-xs'>Cor do Progresso</UILabel>
+                        <Input type='color' id='nivelProgressColor' className='p-1 h-8 w-full' value={component.props.nivelProgressColor || '#111827'} onChange={(e) => onUpdate({ ...component.props, nivelProgressColor: e.target.value })} />
+                    </div>
+                    <div className='space-y-1'>
+                        <UILabel htmlFor='nivelTrackColor' className='text-xs'>Fundo da Barra</UILabel>
+                        <Input type='color' id='nivelTrackColor' className='p-1 h-8 w-full' value={component.props.nivelTrackColor || '#E5E7EB'} onChange={(e) => onUpdate({ ...component.props, nivelTrackColor: e.target.value })} />
+                    </div>
+                    <div className='space-y-1'>
+                        <UILabel htmlFor='tooltipColor' className='text-xs'>Fundo do Tooltip</UILabel>
+                        <Input type='color' id='tooltipColor' className='p-1 h-8 w-full' value={component.props.tooltipColor || '#111827'} onChange={(e) => onUpdate({ ...component.props, tooltipColor: e.target.value })} />
+                    </div>
+                    <div className='space-y-1'>
+                        <UILabel htmlFor='tooltipTextColor' className='text-xs'>Texto do Tooltip</UILabel>
+                        <Input type='color' id='tooltipTextColor' className='p-1 h-8 w-full' value={component.props.tooltipTextColor || '#FFFFFF'} onChange={(e) => onUpdate({ ...component.props, tooltipTextColor: e.target.value })} />
+                    </div>
+                </div>
+            </Card>
+        </div>
+    );
+};
+
+
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
@@ -3322,6 +3468,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <ListaSettings component={component} onUpdate={handleUpdate} />;
         case 'Marquise':
             return <MarquiseSettings component={component} onUpdate={handleUpdate} />;
+        case 'Nível':
+            return <NivelSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -3539,6 +3687,21 @@ function FunnelEditorContent() {
             speed: 20,
             direction: 'left',
             pauseOnHover: true,
+        };
+    }
+
+    if (component.name === 'Nível') {
+        defaultProps = {
+            title: "Nível",
+            subtitle: "Lorem ipsum",
+            value: 75,
+            tooltipText: "Você está aqui",
+            showTooltip: true,
+            nivelTrackColor: '#E5E7EB',
+            nivelProgressColor: '#111827',
+            nivelThumbColor: '#FFFFFF',
+            tooltipColor: '#111827',
+            tooltipTextColor: '#FFFFFF',
         };
     }
 
