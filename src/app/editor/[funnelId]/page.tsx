@@ -1,5 +1,6 @@
 
 
+
 'use client';
 
 import React, { Suspense, useState, ReactNode, useRef, useEffect, useCallback } from 'react';
@@ -436,12 +437,12 @@ const ArgumentoCanvasComponent = ({ component }: { component: CanvasComponentDat
 
   if (items.length === 0) {
       return (
-        <Card className={cn('p-6 text-center bg-card text-card-foreground')}>
+        <Card className="p-6 text-center bg-transparent border-0 shadow-none">
             <div className="flex justify-center mb-4">
                 <WavingHandIcon />
             </div>
-            <h3 className="font-bold text-lg">Argumento</h3>
-            <p className="text-muted-foreground mt-1">Configure seus argumentos</p>
+            <h3 className="font-bold text-lg text-black">Argumento</h3>
+            <p className="text-gray-500 mt-1">Configure seus argumentos</p>
         </Card>
       )
   }
@@ -453,8 +454,8 @@ const ArgumentoCanvasComponent = ({ component }: { component: CanvasComponentDat
                   <div className="flex justify-center mb-4">
                       <span className="text-4xl">{item.icon}</span>
                   </div>
-                  <h3 className="font-bold text-lg text-card-foreground" dangerouslySetInnerHTML={{ __html: item.title }}></h3>
-                  <p className="text-muted-foreground mt-1" dangerouslySetInnerHTML={{ __html: item.description }}></p>
+                  <h3 className="font-bold text-lg text-black" dangerouslySetInnerHTML={{ __html: item.title }}></h3>
+                  <p className="text-gray-600 mt-1" dangerouslySetInnerHTML={{ __html: item.description }}></p>
               </div>
           ))}
       </div>
@@ -549,19 +550,19 @@ const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentDa
   return (
     <div className="w-full space-y-2">
       {showTitle && (
-        <div className="flex justify-between items-center text-sm font-medium text-card-foreground">
+        <div className="flex justify-between items-center text-sm font-medium text-black">
           <span>{loadingText}</span>
-          {showProgress && <span className="text-muted-foreground">{displayProgress}%</span>}
+          {showProgress && <span className="text-gray-500">{displayProgress}%</span>}
         </div>
       )}
       {showProgress && (
          <Progress 
             value={displayProgress} 
-            className="w-full h-2 [&>div]:bg-foreground" 
+            className="w-full h-2 [&>div]:bg-black" 
             style={{ '--progress-bar-color': progressBarColor } as React.CSSProperties}
           />
       )}
-      <p className="text-sm text-muted-foreground text-center pt-1">{loadingDescription}</p>
+      <p className="text-sm text-gray-500 text-center pt-1">{loadingDescription}</p>
     </div>
   );
 };
@@ -571,12 +572,12 @@ const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData
   
   if (slides.length === 0) {
     return (
-      <Card className="p-6 text-center bg-card text-card-foreground">
+      <Card className="p-6 text-center bg-transparent border-0 shadow-none">
         <div className="flex justify-center mb-4">
           <WavingHandIcon />
         </div>
-        <h3 className="font-bold text-lg">Carrossel</h3>
-        <p className="text-muted-foreground mt-1">Adicione slides para começar</p>
+        <h3 className="font-bold text-lg text-black">Carrossel</h3>
+        <p className="text-gray-500 mt-1">Adicione slides para começar</p>
       </Card>
     );
   }
@@ -588,15 +589,15 @@ const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData
           <CarouselItem key={slide.id}>
             <div className="p-1">
               <Card className='bg-transparent border-0 shadow-none'>
-                <CardContent className="flex aspect-video items-center justify-center p-0 relative bg-muted/30">
+                <CardContent className="flex aspect-video items-center justify-center p-0 relative bg-gray-100">
                   {slide.imageUrl ? (
                      <Image src={slide.imageUrl} alt={slide.caption || 'Slide image'} layout="fill" objectFit="contain" />
                   ) : (
-                    <ImageIcon className="h-12 w-12 text-muted-foreground" />
+                    <ImageIcon className="h-12 w-12 text-gray-400" />
                   )}
                 </CardContent>
               </Card>
-              {slide.caption && <p className="text-center text-sm text-muted-foreground mt-2">{slide.caption}</p>}
+              {slide.caption && <p className="text-center text-sm text-gray-600 mt-2">{slide.caption}</p>}
             </div>
           </CarouselItem>
         ))}
@@ -611,20 +612,20 @@ const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentDa
   const {
     chartTitle = "Cartesiano",
     chartData = [],
-    gradientStartColor = 'hsl(var(--primary))',
-    gradientEndColor = 'hsl(var(--primary))',
+    gradientStartColor = '#000000',
+    gradientEndColor = '#000000',
     showArea = true,
     showGrid = true,
   } = component.props;
 
   if (chartData.length === 0) {
     return (
-      <Card className="p-6 text-center bg-card text-card-foreground">
+      <Card className="p-6 text-center bg-transparent border-0 shadow-none">
         <div className="flex justify-center mb-4">
           <WavingHandIcon />
         </div>
-        <h3 className="font-bold text-lg">Gráfico Cartesiano</h3>
-        <p className="text-muted-foreground mt-1">Adicione pontos de dados para começar.</p>
+        <h3 className="font-bold text-lg text-black">Gráfico Cartesiano</h3>
+        <p className="text-gray-500 mt-1">Adicione pontos de dados para começar.</p>
       </Card>
     );
   }
@@ -634,7 +635,7 @@ const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentDa
 
   return (
     <div className="p-4">
-        <h3 className="font-bold text-lg mb-4 text-card-foreground">{chartTitle}</h3>
+        <h3 className="font-bold text-lg mb-4 text-black">{chartTitle}</h3>
         <ResponsiveContainer width="100%" height={200}>
             <AreaChart
                 data={chartData}
@@ -651,30 +652,30 @@ const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentDa
                         <stop offset="95%" stopColor={gradientEndColor} stopOpacity={0.8}/>
                     </linearGradient>
                 </defs>
-                {showGrid && <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border" />}
-                <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'hsl(var(--card-foreground))' }} />
-                <YAxis tick={{ fontSize: 12, fill: 'hsl(var(--card-foreground))' }} />
+                {showGrid && <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-gray-200" />}
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#000000' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#000000' }} />
                 <Tooltip 
                     contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        borderColor: 'hsl(var(--border))'
+                        backgroundColor: '#ffffff',
+                        borderColor: '#e5e7eb'
                     }}
                 />
                 <Area type="monotone" dataKey="value" stroke={gradientStartColor} fill={showArea ? `url(#colorGradient-${uniqueId})` : 'transparent'} strokeWidth={2} />
                 
                 {indicators.map((indicator, index) => (
-                    <ReferenceDot key={index} x={indicator.name} y={indicator.value} r={6} fill={gradientStartColor} stroke="hsl(var(--primary-foreground))" strokeWidth={2}>
+                    <ReferenceDot key={index} x={indicator.name} y={indicator.value} r={6} fill={gradientStartColor} stroke="#ffffff" strokeWidth={2}>
                        <Label
                             value={indicator.indicatorLabel}
                             position="top"
                             offset={-15}
                             style={{
-                                fill: 'hsl(var(--foreground))',
-                                backgroundColor: 'hsl(var(--card))',
+                                fill: '#000000',
+                                backgroundColor: '#ffffff',
                                 padding: '2px 6px',
                                 borderRadius: 'var(--radius)',
                                 fontSize: 12,
-                                border: '1px solid hsl(var(--border))'
+                                border: '1px solid #e5e7eb'
                             }}
                         />
                     </ReferenceDot>
@@ -812,12 +813,12 @@ const DepoimentosCanvasComponent = ({ component }: { component: CanvasComponentD
 
   if (testimonials.length === 0) {
     return (
-      <Card className="p-6 text-center bg-card text-card-foreground">
+      <Card className="p-6 text-center bg-transparent border-0 shadow-none">
         <div className="flex justify-center mb-4">
           <WavingHandIcon />
         </div>
-        <h3 className="font-bold text-lg">Depoimentos</h3>
-        <p className="text-muted-foreground mt-1">Adicione depoimentos para começar</p>
+        <h3 className="font-bold text-lg text-black">Depoimentos</h3>
+        <p className="text-gray-500 mt-1">Adicione depoimentos para começar</p>
       </Card>
     );
   }
@@ -830,7 +831,7 @@ const DepoimentosCanvasComponent = ({ component }: { component: CanvasComponentD
             key={i}
             className={cn(
               "h-5 w-5",
-              i < rating ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground/30"
+              i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
             )}
           />
         ))}
@@ -858,10 +859,10 @@ const DepoimentosCanvasComponent = ({ component }: { component: CanvasComponentD
             <div className="w-full" style={{ color: cardTextColor }}>
                 <StarRating rating={item.rating} />
                 <div className="mt-2">
-                    <p className="font-bold text-card-foreground">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">{item.handle}</p>
+                    <p className="font-bold text-black">{item.name}</p>
+                    <p className="text-sm text-gray-500">{item.handle}</p>
                 </div>
-                <p className="text-muted-foreground mt-2">{item.testimonial}</p>
+                <p className="text-gray-600 mt-2">{item.testimonial}</p>
             </div>
           </div>
         </div>
@@ -899,7 +900,7 @@ const EntradaCanvasComponent = ({ component }: { component: CanvasComponentData 
 
   return (
     <div className="w-full space-y-2">
-      <UILabel htmlFor={`input-${component.id}`} className="text-card-foreground">
+      <UILabel htmlFor={`input-${component.id}`} className="text-black">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </UILabel>
@@ -909,7 +910,7 @@ const EntradaCanvasComponent = ({ component }: { component: CanvasComponentData 
         placeholder={placeholder}
         className={cn(
             `text-${textAlign}`,
-            'bg-card text-card-foreground border-border',
+            'bg-white text-black border-gray-300',
             fontSizeClasses[fontSize],
             paddingClasses[padding]
         )}
@@ -928,10 +929,10 @@ const EspacadorCanvasComponent = ({ component }: { component: CanvasComponentDat
 
   return (
     <div 
-      className="w-full flex items-center justify-center bg-card/80 border-2 border-dashed border-border rounded-lg"
+      className="w-full flex items-center justify-center bg-gray-100/80 border-2 border-dashed border-gray-300 rounded-lg"
       style={{ height: `${height}px` }}
     >
-      <span className="text-sm text-muted-foreground">Espaçador ({height}px)</span>
+      <span className="text-sm text-gray-500">Espaçador ({height}px)</span>
     </div>
   );
 };
@@ -942,12 +943,12 @@ const FaqCanvasComponent = ({ component }: { component: CanvasComponentData }) =
 
     if (faqItems.length === 0) {
         return (
-            <Card className="p-6 text-center bg-card text-card-foreground">
+            <Card className="p-6 text-center bg-transparent border-0 shadow-none">
                 <div className="flex justify-center mb-4">
                     <WavingHandIcon />
                 </div>
-                <h3 className="font-bold text-lg">FAQ</h3>
-                <p className="text-muted-foreground mt-1">Adicione perguntas para começar.</p>
+                <h3 className="font-bold text-lg text-black">FAQ</h3>
+                <p className="text-gray-500 mt-1">Adicione perguntas para começar.</p>
             </Card>
         );
     }
@@ -970,8 +971,8 @@ const FaqCanvasComponent = ({ component }: { component: CanvasComponentData }) =
                     className="border-b"
                     style={{ borderColor: faqBorderColor }}
                 >
-                    <AccordionTrigger className='text-card-foreground' style={{ color: faqTextColor }}>{item.question}</AccordionTrigger>
-                    <AccordionContent className='text-muted-foreground' style={{ color: faqTextColor || 'hsl(var(--muted-foreground))' }}>{item.answer}</AccordionContent>
+                    <AccordionTrigger className='text-black' style={{ color: faqTextColor }}>{item.question}</AccordionTrigger>
+                    <AccordionContent className='text-gray-600' style={{ color: faqTextColor || '#4b5563' }}>{item.answer}</AccordionContent>
                 </AccordionItem>
             ))}
         </Accordion>
@@ -988,12 +989,12 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
 
     if (graficosItems.length === 0) {
         return (
-            <Card className="p-6 text-center bg-card text-card-foreground">
+            <Card className="p-6 text-center bg-transparent border-0 shadow-none">
                 <div className="flex justify-center mb-4">
                     <WavingHandIcon />
                 </div>
-                <h3 className="font-bold text-lg">Gráficos</h3>
-                <p className="text-muted-foreground mt-1">Adicione itens para começar.</p>
+                <h3 className="font-bold text-lg text-black">Gráficos</h3>
+                <p className="text-gray-500 mt-1">Adicione itens para começar.</p>
             </Card>
         );
     }
@@ -1023,7 +1024,7 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
                             {item.value}%
                         </div>
                     </div>
-                    <p className="text-sm text-center text-card-foreground" style={{ color: textColor }}>{item.label}</p>
+                    <p className="text-sm text-center text-black" style={{ color: textColor }}>{item.label}</p>
                 </div>
             ))}
         </div>
@@ -3049,7 +3050,7 @@ function FunnelEditorContent() {
                 
                 <div className="mt-8 flex min-h-[400px] flex-col gap-4">
                     {canvasComponents.length === 0 ? (
-                        <div className="flex-1 flex items-center justify-center text-center text-card-foreground rounded-lg border-2 border-dashed border-border bg-card/50 p-4">
+                        <div className="flex-1 flex items-center justify-center text-center text-black rounded-lg border-2 border-dashed border-gray-300 bg-white p-4">
                             <div>
                                 <p className="text-lg font-semibold">Nada por aqui 😔</p>
                                 <p className="text-sm">Adicione um componente para começar.</p>
@@ -3097,3 +3098,4 @@ export default function EditorPage() {
 }
 
     
+
