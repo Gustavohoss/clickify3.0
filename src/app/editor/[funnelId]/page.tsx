@@ -193,6 +193,12 @@ type MarquiseItem = {
   text: string;
 };
 
+type OpcaoItem = {
+    id: number;
+    icon: string;
+    text: string;
+};
+
 
 type ComponentProps = {
   // Common properties for all components
@@ -305,6 +311,8 @@ type ComponentProps = {
    nivelThumbColor?: string;
    tooltipColor?: string;
    tooltipTextColor?: string;
+  // Specific properties for Opcoes
+  opcoesItems?: OpcaoItem[];
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -641,7 +649,7 @@ const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData
                   )}
                 </div>
               </div>
-              {slide.caption && <p className="text-center text-sm text-gray-600 mt-2">{slide.caption}</p>}
+              {slide.caption && <p className="text-center text-sm text-black mt-2">{slide.caption}</p>}
             </div>
           </CarouselItem>
         ))}
@@ -1041,7 +1049,7 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
     };
 
     const gridClass = layoutClasses[graficosLayout] || 'grid-cols-2';
-    const dispositionClass = disposition === 'top' ? 'flex-col items-center' : 'flex-row items-center';
+    const dispositionClass = disposition === 'top' ? 'flex-col items-center' : 'flex-row';
 
     if (graficosItems.length === 0) {
         return (
@@ -1318,6 +1326,33 @@ const NivelCanvasComponent = ({ component }: { component: CanvasComponentData })
     );
 };
 
+const OpcoesCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const items = component.props.opcoesItems || [];
+  
+  if (items.length === 0) {
+      return (
+        <div className="p-6 text-center bg-transparent border-0 shadow-none">
+            <div className="flex justify-center mb-4">
+                <WavingHandIcon />
+            </div>
+            <h3 className="font-bold text-lg text-black">Opções</h3>
+            <p className="text-gray-500 mt-1">Configure suas opções</p>
+        </div>
+      )
+  }
+
+  return (
+      <div className="w-full space-y-2">
+          {items.map((item) => (
+              <button key={item.id} className="w-full p-3 bg-white border border-gray-300 rounded-lg flex items-center gap-3 text-left">
+                  <span className="text-2xl">{item.icon}</span>
+                  <span className="font-medium text-black">{item.text}</span>
+              </button>
+          ))}
+      </div>
+  );
+}
+
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
   const renderComponent = () => {
@@ -1358,6 +1393,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
           return <MarquiseCanvasComponent component={component} />;
       case 'Nível':
           return <NivelCanvasComponent component={component} />;
+      case 'Opções':
+          return <OpcoesCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -3423,6 +3460,96 @@ const NivelSettings = ({ component, onUpdate }: { component: CanvasComponentData
     );
 };
 
+const OpcoesSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  const items = component.props.opcoesItems || [];
+
+  const handleUpdateItem = (itemId: number, newValues: Partial<OpcaoItem>) => {
+    const newItems = items.map(item => 
+      item.id === itemId ? { ...item, ...newValues } : item
+    );
+    onUpdate({ ...component.props, opcoesItems: newItems });
+  };
+
+  const handleAddItem = () => {
+    const newItem: OpcaoItem = {
+      id: Date.now(),
+      icon: '🤔',
+      text: 'Nova Opção'
+    };
+    onUpdate({ ...component.props, opcoesItems: [...items, newItem] });
+  };
+
+  const handleDeleteItem = (itemId: number) => {
+    const newItems = items.filter(item => item.id !== itemId);
+    onUpdate({ ...component.props, opcoesItems: newItems });
+  };
+
+  return (
+    <div className='space-y-6'>
+      <Card className="p-4 bg-card border-border/50">
+          <h3 className="text-sm font-medium text-muted-foreground mb-4">Opções</h3>
+          <ScrollArea className="h-[40rem]">
+            <div className="space-y-4 pr-4">
+                {items.map((item, itemIndex) => (
+                    <Card key={item.id} className="p-3 bg-card relative">
+                        <div className="flex items-center gap-2">
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                  <Button variant="outline" className="w-12 h-10 text-xl text-center p-0 flex-shrink-0">
+                                    {item.icon}
+                                  </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80 h-96">
+                                <ScrollArea className="h-full w-full">
+                                    {Object.entries(emojiCategories).map(([category, emojis]) => (
+                                        <div key={category}>
+                                            <h4 className="font-bold text-sm text-muted-foreground mb-2 sticky top-0 bg-popover py-1">{category}</h4>
+                                            <div className="grid grid-cols-8 gap-1 mb-4">
+                                                {emojis.map((emoji, emojiIndex) => (
+                                                    <Button
+                                                        key={`${emoji}-${itemIndex}-${emojiIndex}`}
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="text-lg"
+                                                        onClick={() => handleUpdateItem(item.id, { icon: emoji })}
+                                                    >
+                                                        {emoji}
+                                                    </Button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </ScrollArea>
+                              </PopoverContent>
+                            </Popover>
+                            <Input
+                              value={item.text}
+                              onChange={(e) => handleUpdateItem(item.id, { text: e.target.value })}
+                              className="h-10"
+                              placeholder="Texto da opção"
+                            />
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
+                                onClick={() => handleDeleteItem(item.id)}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </Card>
+                ))}
+            </div>
+          </ScrollArea>
+           <Button variant="outline" className="w-full mt-4" onClick={handleAddItem}>
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar Opção
+            </Button>
+      </Card>
+    </div>
+  );
+};
+
 
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
@@ -3470,6 +3597,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <MarquiseSettings component={component} onUpdate={handleUpdate} />;
         case 'Nível':
             return <NivelSettings component={component} onUpdate={handleUpdate} />;
+        case 'Opções':
+            return <OpcoesSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -3543,7 +3672,7 @@ function FunnelEditorContent() {
         progressColor: '#000000',
         progressTrackColor: '#E5E7EB',
         titleColor: '#000000',
-        descriptionColor: '#000000',
+        descriptionColor: '#6b7280',
         duration: 5,
         limit: 100,
         action: 'next_step',
@@ -3703,6 +3832,15 @@ function FunnelEditorContent() {
             tooltipColor: '#111827',
             tooltipTextColor: '#FFFFFF',
         };
+    }
+
+    if (component.name === 'Opções') {
+      defaultProps = {
+        opcoesItems: [
+          { id: 1, icon: '👋', text: 'Opção 1' },
+          { id: 2, icon: '🤔', text: 'Opção 2' }
+        ]
+      };
     }
 
 
