@@ -3896,7 +3896,7 @@ const OpcoesSettings = ({ component, onUpdate }: { component: CanvasComponentDat
                 />
                 <div className='grid gap-1.5'>
                     <UILabel htmlFor="autoAdvance" className="font-medium">Auto-avançar</UILabel>
-                    <p className="text-xs text-muted-foreground">O funil avançará para a etapa seguinte definida na opção selecionada. Caso contrário, o usuário deverá clicar em um componente de Botão para poder prosseguir.</p>
+                    <p className="text-xs text-muted-foreground">O funil avançará para la etapa seguinte definida na opção selecionada. Caso contrário, o usuário deverá clicar em um componente de Botão para poder prosseguir.</p>
                 </div>
             </div>
         </div>
@@ -4665,9 +4665,9 @@ function FunnelEditorContent() {
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar */}
-        <aside className="hidden w-72 border-r border-border md:flex md:flex-col">
+        <aside className="hidden w-72 flex-col border-r border-border md:flex">
           {/* Steps Column */}
-          <div className="w-full flex-col border-b border-border">
+          <div className="flex w-full flex-col border-b border-border">
             <div className="flex h-14 items-center justify-between border-b border-border px-4">
               <div className="flex items-center gap-2">
                 <Grip className="h-5 w-5 text-muted-foreground" />
