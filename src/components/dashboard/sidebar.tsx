@@ -36,7 +36,7 @@ export function Sidebar({ className }: { className?: string }) {
   };
 
   return (
-    <aside className={cn("hidden md:flex flex-col w-64 bg-card border-r", className)}>
+    <aside className={cn("md:flex flex-col w-64 bg-card border-r", className)}>
       <div className="p-4 border-b">
         <Logo />
       </div>
