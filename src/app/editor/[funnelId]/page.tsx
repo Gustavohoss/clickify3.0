@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { Suspense, useState, ReactNode, useRef, useEffect, useCallback } from 'react';
@@ -3046,16 +3047,17 @@ function FunnelEditorContent() {
                     </div>
                 </div>
 
-                <div className="mt-8 flex min-h-[400px] flex-col gap-4 rounded-lg border-2 border-dashed border-border bg-card/50 p-4">
+                <div className="mt-8 flex min-h-[400px] flex-col gap-4">
                     {canvasComponents.length === 0 ? (
-                        <div className="flex-1 flex items-center justify-center text-center text-muted-foreground">
+                        <div className="flex-1 flex items-center justify-center text-center text-muted-foreground rounded-lg border-2 border-dashed border-border bg-card/50 p-4">
                             <div>
                                 <p className="text-lg font-semibold">Nada por aqui 😔</p>
                                 <p className="text-sm">Adicione um componente para começar.</p>
                             </div>
                         </div>
                     ) : (
-                        canvasComponents.map((comp) => (
+                      <div className="flex flex-col gap-4 rounded-lg bg-card/50 p-4">
+                        {canvasComponents.map((comp) => (
                             <CanvasComponent 
                                 key={comp.id} 
                                 component={comp} 
@@ -3064,7 +3066,8 @@ function FunnelEditorContent() {
                                 onDuplicate={() => duplicateComponent(comp.id)}
                                 onDelete={() => deleteComponent(comp.id)}
                             />
-                        ))
+                        ))}
+                      </div>
                     )}
                 </div>
             </div>
@@ -3094,3 +3097,5 @@ export default function EditorPage() {
         </Suspense>
     )
 }
+
+    
