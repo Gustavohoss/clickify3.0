@@ -3,6 +3,7 @@
 
 
 
+
 'use client';
 
 import React, { Suspense, useState, ReactNode, useRef, useEffect, useCallback } from 'react';
@@ -272,6 +273,8 @@ type ComponentProps = {
   graficosItems?: GraficosItem[];
   barColor?: string;
   trackColor?: string;
+  graficosLayout?: '1-col' | '2-cols' | '3-cols' | '4-cols';
+  disposition?: 'top' | 'side';
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -996,7 +999,19 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
         barColor = '#000000',
         trackColor = '#FFFFFF',
         textColor = '#000000',
+        graficosLayout = '2-cols',
+        disposition = 'top',
     } = component.props;
+
+    const layoutClasses: { [key: string]: string } = {
+        '1-col': 'grid-cols-1',
+        '2-cols': 'grid-cols-2',
+        '3-cols': 'grid-cols-3',
+        '4-cols': 'grid-cols-4',
+    };
+
+    const gridClass = layoutClasses[graficosLayout] || 'grid-cols-2';
+    const dispositionClass = disposition === 'top' ? 'flex-col' : 'flex-row items-center';
 
     if (graficosItems.length === 0) {
         return (
@@ -1011,22 +1026,27 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
     }
 
     return (
-        <div className="grid grid-cols-2 gap-4">
+        <div className={cn('grid gap-4', gridClass)}>
             {graficosItems.map((item) => (
-                <div key={item.id} className="p-4 flex flex-col items-center gap-4">
+                <div key={item.id} className={cn("p-4 flex gap-4", dispositionClass)}>
                     <div 
-                        className="w-12 h-32 rounded-lg flex flex-col justify-end overflow-hidden relative border" 
+                        className={cn(
+                            "rounded-lg flex justify-end overflow-hidden relative border",
+                            disposition === 'top' ? 'w-12 h-32 flex-col' : 'w-32 h-12 flex-row-reverse'
+                        )}
                         style={{ backgroundColor: trackColor }}
                     >
                         <div 
-                            className="w-full" 
                             style={{ 
-                                height: `${item.value}%`, 
+                                [disposition === 'top' ? 'height' : 'width']: `${item.value}%`, 
                                 backgroundColor: barColor 
                             }} 
                         />
                         <div 
-                            className="absolute top-2 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded-full text-xs font-semibold"
+                            className={cn(
+                                "absolute px-1.5 py-0.5 rounded-full text-xs font-semibold",
+                                disposition === 'top' ? 'top-2 left-1/2 -translate-x-1/2' : 'left-2 top-1/2 -translate-y-1/2'
+                            )}
                             style={{ 
                                 color: textColor,
                                 backgroundColor: 'rgba(255, 255, 255, 0.7)'
@@ -2700,6 +2720,43 @@ const GraficosSettings = ({ component, onUpdate }: { component: CanvasComponentD
 
     return (
         <div className='space-y-6'>
+             <Card className="p-4 bg-card border-border/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Layout</h3>
+                <div className="space-y-3">
+                    <div>
+                        <UILabel htmlFor="graficosLayout" className='text-xs'>Layout</UILabel>
+                        <Select
+                        value={component.props.graficosLayout || '2-cols'}
+                        onValueChange={(value) => onUpdate({ ...component.props, graficosLayout: value })}
+                        >
+                        <SelectTrigger id="graficosLayout" className="mt-1">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="1-col">1 Coluna</SelectItem>
+                            <SelectItem value="2-cols">2 Colunas</SelectItem>
+                            <SelectItem value="3-cols">3 Colunas</SelectItem>
+                            <SelectItem value="4-cols">4 Colunas</SelectItem>
+                        </SelectContent>
+                        </Select>
+                    </div>
+                    <div>
+                        <UILabel htmlFor="disposition" className='text-xs'>Disposição</UILabel>
+                        <Select
+                            value={component.props.disposition || 'top'}
+                            onValueChange={(value) => onUpdate({ ...component.props, disposition: value })}
+                        >
+                        <SelectTrigger id="disposition" className="mt-1">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="top">Gráfico Acima</SelectItem>
+                            <SelectItem value="side">Gráfico ao Lado</SelectItem>
+                        </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+            </Card>
             <Card className="p-4 bg-card border-border/50">
                 <h3 className="text-sm font-medium text-muted-foreground mb-4">Itens do Gráfico</h3>
                 <ScrollArea className="h-[30rem]">
@@ -2986,6 +3043,8 @@ function FunnelEditorContent() {
         barColor: '#000000',
         trackColor: '#FFFFFF',
         textColor: '#000000',
+        graficosLayout: '2-cols',
+        disposition: 'top',
       };
     }
 
@@ -3159,6 +3218,7 @@ export default function EditorPage() {
 }
 
     
+
 
 
 
