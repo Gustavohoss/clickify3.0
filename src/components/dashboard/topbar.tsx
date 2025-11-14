@@ -15,6 +15,7 @@ import {
 import { Menu, Zap } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '../ui/sheet';
 import { Sidebar } from './sidebar';
+import { cn } from '@/lib/utils';
 
 export function Topbar() {
   const { user } = useUser();
@@ -43,7 +44,7 @@ export function Topbar() {
                   <SheetTitle>Menu</SheetTitle>
                   <SheetDescription>Navegação principal do painel</SheetDescription>
                 </SheetHeader>
-                <Sidebar className="h-full" />
+                <Sidebar className="flex h-full" />
             </SheetContent>
         </Sheet>
         <h1 className="text-lg font-semibold text-muted-foreground">
