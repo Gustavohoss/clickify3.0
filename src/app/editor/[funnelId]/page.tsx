@@ -453,7 +453,7 @@ const ArgumentoCanvasComponent = ({ component }: { component: CanvasComponentDat
                   <div className="flex justify-center mb-4">
                       <span className="text-4xl">{item.icon}</span>
                   </div>
-                  <h3 className="font-bold text-lg" dangerouslySetInnerHTML={{ __html: item.title }}></h3>
+                  <h3 className="font-bold text-lg text-card-foreground" dangerouslySetInnerHTML={{ __html: item.title }}></h3>
                   <p className="text-muted-foreground mt-1" dangerouslySetInnerHTML={{ __html: item.description }}></p>
               </div>
           ))}
@@ -634,7 +634,7 @@ const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentDa
 
   return (
     <div className="p-4 text-card-foreground">
-        <h3 className="font-bold text-lg mb-4">{chartTitle}</h3>
+        <h3 className="font-bold text-lg mb-4 text-card-foreground">{chartTitle}</h3>
         <ResponsiveContainer width="100%" height={200}>
             <AreaChart
                 data={chartData}
@@ -858,7 +858,7 @@ const DepoimentosCanvasComponent = ({ component }: { component: CanvasComponentD
             <div className="w-full" style={{ color: cardTextColor }}>
                 <StarRating rating={item.rating} />
                 <div className="mt-2">
-                    <p className="font-bold">{item.name}</p>
+                    <p className="font-bold text-card-foreground">{item.name}</p>
                     <p className="text-sm text-muted-foreground" style={{ color: cardTextColor ? 'inherit' : '' }}>{item.handle}</p>
                 </div>
                 <p className="text-muted-foreground mt-2" style={{ color: cardTextColor ? 'inherit' : '' }}>{item.testimonial}</p>
@@ -970,8 +970,8 @@ const FaqCanvasComponent = ({ component }: { component: CanvasComponentData }) =
                     className="border-b"
                     style={{ borderColor: faqBorderColor }}
                 >
-                    <AccordionTrigger style={{ color: faqTextColor }}>{item.question}</AccordionTrigger>
-                    <AccordionContent style={{ color: faqTextColor || 'hsl(var(--muted-foreground))' }}>{item.answer}</AccordionContent>
+                    <AccordionTrigger className='text-card-foreground' style={{ color: faqTextColor }}>{item.question}</AccordionTrigger>
+                    <AccordionContent className='text-muted-foreground' style={{ color: faqTextColor || 'hsl(var(--muted-foreground))' }}>{item.answer}</AccordionContent>
                 </AccordionItem>
             ))}
         </Accordion>
@@ -982,7 +982,7 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
     const {
         graficosItems = [],
         barColor = '#000000',
-        trackColor = '#F3F4F6',
+        trackColor = '#FFFFFF',
         textColor = '#000000',
     } = component.props;
 
@@ -1003,7 +1003,7 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
             {graficosItems.map((item) => (
                 <div key={item.id} className="p-4 flex flex-col items-center gap-4 bg-transparent text-card-foreground">
                     <div 
-                        className="w-12 h-32 rounded-lg flex flex-col justify-end overflow-hidden relative" 
+                        className="w-12 h-32 rounded-lg flex flex-col justify-end overflow-hidden relative border" 
                         style={{ backgroundColor: trackColor }}
                     >
                         <div 
@@ -1023,7 +1023,7 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
                             {item.value}%
                         </div>
                     </div>
-                    <p className="text-sm text-center" style={{ color: textColor }}>{item.label}</p>
+                    <p className="text-sm text-center text-card-foreground" style={{ color: textColor }}>{item.label}</p>
                 </div>
             ))}
         </div>
@@ -2922,7 +2922,7 @@ function FunnelEditorContent() {
           { id: 2, label: 'Lorem ipsum dollor', value: 35 },
         ],
         barColor: '#000000',
-        trackColor: '#F3F4F6',
+        trackColor: '#FFFFFF',
         textColor: '#000000',
       };
     }
@@ -3046,7 +3046,7 @@ function FunnelEditorContent() {
                       <div className="absolute top-0 left-0 h-full w-1/2 bg-black" />
                     </div>
                 </div>
-
+                
                 <div className="mt-8 flex min-h-[400px] flex-col gap-4">
                     {canvasComponents.length === 0 ? (
                         <div className="flex-1 flex items-center justify-center text-center text-card-foreground rounded-lg border-2 border-dashed border-border bg-card/50 p-4">
