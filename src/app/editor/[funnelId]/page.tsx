@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { Suspense, useState, ReactNode, useRef, useEffect, useCallback } from 'react';
@@ -435,7 +436,7 @@ const ArgumentoCanvasComponent = ({ component }: { component: CanvasComponentDat
 
   if (items.length === 0) {
       return (
-        <Card className={cn('p-6 text-center text-card-foreground bg-card')}>
+        <Card className={cn('p-6 text-center bg-card text-card-foreground')}>
             <div className="flex justify-center mb-4">
                 <WavingHandIcon />
             </div>
@@ -448,13 +449,13 @@ const ArgumentoCanvasComponent = ({ component }: { component: CanvasComponentDat
   return (
       <div className={cn('grid gap-4', gridClass)}>
           {items.map((item) => (
-              <Card key={item.id} className="p-6 text-center bg-card text-card-foreground">
+              <div key={item.id} className="p-6 text-center text-card-foreground">
                   <div className="flex justify-center mb-4">
                       <span className="text-4xl">{item.icon}</span>
                   </div>
                   <h3 className="font-bold text-lg" dangerouslySetInnerHTML={{ __html: item.title }}></h3>
                   <p className="text-muted-foreground mt-1" dangerouslySetInnerHTML={{ __html: item.description }}></p>
-              </Card>
+              </div>
           ))}
       </div>
   );
@@ -586,8 +587,8 @@ const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData
         {slides.map((slide) => (
           <CarouselItem key={slide.id}>
             <div className="p-1">
-              <Card className='bg-card'>
-                <CardContent className="flex aspect-video items-center justify-center p-6 relative bg-muted/30">
+              <Card className='bg-transparent border-0 shadow-none'>
+                <CardContent className="flex aspect-video items-center justify-center p-0 relative bg-muted/30">
                   {slide.imageUrl ? (
                      <Image src={slide.imageUrl} alt={slide.caption || 'Slide image'} layout="fill" objectFit="contain" />
                   ) : (
@@ -632,7 +633,7 @@ const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentDa
   const uniqueId = React.useId();
 
   return (
-    <Card className="p-4 bg-card text-card-foreground">
+    <div className="p-4 text-card-foreground">
         <h3 className="font-bold text-lg mb-4">{chartTitle}</h3>
         <ResponsiveContainer width="100%" height={200}>
             <AreaChart
@@ -680,7 +681,7 @@ const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentDa
                 ))}
             </AreaChart>
         </ResponsiveContainer>
-    </Card>
+    </div>
   );
 };
 
@@ -841,9 +842,9 @@ const DepoimentosCanvasComponent = ({ component }: { component: CanvasComponentD
   return (
     <div className="space-y-4">
       {testimonials.map((item) => (
-        <Card 
+        <div 
           key={item.id} 
-          className="p-4 bg-card text-card-foreground"
+          className="p-4 bg-transparent text-card-foreground"
           style={{
             backgroundColor: cardBackgroundColor,
             borderColor: cardBorderColor,
@@ -863,7 +864,7 @@ const DepoimentosCanvasComponent = ({ component }: { component: CanvasComponentD
                 <p className="text-muted-foreground mt-2" style={{ color: cardTextColor ? 'inherit' : '' }}>{item.testimonial}</p>
             </div>
           </div>
-        </Card>
+        </div>
       ))}
     </div>
   );
@@ -955,7 +956,7 @@ const FaqCanvasComponent = ({ component }: { component: CanvasComponentData }) =
         <Accordion 
             type="single" 
             collapsible 
-            className="w-full rounded-lg bg-card text-card-foreground"
+            className="w-full rounded-lg text-card-foreground"
             style={{ 
                 backgroundColor: faqBackgroundColor,
                 borderColor: faqBorderColor,
@@ -981,7 +982,7 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
     const {
         graficosItems = [],
         barColor = '#000000',
-        trackColor = '#FFFFFF',
+        trackColor = '#F3F4F6',
         textColor = '#000000',
     } = component.props;
 
@@ -1000,7 +1001,7 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
     return (
         <div className="grid grid-cols-2 gap-4">
             {graficosItems.map((item) => (
-                <Card key={item.id} className="p-4 flex flex-col items-center gap-4 bg-card text-card-foreground">
+                <div key={item.id} className="p-4 flex flex-col items-center gap-4 bg-transparent text-card-foreground">
                     <div 
                         className="w-12 h-32 rounded-lg flex flex-col justify-end overflow-hidden relative" 
                         style={{ backgroundColor: trackColor }}
@@ -1023,7 +1024,7 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
                         </div>
                     </div>
                     <p className="text-sm text-center" style={{ color: textColor }}>{item.label}</p>
-                </Card>
+                </div>
             ))}
         </div>
     );
@@ -2921,7 +2922,7 @@ function FunnelEditorContent() {
           { id: 2, label: 'Lorem ipsum dollor', value: 35 },
         ],
         barColor: '#000000',
-        trackColor: '#FFFFFF',
+        trackColor: '#F3F4F6',
         textColor: '#000000',
       };
     }
@@ -3048,7 +3049,7 @@ function FunnelEditorContent() {
 
                 <div className="mt-8 flex min-h-[400px] flex-col gap-4">
                     {canvasComponents.length === 0 ? (
-                        <div className="flex-1 flex items-center justify-center text-center text-muted-foreground rounded-lg border-2 border-dashed border-border bg-card/50 p-4">
+                        <div className="flex-1 flex items-center justify-center text-center text-card-foreground rounded-lg border-2 border-dashed border-border bg-card/50 p-4">
                             <div>
                                 <p className="text-lg font-semibold">Nada por aqui 😔</p>
                                 <p className="text-sm">Adicione um componente para começar.</p>
