@@ -185,6 +185,14 @@ type ListItem = {
     subtitle: string;
 };
 
+type MarquiseItem = {
+  id: number;
+  name: string;
+  handle: string;
+  avatarUrl: string;
+  text: string;
+};
+
 
 type ComponentProps = {
   // Common properties for all components
@@ -284,6 +292,11 @@ type ComponentProps = {
   borderRadius?: 'none' | 'sm' | 'md' | 'lg' | 'full';
   // Specific properties for Lista
   listItems?: ListItem[];
+  // Specific properties for Marquise
+  marquiseItems?: MarquiseItem[];
+  speed?: number;
+  direction?: 'left' | 'right';
+  pauseOnHover?: boolean;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -1037,7 +1050,7 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
     return (
         <div className={cn('grid gap-4', gridClass)}>
             {graficosItems.map((item) => (
-                <div key={item.id} className={cn("p-4 flex gap-4", dispositionClass)}>
+                <div key={item.id} className={cn("p-4 flex gap-4 items-center", dispositionClass)}>
                     <div 
                         className={cn(
                             "rounded-lg flex justify-end overflow-hidden relative border",
@@ -1148,6 +1161,79 @@ const ListaCanvasComponent = ({ component }: { component: CanvasComponentData })
   );
 };
 
+const MarquiseCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const {
+    marquiseItems = [],
+    speed = 20,
+    direction = 'left',
+    pauseOnHover = true,
+  } = component.props;
+
+  if (marquiseItems.length === 0) {
+    return (
+      <div className="p-6 text-center bg-transparent border-0 shadow-none">
+        <div className="flex justify-center mb-4">
+          <WavingHandIcon />
+        </div>
+        <h3 className="font-bold text-lg text-black">Marquise</h3>
+        <p className="text-gray-500 mt-1">Adicione itens para começar</p>
+      </div>
+    );
+  }
+
+  const animationName = `scroll-${direction}`;
+  const animationDuration = `${marquiseItems.length * (60 / speed)}s`;
+
+  const marquiseGroup = (
+    <div
+      className={cn(
+        "flex shrink-0 items-center justify-around [animation-play-state:running]",
+        pauseOnHover && "group-hover:[animation-play-state:paused]"
+      )}
+      style={{
+        animation: `${animationName} ${animationDuration} linear infinite`,
+      }}
+    >
+      {marquiseItems.map((item, index) => (
+        <div key={index} className="relative w-[300px] max-w-full shrink-0 px-4">
+          <div className="relative rounded-lg border border-black/10 bg-white p-4">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10 border">
+                <AvatarImage src={item.avatarUrl} alt={item.name} />
+                <AvatarFallback>{item.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-semibold text-black">{item.name}</p>
+                <p className="text-sm text-gray-500">{item.handle}</p>
+              </div>
+            </div>
+            <p className="mt-3 text-sm text-gray-700">{item.text}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <>
+      <style>{`
+        @keyframes scroll-left {
+          0% { transform: translateX(0%); }
+          100% { transform: translateX(-100%); }
+        }
+        @keyframes scroll-right {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(0%); }
+        }
+      `}</style>
+      <div className="group flex w-full overflow-hidden">
+        {marquiseGroup}
+        {marquiseGroup}
+      </div>
+    </>
+  );
+};
+
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
   const renderComponent = () => {
@@ -1184,6 +1270,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
           return <ImagemCanvasComponent component={component} />;
       case 'Lista':
           return <ListaCanvasComponent component={component} />;
+      case 'Marquise':
+          return <MarquiseCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -3076,6 +3164,120 @@ const ListaSettings = ({ component, onUpdate }: { component: CanvasComponentData
   );
 };
 
+const MarquiseSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+    const items = component.props.marquiseItems || [];
+
+    const handleUpdateItem = (itemId: number, newValues: Partial<MarquiseItem>) => {
+        const newItems = items.map(item =>
+            item.id === itemId ? { ...item, ...newValues } : item
+        );
+        onUpdate({ ...component.props, marquiseItems: newItems });
+    };
+
+    const handleAddItem = () => {
+        const newItem: MarquiseItem = {
+            id: Date.now(),
+            name: 'Novo Usuário',
+            handle: '@novousuario',
+            avatarUrl: `https://picsum.photos/seed/${Date.now()}/40/40`,
+            text: 'Este é um novo item na marquise!',
+        };
+        onUpdate({ ...component.props, marquiseItems: [...items, newItem] });
+    };
+
+    const handleDeleteItem = (itemId: number) => {
+        const newItems = items.filter(item => item.id !== itemId);
+        onUpdate({ ...component.props, marquiseItems: newItems });
+    };
+    
+    return (
+        <div className='space-y-6'>
+             <Card className="p-4 bg-card border-border/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Itens</h3>
+                <ScrollArea className="h-[30rem]">
+                    <div className="space-y-4 pr-4">
+                        {items.map(item => (
+                            <Card key={item.id} className="p-3 bg-card space-y-3 relative">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                    onClick={() => handleDeleteItem(item.id)}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                                <div className='space-y-2'>
+                                  <UILabel className='text-xs'>Avatar URL</UILabel>
+                                  <Input value={item.avatarUrl} onChange={(e) => handleUpdateItem(item.id, { avatarUrl: e.target.value })} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div className='space-y-2'>
+                                    <UILabel className='text-xs'>Nome</UILabel>
+                                    <Input value={item.name} onChange={(e) => handleUpdateItem(item.id, { name: e.target.value })} />
+                                  </div>
+                                  <div className='space-y-2'>
+                                    <UILabel className='text-xs'>Handle</UILabel>
+                                    <Input value={item.handle} onChange={(e) => handleUpdateItem(item.id, { handle: e.target.value })} />
+                                  </div>
+                                </div>
+                                <div className='space-y-2'>
+                                  <UILabel className='text-xs'>Texto</UILabel>
+                                  <Textarea value={item.text} onChange={(e) => handleUpdateItem(item.id, { text: e.target.value })} />
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                </ScrollArea>
+                 <Button variant="outline" className="w-full mt-4" onClick={handleAddItem}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Adicionar Item
+                </Button>
+            </Card>
+
+            <Card className="p-4 bg-card border-border/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Animação</h3>
+                <div className="space-y-4">
+                    <div>
+                        <UILabel htmlFor="speed" className='text-xs'>Velocidade ({component.props.speed || 20})</UILabel>
+                        <Slider
+                            id="speed"
+                            min={1}
+                            max={100}
+                            step={1}
+                            value={[component.props.speed || 20]}
+                            onValueChange={(value) => onUpdate({ ...component.props, speed: value[0] })}
+                            className="mt-2"
+                        />
+                    </div>
+                    <div>
+                        <UILabel htmlFor="direction" className='text-xs'>Direção</UILabel>
+                        <Select
+                            value={component.props.direction || 'left'}
+                            onValueChange={(value: 'left' | 'right') => onUpdate({ ...component.props, direction: value })}
+                        >
+                            <SelectTrigger id="direction" className="mt-1">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="left">Esquerda</SelectItem>
+                                <SelectItem value="right">Direita</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <UILabel htmlFor="pauseOnHover">Pausar ao passar o mouse</UILabel>
+                        <Switch
+                            id="pauseOnHover"
+                            checked={component.props.pauseOnHover}
+                            onCheckedChange={(checked) => onUpdate({ ...component.props, pauseOnHover: checked })}
+                        />
+                    </div>
+                </div>
+            </Card>
+        </div>
+    );
+};
+
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
@@ -3118,6 +3320,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <ImagemSettings component={component} onUpdate={handleUpdate} />;
         case 'Lista':
             return <ListaSettings component={component} onUpdate={handleUpdate} />;
+        case 'Marquise':
+            return <MarquiseSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -3323,6 +3527,19 @@ function FunnelEditorContent() {
             { id: 4, icon: '💰', iconBgColor: '#3B82F6', title: 'Pagamento recebido', subtitle: 'Cakto' },
         ],
       };
+    }
+
+    if (component.name === 'Marquise') {
+        defaultProps = {
+            marquiseItems: [
+                { id: 1, name: 'Jack', handle: '@jack', avatarUrl: `https://picsum.photos/seed/jack/40/40`, text: 'Nunca vi nada como isso antes. É incrível. Eu amei!' },
+                { id: 2, name: 'James', handle: '@james', avatarUrl: `https://picsum.photos/seed/james/40/40`, text: 'Não sei o que dizer. Estou sem palavras. Isso é incrível.' },
+                { id: 3, name: 'Jane', handle: '@jane', avatarUrl: `https://picsum.photos/seed/jane/40/40`, text: 'Não sei o que dizer. Estou sem palavras. Isso é incrível.' },
+            ],
+            speed: 20,
+            direction: 'left',
+            pauseOnHover: true,
+        };
     }
 
 
