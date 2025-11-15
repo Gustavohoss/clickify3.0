@@ -6490,6 +6490,26 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
     };
     setCanvasBlocks((prev) => [...prev, newBlock]);
   };
+  
+  const duplicateBlock = (blockId: number) => {
+    const blockToDuplicate = canvasBlocks.find(block => block.id === blockId);
+    if (!blockToDuplicate) return;
+
+    const newBlock: CanvasBlock = {
+      ...blockToDuplicate,
+      id: Date.now(),
+      position: {
+        x: blockToDuplicate.position.x + 20,
+        y: blockToDuplicate.position.y + 20,
+      },
+    };
+    setCanvasBlocks(prev => [...prev, newBlock]);
+  };
+
+  const deleteBlock = (blockId: number) => {
+    setCanvasBlocks(prev => prev.filter(block => block.id !== blockId));
+  };
+
 
   const blocks = {
     Bubbles: [
@@ -6601,28 +6621,52 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
     </Button>
   );
   
-  const CanvasTextBlock = ({ block }: { block: CanvasBlock }) => (
+  const CanvasTextBlock = ({
+    block,
+    onMouseDown,
+    onDuplicate,
+    onDelete,
+  }: {
+    block: CanvasBlock;
+    onMouseDown: (e: React.MouseEvent, block: CanvasBlock) => void;
+    onDuplicate: (e: React.MouseEvent) => void;
+    onDelete: (e: React.MouseEvent) => void;
+  }) => (
     <div
-      className="absolute w-72 rounded-lg bg-[#262626] p-3 cursor-grab"
+      className="group absolute w-72 cursor-grab select-none"
       style={{
         transform: `translate(${block.position.x}px, ${block.position.y}px)`,
       }}
-      onMouseDown={(e) => handleBlockMouseDown(e, block)}
+      onMouseDown={(e) => onMouseDown(e, block)}
     >
-      <div className="text-sm font-medium">Group #1</div>
-      <div className="mt-2 rounded-md border-2 border-orange-500">
-        <div className="flex items-center justify-between border-b border-orange-500/50 p-2">
-          <span className="text-xs text-white/70">Texto</span>
-          <button className="rounded bg-black/30 p-1 hover:bg-black/50">
-            <Code size={14} className="text-white/70" />
-          </button>
+        <div className="absolute -top-10 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-md bg-[#181818] p-1 opacity-0 transition-opacity group-hover:opacity-100">
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white" onClick={(e) => { e.stopPropagation()}}>
+                <Play size={14} />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white" onClick={onDuplicate}>
+                <Copy size={14} />
+            </Button>
+             <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white" onClick={onDelete}>
+                <Trash2 size={14} />
+            </Button>
         </div>
-        <div className="p-2">
-          <input
-            type="text"
-            className="w-full bg-transparent text-sm text-white outline-none"
-            placeholder="Digite aqui..."
-          />
+
+      <div className="rounded-lg bg-[#262626] p-3">
+        <div className="text-sm font-medium">Group #1</div>
+        <div className="mt-2 rounded-md border-2 border-orange-500">
+          <div className="flex items-center justify-between border-b border-orange-500/50 p-2">
+            <span className="text-xs text-white/70">Texto</span>
+            <button className="rounded bg-black/30 p-1 hover:bg-black/50">
+              <Code size={14} className="text-white/70" />
+            </button>
+          </div>
+          <div className="p-2">
+            <input
+              type="text"
+              className="w-full bg-transparent text-sm text-white outline-none"
+              placeholder="Digite aqui..."
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -6751,7 +6795,21 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
             {/* Dynamically Rendered Blocks */}
             {canvasBlocks.map((block) => {
               if (block.type === 'text') {
-                return <CanvasTextBlock key={block.id} block={block} />;
+                return (
+                  <CanvasTextBlock
+                    key={block.id}
+                    block={block}
+                    onMouseDown={handleBlockMouseDown}
+                    onDuplicate={(e) => {
+                      e.stopPropagation();
+                      duplicateBlock(block.id);
+                    }}
+                    onDelete={(e) => {
+                      e.stopPropagation();
+                      deleteBlock(block.id);
+                    }}
+                  />
+                );
               }
               // Add other block types here in the future
               return null;
