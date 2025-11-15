@@ -6521,27 +6521,6 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
           </div>
         </div>
 
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <div className="flex items-center gap-1 rounded-md bg-[#181818] p-1">
-            {['Flow', 'Theme', 'Settings', 'Share'].map((tab) => (
-              <Button
-                key={tab}
-                variant={activeTab === tab ? 'secondary' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab(tab)}
-                className={cn(
-                  'h-7 px-3 text-xs',
-                  activeTab === tab
-                    ? 'bg-[#262626] text-white'
-                    : 'text-white/60 hover:bg-[#262626] hover:text-white'
-                )}
-              >
-                {tab}
-              </Button>
-            ))}
-          </div>
-        </div>
-
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 rounded-md bg-[#181818] p-1">
             <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-[#262626]">
@@ -6593,12 +6572,32 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
 
         {/* Canvas */}
         <main
-          className="flex-1 overflow-auto"
+          className="relative flex-1 overflow-auto"
           style={{
             backgroundImage: 'radial-gradient(#3f3f46 1px, transparent 1px)',
             backgroundSize: '20px 20px',
           }}
         >
+            <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2">
+                <div className="flex items-center gap-1 rounded-md bg-[#181818] p-1">
+                    {['Flow', 'Theme', 'Settings', 'Share'].map((tab) => (
+                    <Button
+                        key={tab}
+                        variant={activeTab === tab ? 'secondary' : 'ghost'}
+                        size="sm"
+                        onClick={() => setActiveTab(tab)}
+                        className={cn(
+                        'h-7 px-3 text-xs',
+                        activeTab === tab
+                            ? 'bg-[#262626] text-white'
+                            : 'text-white/60 hover:bg-[#262626] hover:text-white'
+                        )}
+                    >
+                        {tab}
+                    </Button>
+                    ))}
+                </div>
+            </div>
           <div className="relative h-full w-full p-10">
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                 <div className="flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2">
@@ -6609,11 +6608,6 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
             </div>
           </div>
         </main>
-
-        {/* Right Sidebar - Placeholder */}
-        {/* <aside className="w-80 shrink-0 border-l border-[#262626] bg-[#181818]">
-            <div className="p-4">Settings</div>
-        </aside> */}
       </div>
     </div>
   );
