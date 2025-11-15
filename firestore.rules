@@ -55,9 +55,11 @@ service cloud.firestore {
     }
 
     match /funnels/{funnelId} {
-      allow get, list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow list: if isSignedIn() && request.query.filters.userId == request.auth.uid;
       allow create: if isSignedIn() && isOwner(request.resource.data.userId);
-      allow update, delete: if isOwner(resource.data.userId);
+      allow update: if isOwner(resource.data.userId);
+      allow delete: if isOwner(resource.data.userId);
     }
   }
 }

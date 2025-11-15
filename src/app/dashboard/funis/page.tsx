@@ -1,15 +1,36 @@
+
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { PlusCircle, Milestone } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { PlusCircle, Milestone, MoreVertical, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, query, where, doc, deleteDoc } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
+
 
 export default function FunisPage() {
   const { user } = useUser();
   const firestore = useFirestore();
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [funnelToDelete, setFunnelToDelete] = useState<string | null>(null);
 
   const funnelsQuery = useMemoFirebase(
     () =>
@@ -18,6 +39,35 @@ export default function FunisPage() {
   );
 
   const { data: funnels, isLoading } = useCollection(funnelsQuery);
+
+  const openDeleteDialog = (funnelId: string) => {
+    setFunnelToDelete(funnelId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteFunnel = async () => {
+    if (!funnelToDelete) return;
+
+    try {
+      const funnelRef = doc(firestore, 'funnels', funnelToDelete);
+      await deleteDoc(funnelRef);
+      toast({
+        title: 'Funil excluído!',
+        description: 'Seu funil foi removido com sucesso.',
+      });
+    } catch (error) {
+      console.error("Error deleting funnel: ", error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao excluir',
+        description: 'Não foi possível excluir o funil. Tente novamente.',
+      });
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setFunnelToDelete(null);
+    }
+  };
+
 
   return (
     <div className="space-y-8">
@@ -43,8 +93,31 @@ export default function FunisPage() {
       {!isLoading && funnels && funnels.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {funnels.map((funnel) => (
-            <Link key={funnel.id} href={`/editor/${funnel.id}`} className="block">
-              <Card className="h-full transition-all hover:shadow-lg hover:-translate-y-1">
+             <Card key={funnel.id} className="group relative flex flex-col transition-all hover:shadow-lg hover:-translate-y-1">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100">
+                            <MoreVertical className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => router.push(`/editor/${funnel.id}`)}>
+                            Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                openDeleteDialog(funnel.id);
+                            }}
+                        >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Excluir
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+              <Link href={`/editor/${funnel.id}`} className="flex-grow">
                 <CardHeader>
                   <CardTitle>{funnel.name}</CardTitle>
                   <CardDescription>{funnel.type}</CardDescription>
@@ -54,8 +127,8 @@ export default function FunisPage() {
                     Etapas: {funnel.steps?.length || 0}
                   </p>
                 </CardContent>
-              </Card>
-            </Link>
+              </Link>
+            </Card>
           ))}
         </div>
       ) : (
@@ -79,6 +152,21 @@ export default function FunisPage() {
             </Card>
         )
       )}
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. Isso excluirá permanentemente seu funil e todos os dados associados a ele.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteFunnel}>Continuar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
