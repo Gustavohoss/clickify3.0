@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, {
@@ -6456,6 +6457,10 @@ const DesignSettings = () => {
 
 const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
   const [activeTab, setActiveTab] = useState('Flow');
+  const [isPanning, setIsPanning] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const startPanPosition = useRef({ x: 0, y: 0 });
 
   const blocks = {
     Bubbles: [
@@ -6493,6 +6498,34 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
         { name: 'Return', icon: <GitPullRequest size={16} /> },
     ],
   };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLElement>) => {
+    if (e.target === e.currentTarget) {
+      setIsPanning(true);
+      startPanPosition.current = { x: e.clientX, y: e.clientY };
+      e.currentTarget.style.cursor = 'grabbing';
+    }
+  };
+
+  const handleMouseUp = (e: React.MouseEvent<HTMLElement>) => {
+    setIsPanning(false);
+    e.currentTarget.style.cursor = 'default';
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
+    setIsPanning(false);
+    e.currentTarget.style.cursor = 'default';
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    if (isPanning) {
+      const dx = (e.clientX - startPanPosition.current.x) / zoom;
+      const dy = (e.clientY - startPanPosition.current.y) / zoom;
+      setPanOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
+      startPanPosition.current = { x: e.clientX, y: e.clientY };
+    }
+  };
+
 
   const BlockButton = ({ name, icon }: { name: string; icon: ReactNode }) => (
     <Button variant="ghost" className="h-9 w-full justify-start gap-2 bg-[#262626] text-sm font-normal text-white/80 hover:bg-[#3f3f46] hover:text-white">
@@ -6572,11 +6605,15 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
 
         {/* Canvas */}
         <main
-          className="relative flex-1 overflow-auto"
+          className="relative flex-1 overflow-hidden"
           style={{
             backgroundImage: 'radial-gradient(#3f3f46 1px, transparent 1px)',
             backgroundSize: '20px 20px',
           }}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
         >
             <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2">
                 <div className="flex items-center gap-1 rounded-md bg-[#181818] p-1">
@@ -6598,7 +6635,13 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
                     ))}
                 </div>
             </div>
-          <div className="relative h-full w-full p-10">
+          <div 
+            className="relative h-full w-full"
+             style={{
+                transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
+                transformOrigin: '0 0',
+             }}
+          >
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                 <div className="flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2">
                     <PlaySquare size={16} className="text-white/60" />
