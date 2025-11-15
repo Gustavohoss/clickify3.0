@@ -6445,7 +6445,16 @@ function FunnelEditorContent() {
 
   const debouncedUpdateFunnel = useDebouncedCallback((updatedFunnel: Funnel) => {
     if (funnelRef) {
-      const { id, ...rest } = updatedFunnel;
+      // Deep copy and clean the object before sending to Firestore
+      const cleanedFunnel = JSON.parse(JSON.stringify(updatedFunnel, (key, value) => {
+        // Remove React's internal properties and functions
+        if (key === 'icon' && typeof value === 'object' && value !== null && '$$typeof' in value) {
+          return undefined; // Remove React elements
+        }
+        return value;
+      }));
+      
+      const { id, ...rest } = cleanedFunnel;
       updateDoc(funnelRef, rest);
     }
   }, 500);
@@ -6647,9 +6656,9 @@ function FunnelEditorContent() {
       <div className="flex flex-1 overflow-hidden">
         <aside
           className={cn(
-            'hidden border-r border-border md:flex',
+            'border-r border-border md:flex',
             activeView === 'construtor' ? 'flex-row' : 'hidden',
-            'w-96'
+            'w-full md:w-96'
           )}
         >
           <div className="flex w-1/2 flex-col border-r border-border">
