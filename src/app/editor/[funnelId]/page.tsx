@@ -6457,47 +6457,71 @@ const DesignSettings = () => {
   );
 };
 
+type CanvasBlock = {
+  id: number;
+  type: string;
+  position: { x: number; y: number };
+};
+
 const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
   const [activeTab, setActiveTab] = useState('Flow');
   const [isPanning, setIsPanning] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const startPanPosition = useRef({ x: 0, y: 0 });
+  const [canvasBlocks, setCanvasBlocks] = useState<CanvasBlock[]>([]);
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+
+  const addBlock = (type: string) => {
+    if (!canvasRef.current) return;
+    const canvasRect = canvasRef.current.getBoundingClientRect();
+
+    const newBlock: CanvasBlock = {
+      id: Date.now(),
+      type,
+      position: {
+        x: (canvasRect.width / 2) / zoom - panOffset.x - 150, // center horizontally
+        y: (canvasRect.height / 2) / zoom - panOffset.y - 50, // center vertically
+      },
+    };
+    setCanvasBlocks((prev) => [...prev, newBlock]);
+  };
 
   const blocks = {
     Bubbles: [
-      { name: 'Text', icon: <MessageCircle size={16} /> },
-      { name: 'Image', icon: <ImageIcon size={16} /> },
-      { name: 'Video', icon: <Video size={16} /> },
-      { name: 'Embed', icon: <Code2 size={16} /> },
-      { name: 'Audio', icon: <AudioWaveform size={16} /> },
+      { name: 'Text', icon: <MessageCircle size={16} />, type: 'text' },
+      { name: 'Image', icon: <ImageIcon size={16} />, type: 'image' },
+      { name: 'Video', icon: <Video size={16} />, type: 'video' },
+      { name: 'Embed', icon: <Code2 size={16} />, type: 'embed' },
+      { name: 'Audio', icon: <AudioWaveform size={16} />, type: 'audio' },
     ],
     Inputs: [
-      { name: 'Text', icon: <TextCursorInput size={16} /> },
-      { name: 'Number', icon: <span className="font-bold">7</span> },
-      { name: 'Email', icon: <MessageCircle size={16} /> },
-      { name: 'Website', icon: <Link2 size={16} /> },
-      { name: 'Date', icon: <Calendar size={16} /> },
-      { name: 'Time', icon: <Clock size={16} /> },
-      { name: 'Phone', icon: <Phone size={16} /> },
-      { name: 'Buttons', icon: <CheckSquare2 size={16} /> },
-      { name: 'Pic choice', icon: <PictureInPicture size={16} /> },
-      { name: 'Payment', icon: <CreditCard size={16} /> },
-      { name: 'Rating', icon: <StarHalf size={16} /> },
-      { name: 'File', icon: <UploadCloud size={16} /> },
-      { name: 'Cards', icon: <CreditCard size={16} /> },
+      { name: 'Text', icon: <TextCursorInput size={16} />, type: 'input-text' },
+      { name: 'Number', icon: <span className="font-bold">7</span>, type: 'input-number' },
+      { name: 'Email', icon: <MessageCircle size={16} />, type: 'input-email' },
+      { name: 'Website', icon: <Link2 size={16} />, type: 'input-website' },
+      { name: 'Date', icon: <Calendar size={16} />, type: 'input-date' },
+      { name: 'Time', icon: <Clock size={16} />, type: 'input-time' },
+      { name: 'Phone', icon: <Phone size={16} />, type: 'input-phone' },
+      { name: 'Buttons', icon: <CheckSquare2 size={16} />, type: 'input-buttons' },
+      { name: 'Pic choice', icon: <PictureInPicture size={16} />, type: 'input-pic' },
+      { name: 'Payment', icon: <CreditCard size={16} />, type: 'input-payment' },
+      { name: 'Rating', icon: <StarHalf size={16} />, type: 'input-rating' },
+      { name: 'File', icon: <UploadCloud size={16} />, type: 'input-file' },
+      { name: 'Cards', icon: <CreditCard size={16} />, type: 'input-cards' },
     ],
     Logic: [
-        { name: 'Set variable', icon: <Variable size={16} /> },
-        { name: 'Condition', icon: <GitBranch size={16} /> },
-        { name: 'Redirect', icon: <ArrowRightLeft size={16} /> },
-        { name: 'Script', icon: <FileCode size={16} /> },
-        { name: 'Typebot', icon: <Bot size={16} /> },
-        { name: 'Wait', icon: <Clock10 size={16} /> },
-        { name: 'AB Test', icon: <GitCompareArrows size={16} /> },
-        { name: 'Webhook', icon: <Webhook size={16} /> },
-        { name: 'Jump', icon: <GitCommit size={16} /> },
-        { name: 'Return', icon: <GitPullRequest size={16} /> },
+        { name: 'Set variable', icon: <Variable size={16} />, type: 'logic-variable' },
+        { name: 'Condition', icon: <GitBranch size={16} />, type: 'logic-condition' },
+        { name: 'Redirect', icon: <ArrowRightLeft size={16} />, type: 'logic-redirect' },
+        { name: 'Script', icon: <FileCode size={16} />, type: 'logic-script' },
+        { name: 'Typebot', icon: <Bot size={16} />, type: 'logic-typebot' },
+        { name: 'Wait', icon: <Clock10 size={16} />, type: 'logic-wait' },
+        { name: 'AB Test', icon: <GitCompareArrows size={16} />, type: 'logic-abtest' },
+        { name: 'Webhook', icon: <Webhook size={16} />, type: 'logic-webhook' },
+        { name: 'Jump', icon: <GitCommit size={16} />, type: 'logic-jump' },
+        { name: 'Return', icon: <GitPullRequest size={16} />, type: 'logic-return' },
     ],
   };
 
@@ -6529,11 +6553,41 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
   };
 
 
-  const BlockButton = ({ name, icon }: { name: string; icon: ReactNode }) => (
-    <Button variant="ghost" className="h-9 w-full justify-start gap-2 bg-[#262626] text-sm font-normal text-white/80 hover:bg-[#3f3f46] hover:text-white">
+  const BlockButton = ({ name, icon, type }: { name: string; icon: ReactNode; type: string }) => (
+    <Button 
+      variant="ghost" 
+      className="h-9 w-full justify-start gap-2 bg-[#262626] text-sm font-normal text-white/80 hover:bg-[#3f3f46] hover:text-white"
+      onClick={() => addBlock(type)}
+    >
       {icon}
       {name}
     </Button>
+  );
+  
+  const CanvasTextBlock = ({ block }: { block: CanvasBlock }) => (
+    <div
+      className="absolute w-72 rounded-lg bg-[#262626] p-3"
+      style={{
+        transform: `translate(${block.position.x}px, ${block.position.y}px)`,
+      }}
+    >
+      <div className="text-sm font-medium">Group #1</div>
+      <div className="mt-2 rounded-md border-2 border-orange-500">
+        <div className="flex items-center justify-between border-b border-orange-500/50 p-2">
+          <span className="text-xs text-white/70">Texto</span>
+          <button className="rounded bg-black/30 p-1 hover:bg-black/50">
+            <Code size={14} className="text-white/70" />
+          </button>
+        </div>
+        <div className="p-2">
+          <input
+            type="text"
+            className="w-full bg-transparent text-sm text-white outline-none"
+            placeholder="Digite aqui..."
+          />
+        </div>
+      </div>
+    </div>
   );
 
   return (
@@ -6596,7 +6650,7 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
                   </h3>
                   <div className="grid grid-cols-2 gap-2">
                     {items.map((item) => (
-                      <BlockButton key={item.name} name={item.name} icon={item.icon} />
+                      <BlockButton key={item.name} name={item.name} icon={item.icon} type={item.type} />
                     ))}
                   </div>
                 </div>
@@ -6607,6 +6661,7 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
 
         {/* Canvas */}
         <main
+          ref={canvasRef}
           className="relative flex-1 overflow-hidden"
           style={{
             backgroundImage: 'radial-gradient(#3f3f46 1px, transparent 1px)',
@@ -6644,29 +6699,26 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
                 transformOrigin: '0 0',
              }}
           >
-            <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 gap-8">
-                <div className="flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2">
-                    <PlaySquare size={16} className="text-white/60" />
-                    <span className="text-sm font-medium">Start</span>
-                    <div className="h-3 w-3 rounded-full border-2 border-orange-400 bg-transparent" />
-                </div>
-                
-                <div className="w-72 rounded-lg bg-[#262626] p-3">
-                  <div className="text-sm font-medium">Group #1</div>
-                  <div className="mt-2 rounded-md border-2 border-orange-500">
-                    <div className="flex items-center justify-between border-b border-orange-500/50 p-2">
-                      <span className="text-xs text-white/70">Texto</span>
-                       <button className="rounded bg-black/30 p-1 hover:bg-black/50">
-                        <Code size={14} className="text-white/70" />
-                      </button>
-                    </div>
-                    <div className="p-2">
-                       <input type="text" className="w-full bg-transparent text-sm text-white outline-none" placeholder="Digite aqui..." />
-                    </div>
-                  </div>
-                </div>
-
+            {/* Static Start Node */}
+            <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-lg bg-[#262626] px-3 py-2"
+                style={{
+                    transform: `translate(-50%, -50%) translate(-200px, 0px)`
+                }}
+            >
+                <PlaySquare size={16} className="text-white/60" />
+                <span className="text-sm font-medium">Start</span>
+                <div className="h-3 w-3 rounded-full border-2 border-orange-400 bg-transparent" />
             </div>
+
+            {/* Dynamically Rendered Blocks */}
+            {canvasBlocks.map((block) => {
+              if (block.type === 'text') {
+                return <CanvasTextBlock key={block.id} block={block} />;
+              }
+              // Add other block types here in the future
+              return null;
+            })}
+
           </div>
         </main>
       </div>
