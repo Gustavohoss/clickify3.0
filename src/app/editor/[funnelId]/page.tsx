@@ -6651,7 +6651,7 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
             </Button>
         </div>
 
-      <div className="rounded-lg bg-[#262626] p-3">
+      <div className="w-72 rounded-lg bg-[#262626] p-3">
         <div className="text-sm font-medium">Group #1</div>
         <div className="mt-2 rounded-md border-2 border-orange-500">
           <div className="flex items-center justify-between border-b border-orange-500/50 p-2">
@@ -6693,20 +6693,6 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 rounded-md bg-[#181818] p-1">
-            <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-[#262626]">
-              <Code2 size={16} />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-[#262626]">
-              <Minus size={16} />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-[#262626]">
-              <Plus size={16} />
-            </Button>
-             <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-[#262626]">
-              <MoreHorizontal size={16} />
-            </Button>
-          </div>
           <Button variant="ghost" className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white">
             <Share2 size={16} /> Share
           </Button>
