@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,59 +12,84 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Bot, FileText, HelpCircle } from "lucide-react";
+} from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { ArrowRight, Bot, FileText, HelpCircle } from 'lucide-react';
+import { useAuth, useFirestore, useUser } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 type FunnelType = 'sales-page' | 'typebot' | 'quiz';
 
 const funnelTypes = [
   {
     icon: <FileText className="h-8 w-8" />,
-    title: "Página de Venda",
-    description: "Crie uma página de alta conversão para vender seu produto diretamente.",
-    type: "sales-page" as FunnelType,
+    title: 'Página de Venda',
+    description: 'Crie uma página de alta conversão para vender seu produto diretamente.',
+    type: 'sales-page' as FunnelType,
   },
   {
     icon: <Bot className="h-8 w-8" />,
-    title: "Typebot",
-    description: "Engaje seu público com um chatbot interativo para capturar leads.",
-    type: "typebot" as FunnelType,
+    title: 'Typebot',
+    description: 'Engaje seu público com um chatbot interativo para capturar leads.',
+    type: 'typebot' as FunnelType,
   },
   {
     icon: <HelpCircle className="h-8 w-8" />,
-    title: "Quiz",
-    description: "Qualifique seus leads com um quiz divertido e personalizado.",
-    type: "quiz" as FunnelType,
+    title: 'Quiz',
+    description: 'Qualifique seus leads com um quiz divertido e personalizado.',
+    type: 'quiz' as FunnelType,
   },
 ];
 
 export default function NovoFunilPage() {
   const router = useRouter();
+  const firestore = useFirestore();
+  const { user } = useUser();
   const [selectedFunnel, setSelectedFunnel] = useState<FunnelType | null>(null);
-  const [funnelName, setFunnelName] = useState("");
+  const [funnelName, setFunnelName] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   const handleFunnelSelect = (funnelType: FunnelType) => {
     setSelectedFunnel(funnelType);
     setIsDialogOpen(true);
   };
 
-  const handleCreateFunnel = () => {
-    if (funnelName.trim() && selectedFunnel) {
-      // For now, we use a placeholder ID like '123'
-      router.push(`/editor/123?type=${selectedFunnel}&name=${encodeURIComponent(funnelName.trim())}`);
+  const handleCreateFunnel = async () => {
+    if (!funnelName.trim() || !selectedFunnel || !user) {
+      // TODO: Add toast notification for empty name or no user
+      return;
     }
-    // TODO: Add toast notification for empty name
+    setIsCreating(true);
+    try {
+      const funnelsCol = collection(firestore, 'funnels');
+      const newFunnelDoc = await addDoc(funnelsCol, {
+        name: funnelName.trim(),
+        type: selectedFunnel,
+        userId: user.uid,
+        createdAt: serverTimestamp(),
+        steps: [
+          {
+            id: Date.now(),
+            name: 'Etapa 1',
+            components: [],
+          },
+        ],
+      });
+      router.push(`/editor/${newFunnelDoc.id}`);
+    } catch (error) {
+      console.error('Error creating funnel: ', error);
+      // TODO: Add toast notification for error
+      setIsCreating(false);
+    }
   };
 
   const closeDialog = () => {
     setIsDialogOpen(false);
     setSelectedFunnel(null);
-    setFunnelName("");
-  }
-
+    setFunnelName('');
+  };
 
   return (
     <div className="space-y-8">
@@ -79,17 +104,23 @@ export default function NovoFunilPage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {funnelTypes.map((funnel) => (
-          <button onClick={() => handleFunnelSelect(funnel.type)} key={funnel.title} className="block text-left">
-            <Card className="group transform transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:border-primary h-full">
+          <button
+            onClick={() => handleFunnelSelect(funnel.type)}
+            key={funnel.title}
+            className="block text-left"
+          >
+            <Card className="group h-full transform transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:border-primary">
               <CardHeader className="p-6">
                 <div className="flex items-center justify-between">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-primary/10 text-primary mb-4">
-                        {funnel.icon}
-                    </div>
-                    <ArrowRight className="h-6 w-6 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-primary" />
+                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    {funnel.icon}
+                  </div>
+                  <ArrowRight className="h-6 w-6 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-primary" />
                 </div>
                 <CardTitle className="text-xl font-bold">{funnel.title}</CardTitle>
-                <CardDescription className="mt-2 text-muted-foreground">{funnel.description}</CardDescription>
+                <CardDescription className="mt-2 text-muted-foreground">
+                  {funnel.description}
+                </CardDescription>
               </CardHeader>
             </Card>
           </button>
@@ -105,7 +136,7 @@ export default function NovoFunilPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="py-4">
-            <Input 
+            <Input
               placeholder="Ex: Funil de Lançamento"
               value={funnelName}
               onChange={(e) => setFunnelName(e.target.value)}
@@ -115,12 +146,13 @@ export default function NovoFunilPage() {
           <AlertDialogFooter>
             <AlertDialogCancel onClick={closeDialog}>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleCreateFunnel} asChild>
-                <Button disabled={!funnelName.trim()}>Criar Funil</Button>
+              <Button disabled={!funnelName.trim() || isCreating}>
+                {isCreating ? 'Criando...' : 'Criar Funil'}
+              </Button>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
     </div>
   );
 }

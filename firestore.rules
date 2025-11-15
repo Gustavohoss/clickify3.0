@@ -19,28 +19,19 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /**
-     * @description Enforces document ownership for user profiles. Only the authenticated user can read, update, or delete their own profile.
-     * @path /users/{userId}
-     * @allow (create) - User with UID 'user_abc' can create a profile at /users/user_abc if the document's id field also contains 'user_abc'.
-     * @allow (get, list, update, delete) - User with UID 'user_abc' can access their profile at /users/user_abc.
-     * @deny (create) - User with UID 'user_abc' cannot create a profile at /users/user_xyz.
-     * @deny (get, list, update, delete) - User with UID 'user_xyz' cannot access the profile at /users/user_abc.
-     * @principle Enforces path-based ownership for user data, validates ownership on creation, and restricts updates/deletes to the owner.
-     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+    }
+
     match /users/{userId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
-      function isOwner(userId) {
-        return request.auth.uid == userId;
-      }
-
-      function isExistingOwner(userId) {
-          return isOwner(userId) && resource != null;
-      }
-
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
       allow create: if isSignedIn() && isOwner(userId) && request.resource.data.id == userId;
@@ -48,40 +39,25 @@ service cloud.firestore {
       allow delete: if isExistingOwner(userId);
     }
 
-    /**
-     * @description Allows public read access to pricing plans. No authentication required.
-     * @path /plans/{planId}
-     * @allow (get, list) - Any user (authenticated or not) can read the plan data.
-     * @deny (create, update, delete) - No one can create, update, or delete plans through the client.
-     * @principle Provides public read access for application resources.
-     */
     match /plans/{planId} {
       allow get, list: if true;
       allow create, update, delete: if false;
     }
 
-    /**
-     * @description Allows public read access to AI models. No authentication required.
-     * @path /ai_models/{aiModelId}
-     * @allow (get, list) - Any user (authenticated or not) can read the AI model data.
-     * @deny (create, update, delete) - No one can create, update, or delete AI models through the client.
-     * @principle Provides public read access for application resources.
-     */
     match /ai_models/{aiModelId} {
       allow get, list: if true;
       allow create, update, delete: if false;
     }
 
-    /**
-     * @description Allows public read access to AI templates. No authentication required.
-     * @path /ai_models/{aiModelId}/ai_templates/{aiTemplateId}
-     * @allow (get, list) - Any user (authenticated or not) can read the AI template data.
-     * @deny (create, update, delete) - No one can create, update, or delete AI templates through the client.
-     * @principle Provides public read access for application resources.
-     */
     match /ai_models/{aiModelId}/ai_templates/{aiTemplateId} {
       allow get, list: if true;
       allow create, update, delete: if false;
+    }
+
+    match /funnels/{funnelId} {
+      allow get, list, delete: if isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+      allow update: if isSignedIn() && isOwner(request.resource.data.userId);
     }
   }
 }
