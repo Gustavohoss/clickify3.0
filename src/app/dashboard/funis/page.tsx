@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -34,7 +33,9 @@ export default function FunisPage() {
 
   const funnelsQuery = useMemoFirebase(
     () =>
-      user ? query(collection(firestore, 'funnels'), where('userId', '==', user.uid)) : null,
+      user && firestore
+        ? query(collection(firestore, 'funnels'), where('userId', '==', user.uid))
+        : null,
     [firestore, user]
   );
 
@@ -46,7 +47,7 @@ export default function FunisPage() {
   };
 
   const handleDeleteFunnel = async () => {
-    if (!funnelToDelete) return;
+    if (!funnelToDelete || !firestore) return;
 
     try {
       const funnelRef = doc(firestore, 'funnels', funnelToDelete);
