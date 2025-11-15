@@ -93,6 +93,30 @@ import {
   Combine,
   Wand2,
   Users,
+  Code2,
+  Share2,
+  TestTube2,
+  Undo2,
+  Redo2,
+  PlaySquare,
+  PictureInPicture,
+  MessageCircle,
+  Link2,
+  Calendar,
+  Clock,
+  Phone,
+  CheckSquare2,
+  StarHalf,
+  UploadCloud,
+  CreditCard,
+  Variable,
+  GitBranch,
+  ArrowRightLeft,
+  Webhook,
+  RefreshCw,
+  GitCommit,
+  GitPullRequest,
+  Clock10,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6429,8 +6453,518 @@ const DesignSettings = () => {
   );
 };
 
+const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
+  const [activeTab, setActiveTab] = useState('Flow');
+
+  const blocks = {
+    Bubbles: [
+      { name: 'Text', icon: <MessageCircle size={16} /> },
+      { name: 'Image', icon: <ImageIcon size={16} /> },
+      { name: 'Video', icon: <Video size={16} /> },
+      { name: 'Embed', icon: <Code2 size={16} /> },
+      { name: 'Audio', icon: <AudioWaveform size={16} /> },
+    ],
+    Inputs: [
+      { name: 'Text', icon: <TextCursorInput size={16} /> },
+      { name: 'Number', icon: <span className="font-bold">7</span> },
+      { name: 'Email', icon: <MessageCircle size={16} /> },
+      { name: 'Website', icon: <Link2 size={16} /> },
+      { name: 'Date', icon: <Calendar size={16} /> },
+      { name: 'Time', icon: <Clock size={16} /> },
+      { name: 'Phone', icon: <Phone size={16} /> },
+      { name: 'Buttons', icon: <CheckSquare2 size={16} /> },
+      { name: 'Pic choice', icon: <PictureInPicture size={16} /> },
+      { name: 'Payment', icon: <CreditCard size={16} /> },
+      { name: 'Rating', icon: <StarHalf size={16} /> },
+      { name: 'File', icon: <UploadCloud size={16} /> },
+      { name: 'Cards', icon: <CreditCard size={16} /> },
+    ],
+    Logic: [
+        { name: 'Set variable', icon: <Variable size={16} /> },
+        { name: 'Condition', icon: <GitBranch size={16} /> },
+        { name: 'Redirect', icon: <ArrowRightLeft size={16} /> },
+        { name: 'Script', icon: <FileCode size={16} /> },
+        { name: 'Typebot', icon: <Bot size={16} /> },
+        { name: 'Wait', icon: <Clock10 size={16} /> },
+        { name: 'AB Test', icon: <GitCompareArrows size={16} /> },
+        { name: 'Webhook', icon: <Webhook size={16} /> },
+        { name: 'Jump', icon: <GitCommit size={16} /> },
+        { name: 'Return', icon: <GitPullRequest size={16} /> },
+    ],
+  };
+
+  const BlockButton = ({ name, icon }: { name: string; icon: ReactNode }) => (
+    <Button variant="ghost" className="h-9 w-full justify-start gap-2 bg-[#262626] text-sm font-normal text-white/80 hover:bg-[#3f3f46] hover:text-white">
+      {icon}
+      {name}
+    </Button>
+  );
+
+  return (
+    <div className="flex h-screen w-full flex-col bg-[#111111] text-white">
+      {/* Header */}
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-[#262626] px-4">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-[#262626]">
+            <ArrowLeft size={16} />
+          </Button>
+          <div className="h-6 w-px bg-[#262626]"></div>
+          <h1 className="text-sm font-medium">{funnel.name}</h1>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-[#262626]">
+              <Undo2 size={16} />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-[#262626]">
+              <Redo2 size={16} />
+            </Button>
+          </div>
+        </div>
+
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <div className="flex items-center gap-1 rounded-md bg-[#181818] p-1">
+            {['Flow', 'Theme', 'Settings', 'Share'].map((tab) => (
+              <Button
+                key={tab}
+                variant={activeTab === tab ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  'h-7 px-3 text-xs',
+                  activeTab === tab
+                    ? 'bg-[#262626] text-white'
+                    : 'text-white/60 hover:bg-[#262626] hover:text-white'
+                )}
+              >
+                {tab}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 rounded-md bg-[#181818] p-1">
+            <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-[#262626]">
+              <Code2 size={16} />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-[#262626]">
+              <Minus size={16} />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-[#262626]">
+              <Plus size={16} />
+            </Button>
+             <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-[#262626]">
+              <MoreHorizontal size={16} />
+            </Button>
+          </div>
+          <Button variant="ghost" className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white">
+            <Share2 size={16} /> Share
+          </Button>
+          <Button variant="ghost" className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white">
+            <TestTube2 size={16} /> Test
+          </Button>
+          <Button className="h-9 bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700">
+            Publish
+          </Button>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left Sidebar */}
+        <aside className="w-64 shrink-0 border-r border-[#262626] bg-[#181818]">
+          <ScrollArea className="h-full">
+            <div className="space-y-4 p-3">
+              {Object.entries(blocks).map(([category, items]) => (
+                <div key={category}>
+                  <h3 className="mb-2 px-1 text-xs font-semibold uppercase text-white/40">
+                    {category}
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {items.map((item) => (
+                      <BlockButton key={item.name} name={item.name} icon={item.icon} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </aside>
+
+        {/* Canvas */}
+        <main
+          className="flex-1 overflow-auto"
+          style={{
+            backgroundImage: 'radial-gradient(#3f3f46 1px, transparent 1px)',
+            backgroundSize: '20px 20px',
+          }}
+        >
+          <div className="relative h-full w-full p-10">
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                <div className="flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2">
+                    <PlaySquare size={16} className="text-white/60" />
+                    <span className="text-sm font-medium">Start</span>
+                    <div className="h-3 w-3 rounded-full border-2 border-orange-400 bg-transparent" />
+                </div>
+            </div>
+          </div>
+        </main>
+
+        {/* Right Sidebar - Placeholder */}
+        {/* <aside className="w-80 shrink-0 border-l border-[#262626] bg-[#181818]">
+            <div className="p-4">Settings</div>
+        </aside> */}
+      </div>
+    </div>
+  );
+};
+
+
+function StandardFunnelEditor(
+    { 
+        funnel, 
+        setFunnel, 
+        debouncedUpdateFunnel,
+        activeStepId,
+        setActiveStepId,
+        selectedComponentId,
+        setSelectedComponentId,
+    } : {
+        funnel: Funnel,
+        setFunnel: (updater: (prev: Funnel) => Funnel) => void,
+        debouncedUpdateFunnel: any,
+        activeStepId: number | null,
+        setActiveStepId: (id: number | null) => void,
+        selectedComponentId: number | null,
+        setSelectedComponentId: (id: number | null) => void,
+    }
+) {
+    const router = useRouter();
+    const [activeView, setActiveView] = useState<EditorView>('construtor');
+
+    const updateFunnel = (updater: (prev: Funnel) => Funnel) => {
+        setFunnel(prev => prev ? updater(prev) : null);
+    };
+
+    const addStep = () => {
+        const newStepId = Date.now();
+        const newStep: Step = {
+            id: newStepId,
+            name: `Etapa ${funnel.steps.length + 1}`,
+            components: [],
+        };
+        updateFunnel(prev => ({ ...prev, steps: [...prev.steps, newStep] }));
+        setActiveStepId(newStepId);
+    };
+
+    const updateStepName = (id: number, name: string) => {
+        updateFunnel(prev => ({
+            ...prev,
+            steps: prev.steps.map(step =>
+                step.id === id ? { ...step, name } : step
+            ),
+        }));
+    };
+
+    const deleteStep = (id: number) => {
+        if (funnel.steps.length === 1) return;
+
+        let newActiveStepId = activeStepId;
+        if (activeStepId === id) {
+            const currentIndex = funnel.steps.findIndex(s => s.id === id);
+            newActiveStepId =
+                funnel.steps[currentIndex - 1]?.id || funnel.steps[currentIndex + 1]?.id;
+        }
+
+        updateFunnel(prev => ({
+            ...prev,
+            steps: prev.steps.filter(step => step.id !== id),
+        }));
+
+        setActiveStepId(newActiveStepId);
+    };
+
+    const addComponentToCanvas = (component: ComponentType) => {
+        if (!activeStepId) return;
+        let defaultProps: ComponentProps = {};
+        if (component.name === 'Alerta') {
+            const model: AlertModel = 'success';
+            defaultProps = {
+                title: 'Sucesso!',
+                description: 'Seu item foi salvo com sucesso.',
+                model: model,
+                ...modelColors[model],
+                icon: modelIcons[model],
+            };
+        }
+        const newComponent: CanvasComponentData = {
+            ...component,
+            id: Date.now(),
+            props: defaultProps,
+        };
+        updateFunnel(prev => ({
+            ...prev,
+            steps: prev.steps.map(step =>
+                step.id === activeStepId
+                    ? { ...step, components: [...step.components, newComponent] }
+                    : step
+            ),
+        }));
+    };
+    
+    const updateComponentProps = (componentId: number, props: ComponentProps) => {
+        updateFunnel(prev => ({
+            ...prev,
+            steps: prev.steps.map(step =>
+                step.id === activeStepId
+                    ? {
+                        ...step,
+                        components: step.components.map(c =>
+                            c.id === componentId ? { ...c, props } : c
+                        ),
+                    }
+                    : step
+            ),
+        }));
+    };
+
+    const duplicateComponent = (id: number) => {
+        const activeStep = funnel.steps.find(s => s.id === activeStepId);
+        if (!activeStep) return;
+        const componentToDuplicate = activeStep.components.find(c => c.id === id);
+        if (!componentToDuplicate) return;
+        const newComponent = { ...componentToDuplicate, id: Date.now() };
+        const index = activeStep.components.findIndex(c => c.id === id);
+        const newComponents = [...activeStep.components];
+        newComponents.splice(index + 1, 0, newComponent);
+        updateFunnel(prev => ({
+            ...prev,
+            steps: prev.steps.map(step =>
+                step.id === activeStepId ? { ...step, components: newComponents } : step
+            ),
+        }));
+    };
+
+    const deleteComponent = (id: number) => {
+        updateFunnel(prev => ({
+            ...prev,
+            steps: prev.steps.map(step =>
+                step.id === activeStepId
+                    ? { ...step, components: step.components.filter(c => c.id !== id) }
+                    : step
+            ),
+        }));
+        if (selectedComponentId === id) {
+            setSelectedComponentId(null);
+        }
+    };
+    
+    const activeStep = funnel.steps.find((s) => s.id === activeStepId);
+    const activeStepComponents = activeStep?.components || [];
+    const selectedComponent = activeStepComponents.find((c) => c.id === selectedComponentId) || null;
+
+    const editorViews: { id: EditorView; label: string; icon: React.ReactNode }[] = [
+        { id: 'construtor', label: 'Construtor', icon: <Wand2 /> },
+        { id: 'fluxo', label: 'Fluxo', icon: <Combine /> },
+        { id: 'design', label: 'Design', icon: <Brush /> },
+        { id: 'leads', label: 'Leads', icon: <Users /> },
+        { id: 'configuracoes', label: 'Configurações', icon: <Settings /> },
+    ];
+
+    return (
+        <div className="flex h-screen w-full flex-col bg-background text-foreground">
+        <header className="flex h-16 items-center justify-between border-b border-border px-4 md:px-6">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => router.back()}>
+              <ArrowLeft />
+            </Button>
+            <span className="text-lg font-semibold">{funnel.name}</span>
+          </div>
+          <div className="hidden items-center gap-2 rounded-lg bg-card p-1 md:flex">
+            {editorViews.map((view) => (
+              <Button
+                key={view.id}
+                variant={activeView === view.id ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setActiveView(view.id)}
+                className="gap-2"
+              >
+                {view.icon}
+                <span className="hidden sm:inline">{view.label}</span>
+              </Button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon">
+              <Eye className="h-5 w-5" />
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => debouncedUpdateFunnel.flush()}>
+              <Save className="mr-2 h-4 w-4" />
+              Salvar
+            </Button>
+            <Button size="sm">
+              <Rocket className="mr-2 h-4 w-4" />
+              Publicar
+            </Button>
+          </div>
+        </header>
+  
+        <div className="flex flex-1 overflow-hidden">
+          <aside
+            className={cn(
+              'border-r border-border md:flex',
+              activeView === 'construtor' ? 'flex-row' : 'hidden',
+              'w-full md:w-96'
+            )}
+          >
+            <div className="flex w-1/2 flex-col border-r border-border">
+              <div className="flex h-14 items-center justify-between border-b border-border px-4">
+                <h2 className="font-semibold">Etapas</h2>
+                <Button variant="ghost" size="icon" onClick={addStep}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <ScrollArea className="flex-1">
+                <div className="space-y-1 p-2">
+                  {funnel.steps.map((step) => (
+                    <div key={step.id} className="group relative">
+                      <Button
+                        variant={activeStepId === step.id ? 'secondary' : 'ghost'}
+                        className="w-full justify-start"
+                        onClick={() => setActiveStepId(step.id)}
+                      >
+                        <Grip className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <span className="flex-1 truncate text-left">{step.name}</span>
+                      </Button>
+                      <div className="absolute top-1/2 right-1 -translate-y-1/2 opacity-0 group-hover:opacity-100">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-40 p-1">
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start text-sm font-normal"
+                              onClick={() => deleteStep(step.id)}
+                              disabled={funnel.steps.length <= 1}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                            </Button>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+            <div className="flex w-1/2 flex-col">
+              <div className="flex h-14 items-center border-b border-border px-4">
+                <h2 className="font-semibold">Componentes</h2>
+              </div>
+              <div className="flex-1">
+                <ScrollArea className="h-full">
+                  <div className="grid grid-cols-1 gap-2 p-2">
+                    {components.map((component) => (
+                      <Card
+                        key={component.name}
+                        className="group flex cursor-pointer items-center justify-start gap-3 p-2 text-left transition-colors hover:bg-primary/10 hover:text-primary"
+                        onClick={() => addComponentToCanvas(component)}
+                      >
+                        <div className="relative flex-shrink-0 text-primary">{component.icon}</div>
+                        <div className="flex flex-col">
+                          <span className="flex-grow text-xs font-medium">{component.name}</span>
+                          {component.isNew && (
+                            <Badge className="mt-1 w-fit scale-90">Novo</Badge>
+                          )}
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            </div>
+          </aside>
+  
+          <main
+            className="flex-1 overflow-y-auto bg-white p-4 md:p-8"
+            onClick={() => setSelectedComponentId(null)}
+          >
+            <div className="mx-auto w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
+              <div className="relative mb-4 h-10">
+                <div className="absolute top-1/2 left-0 h-px w-full bg-black" />
+                <div className="absolute top-0 left-1/2 z-10 flex -translate-x-1/2 justify-center bg-white px-2">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-md border-2 border-black p-0.5">
+                    <ImageIcon className="h-6 w-6 text-gray-400" />
+                  </div>
+                </div>
+                <div className="absolute top-1/2 left-0 h-0.5 w-full">
+                  <div className="h-full w-1/2 bg-black" />
+                </div>
+              </div>
+  
+              <div className="mt-8 flex min-h-[400px] flex-col gap-4">
+                {activeStepComponents.length === 0 ? (
+                  <div className="flex flex-1 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-transparent p-4 text-center">
+                    <div>
+                      <p className="text-lg font-semibold text-black">Nada por aqui 😔</p>
+                      <p className="text-sm text-gray-500">Adicione um componente para começar.</p>
+                    </div>
+                  </div>
+                ) : (
+                    activeStepComponents.map((comp) => (
+                    <CanvasComponent
+                      key={comp.id}
+                      component={comp}
+                      isSelected={selectedComponentId === comp.id}
+                      onClick={() => setSelectedComponentId(comp.id)}
+                      onDuplicate={() => duplicateComponent(comp.id)}
+                      onDelete={() => deleteComponent(comp.id)}
+                    />
+                  ))
+                )}
+              </div>
+            </div>
+          </main>
+  
+          <aside
+            className={cn(
+              'hidden border-l border-border p-6 lg:block',
+              activeView === 'construtor' || activeView === 'design' ? 'w-80' : 'hidden'
+            )}
+          >
+            <ScrollArea className="h-full">
+              <div className="space-y-6 pr-4">
+                {activeView === 'construtor' &&
+                  (selectedComponent ? (
+                    <ComponentSettings
+                      component={selectedComponent}
+                      onUpdate={updateComponentProps}
+                      steps={funnel.steps}
+                      activeStepId={activeStepId!}
+                    />
+                  ) : activeStep ? (
+                    <StepSettings
+                      step={activeStep}
+                      onUpdateStep={updateStepName}
+                      steps={funnel.steps}
+                    />
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      Selecione uma etapa para editar.
+                    </div>
+                  ))}
+                {activeView === 'design' && <DesignSettings />}
+              </div>
+            </ScrollArea>
+          </aside>
+        </div>
+      </div>
+    );
+}
+
 function FunnelEditorContent() {
-  const router = useRouter();
   const { funnelId } = useParams() as { funnelId: string };
   const firestore = useFirestore();
 
@@ -6443,20 +6977,13 @@ function FunnelEditorContent() {
   const [funnel, setFunnel] = useState<Funnel | null>(null);
   const [activeStepId, setActiveStepId] = useState<number | null>(null);
   const [selectedComponentId, setSelectedComponentId] = useState<number | null>(null);
-  const [activeView, setActiveView] = useState<EditorView>('construtor');
 
   const debouncedUpdateFunnel = useDebouncedCallback((updatedFunnel: Funnel) => {
     if (funnelRef) {
-      // Create a deep copy to avoid modifying the original state object
       const funnelToSave = JSON.parse(JSON.stringify(updatedFunnel));
-
-      // Clean up non-serializable data from each component's props
+      
       funnelToSave.steps.forEach((step: Step) => {
-        step.components.forEach((component: CanvasComponentData) => {
-          // Explicitly remove the 'icon' property which contains a React element
-          delete component.icon;
-          // You might need to clean other non-serializable props here too
-          // For instance, if 'icon' was nested inside 'props':
+        step.components.forEach((component: any) => {
           if (component.props && component.props.icon) {
             delete component.props.icon;
           }
@@ -6498,324 +7025,19 @@ function FunnelEditorContent() {
     );
   }
 
-  const activeStep = funnel.steps.find((s) => s.id === activeStepId);
-  const activeStepComponents = activeStep?.components || [];
+  if (funnel.type === 'typebot') {
+    return <TypebotEditor funnel={funnel} />;
+  }
 
-  const updateFunnel = (updater: (prev: Funnel) => Funnel) => {
-    setFunnel((prev) => (prev ? updater(prev) : null));
-  };
-
-  const addStep = () => {
-    const newStepId = Date.now();
-    const newStep: Step = {
-      id: newStepId,
-      name: `Etapa ${funnel.steps.length + 1}`,
-      components: [],
-    };
-    updateFunnel((prev) => ({ ...prev, steps: [...prev.steps, newStep] }));
-    setActiveStepId(newStepId);
-  };
-
-  const updateStepName = (id: number, name: string) => {
-    updateFunnel((prev) => ({
-      ...prev,
-      steps: prev.steps.map((step) => (step.id === id ? { ...step, name } : step)),
-    }));
-  };
-
-  const deleteStep = (id: number) => {
-    if (funnel.steps.length === 1) return;
-
-    let newActiveStepId = activeStepId;
-    if (activeStepId === id) {
-      const currentIndex = funnel.steps.findIndex((s) => s.id === id);
-      newActiveStepId =
-        funnel.steps[currentIndex - 1]?.id || funnel.steps[currentIndex + 1]?.id;
-    }
-
-    updateFunnel((prev) => ({
-      ...prev,
-      steps: prev.steps.filter((step) => step.id !== id),
-    }));
-
-    setActiveStepId(newActiveStepId);
-  };
-
-  const addComponentToCanvas = (component: ComponentType) => {
-    if (!activeStepId) return;
-    let defaultProps: ComponentProps = {};
-    if (component.name === 'Alerta') {
-      const model: AlertModel = 'success';
-      defaultProps = {
-        title: 'Sucesso!',
-        description: 'Seu item foi salvo com sucesso.',
-        model: model,
-        ...modelColors[model],
-        icon: modelIcons[model],
-      };
-    }
-    // ... other components
-    const newComponent: CanvasComponentData = {
-      ...component,
-      id: Date.now(),
-      props: defaultProps,
-    };
-    updateFunnel((prev) => ({
-      ...prev,
-      steps: prev.steps.map((step) =>
-        step.id === activeStepId
-          ? { ...step, components: [...step.components, newComponent] }
-          : step
-      ),
-    }));
-  };
-
-  const updateComponentProps = (componentId: number, props: ComponentProps) => {
-    updateFunnel((prev) => ({
-      ...prev,
-      steps: prev.steps.map((step) =>
-        step.id === activeStepId
-          ? {
-              ...step,
-              components: step.components.map((c) => (c.id === componentId ? { ...c, props } : c)),
-            }
-          : step
-      ),
-    }));
-  };
-
-  const duplicateComponent = (id: number) => {
-    if (!activeStep) return;
-    const componentToDuplicate = activeStep.components.find((c) => c.id === id);
-    if (!componentToDuplicate) return;
-    const newComponent = { ...componentToDuplicate, id: Date.now() };
-    const index = activeStep.components.findIndex((c) => c.id === id);
-    const newComponents = [...activeStep.components];
-    newComponents.splice(index + 1, 0, newComponent);
-    updateFunnel((prev) => ({
-      ...prev,
-      steps: prev.steps.map((step) =>
-        step.id === activeStepId ? { ...step, components: newComponents } : step
-      ),
-    }));
-  };
-
-  const deleteComponent = (id: number) => {
-    updateFunnel((prev) => ({
-      ...prev,
-      steps: prev.steps.map((step) =>
-        step.id === activeStepId
-          ? { ...step, components: step.components.filter((c) => c.id !== id) }
-          : step
-      ),
-    }));
-    if (selectedComponentId === id) {
-      setSelectedComponentId(null);
-    }
-  };
-
-  const selectedComponent = activeStepComponents.find((c) => c.id === selectedComponentId) || null;
-
-  const editorViews: { id: EditorView; label: string; icon: React.ReactNode }[] = [
-    { id: 'construtor', label: 'Construtor', icon: <Wand2 /> },
-    { id: 'fluxo', label: 'Fluxo', icon: <Combine /> },
-    { id: 'design', label: 'Design', icon: <Brush /> },
-    { id: 'leads', label: 'Leads', icon: <Users /> },
-    { id: 'configuracoes', label: 'Configurações', icon: <Settings /> },
-  ];
-
-  return (
-    <div className="flex h-screen w-full flex-col bg-background text-foreground">
-      <header className="flex h-16 items-center justify-between border-b border-border px-4 md:px-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft />
-          </Button>
-          <span className="text-lg font-semibold">{funnel.name}</span>
-        </div>
-        <div className="hidden items-center gap-2 rounded-lg bg-card p-1 md:flex">
-          {editorViews.map((view) => (
-            <Button
-              key={view.id}
-              variant={activeView === view.id ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveView(view.id)}
-              className="gap-2"
-            >
-              {view.icon}
-              <span className="hidden sm:inline">{view.label}</span>
-            </Button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon">
-            <Eye className="h-5 w-5" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => debouncedUpdateFunnel.flush()}>
-            <Save className="mr-2 h-4 w-4" />
-            Salvar
-          </Button>
-          <Button size="sm">
-            <Rocket className="mr-2 h-4 w-4" />
-            Publicar
-          </Button>
-        </div>
-      </header>
-
-      <div className="flex flex-1 overflow-hidden">
-        <aside
-          className={cn(
-            'border-r border-border md:flex',
-            activeView === 'construtor' ? 'flex-row' : 'hidden',
-            'w-full md:w-96'
-          )}
-        >
-          <div className="flex w-1/2 flex-col border-r border-border">
-            <div className="flex h-14 items-center justify-between border-b border-border px-4">
-              <h2 className="font-semibold">Etapas</h2>
-              <Button variant="ghost" size="icon" onClick={addStep}>
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-            <ScrollArea className="flex-1">
-              <div className="space-y-1 p-2">
-                {funnel.steps.map((step) => (
-                  <div key={step.id} className="group relative">
-                    <Button
-                      variant={activeStepId === step.id ? 'secondary' : 'ghost'}
-                      className="w-full justify-start"
-                      onClick={() => setActiveStepId(step.id)}
-                    >
-                      <Grip className="mr-2 h-4 w-4 text-muted-foreground" />
-                      <span className="flex-1 truncate text-left">{step.name}</span>
-                    </Button>
-                    <div className="absolute top-1/2 right-1 -translate-y-1/2 opacity-0 group-hover:opacity-100">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-40 p-1">
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-start text-sm font-normal"
-                            onClick={() => deleteStep(step.id)}
-                            disabled={funnel.steps.length <= 1}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" /> Excluir
-                          </Button>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-          <div className="flex w-1/2 flex-col">
-            <div className="flex h-14 items-center border-b border-border px-4">
-              <h2 className="font-semibold">Componentes</h2>
-            </div>
-            <div className="flex-1">
-              <ScrollArea className="h-full">
-                <div className="grid grid-cols-1 gap-2 p-2">
-                  {components.map((component) => (
-                    <Card
-                      key={component.name}
-                      className="group flex cursor-pointer items-center justify-start gap-3 p-2 text-left transition-colors hover:bg-primary/10 hover:text-primary"
-                      onClick={() => addComponentToCanvas(component)}
-                    >
-                      <div className="relative flex-shrink-0 text-primary">{component.icon}</div>
-                      <div className="flex flex-col">
-                        <span className="flex-grow text-xs font-medium">{component.name}</span>
-                        {component.isNew && (
-                          <Badge className="mt-1 w-fit scale-90">Novo</Badge>
-                        )}
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
-          </div>
-        </aside>
-
-        <main
-          className="flex-1 overflow-y-auto bg-white p-4 md:p-8"
-          onClick={() => setSelectedComponentId(null)}
-        >
-          <div className="mx-auto w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="relative mb-4 h-10">
-              <div className="absolute top-1/2 left-0 h-px w-full bg-black" />
-              <div className="absolute top-0 left-1/2 z-10 flex -translate-x-1/2 justify-center bg-white px-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-md border-2 border-black p-0.5">
-                  <ImageIcon className="h-6 w-6 text-gray-400" />
-                </div>
-              </div>
-              <div className="absolute top-1/2 left-0 h-0.5 w-full">
-                <div className="h-full w-1/2 bg-black" />
-              </div>
-            </div>
-
-            <div className="mt-8 flex min-h-[400px] flex-col gap-4">
-              {activeStepComponents.length === 0 ? (
-                <div className="flex flex-1 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-transparent p-4 text-center">
-                  <div>
-                    <p className="text-lg font-semibold text-black">Nada por aqui 😔</p>
-                    <p className="text-sm text-gray-500">Adicione um componente para começar.</p>
-                  </div>
-                </div>
-              ) : (
-                activeStepComponents.map((comp) => (
-                  <CanvasComponent
-                    key={comp.id}
-                    component={comp}
-                    isSelected={selectedComponentId === comp.id}
-                    onClick={() => setSelectedComponentId(comp.id)}
-                    onDuplicate={() => duplicateComponent(comp.id)}
-                    onDelete={() => deleteComponent(comp.id)}
-                  />
-                ))
-              )}
-            </div>
-          </div>
-        </main>
-
-        <aside
-          className={cn(
-            'hidden border-l border-border p-6 lg:block',
-            activeView === 'construtor' || activeView === 'design' ? 'w-80' : 'hidden'
-          )}
-        >
-          <ScrollArea className="h-full">
-            <div className="space-y-6 pr-4">
-              {activeView === 'construtor' &&
-                (selectedComponent ? (
-                  <ComponentSettings
-                    component={selectedComponent}
-                    onUpdate={updateComponentProps}
-                    steps={funnel.steps}
-                    activeStepId={activeStepId!}
-                  />
-                ) : activeStep ? (
-                  <StepSettings
-                    step={activeStep}
-                    onUpdateStep={updateStepName}
-                    steps={funnel.steps}
-                  />
-                ) : (
-                  <div className="text-sm text-muted-foreground">
-                    Selecione uma etapa para editar.
-                  </div>
-                ))}
-              {activeView === 'design' && <DesignSettings />}
-            </div>
-          </ScrollArea>
-        </aside>
-      </div>
-    </div>
-  );
+  return <StandardFunnelEditor 
+    funnel={funnel}
+    setFunnel={setFunnel}
+    debouncedUpdateFunnel={debouncedUpdateFunnel}
+    activeStepId={activeStepId}
+    setActiveStepId={setActiveStepId}
+    selectedComponentId={selectedComponentId}
+    setSelectedComponentId={setSelectedComponentId}
+  />;
 }
 
 export default function EditorPage() {
