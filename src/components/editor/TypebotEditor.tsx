@@ -267,17 +267,24 @@ const CanvasTextBlock = ({
         );
       case 'video':
         if (block.props?.videoUrl) {
-            return (
-                <div className="w-full aspect-video">
-                    {hasMounted && <ReactPlayer url={block.props.videoUrl} width="100%" height="100%" controls />}
-                </div>
-            );
+          return (
+            <div className="w-full aspect-video">
+              {hasMounted && (
+                <ReactPlayer
+                  url={block.props.videoUrl}
+                  width="100%"
+                  height="100%"
+                  controls
+                />
+              )}
+            </div>
+          );
         }
         return (
-            <div className="flex items-center gap-2">
-                <Video size={16} className="text-white/60" />
-                <span className="text-sm text-white/60">Click to edit...</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <Video size={16} className="text-white/60" />
+            <span className="text-sm text-white/60">Click to edit...</span>
+          </div>
         );
       case 'text':
         if (isSelected) {

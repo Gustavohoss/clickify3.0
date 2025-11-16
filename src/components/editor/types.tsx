@@ -249,7 +249,7 @@ export type CanvasBlock = {
     id: number;
     type: string;
     position: { x: number; y: number };
-    parentId?: number | null;
+    parentId?: number;
     children?: CanvasBlock[];
     props: { [key: string]: any };
 };
