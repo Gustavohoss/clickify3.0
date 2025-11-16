@@ -275,47 +275,76 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
       onDelete: (e: React.MouseEvent) => void;
       isSelected: boolean;
     }) => (
-      <div
-        className="group absolute w-72 cursor-grab select-none"
-        style={{
-          transform: `translate(${block.position.x}px, ${block.position.y}px)`,
-        }}
-        onMouseDown={(e) => onMouseDown(e, block)}
-      >
-          <div className="absolute -top-10 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-md bg-[#181818] p-1 opacity-0 transition-opacity group-hover:opacity-100">
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white" onClick={(e) => { e.stopPropagation()}}>
-                  <Play size={14} />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white" onClick={onDuplicate}>
-                  <Copy size={14} />
-              </Button>
-               <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white" onClick={onDelete}>
-                  <Trash2 size={14} />
-              </Button>
-          </div>
-  
-        <div className="w-72 rounded-lg bg-[#262626] p-3">
-          <div className="text-sm font-medium">Group #1</div>
-          <div className={cn(
-            "mt-2 rounded-md border-2 border-transparent",
-            isSelected && 'border-orange-500'
-            )}>
-            <div className={cn("flex items-center justify-between border-b p-2", isSelected ? 'border-orange-500/50' : 'border-transparent')}>
-              <span className="text-xs text-white/70">Texto</span>
-              <button className="rounded bg-black/30 p-1 hover:bg-black/50">
-                <Code size={14} className="text-white/70" />
-              </button>
+        <div
+            className="group absolute w-72 cursor-grab select-none"
+            style={{
+                transform: `translate(${block.position.x}px, ${block.position.y}px)`,
+            }}
+            onMouseDown={(e) => onMouseDown(e, block)}
+        >
+            <div className="absolute -top-10 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-md bg-[#181818] p-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white"
+                    onClick={(e) => { e.stopPropagation(); /* Logic for Play */ }}
+                >
+                    <Play size={14} />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDuplicate(e);
+                    }}
+                >
+                    <Copy size={14} />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(e);
+                    }}
+                >
+                    <Trash2 size={14} />
+                </Button>
             </div>
-            <div className="p-2">
-              <input
-                type="text"
-                className="w-full bg-transparent text-sm text-white outline-none"
-                placeholder="Digite aqui..."
-              />
+
+            <div className="w-72 rounded-lg bg-[#262626] p-3">
+                <div className="text-sm font-medium">Group #{block.id.toString().slice(-2)}</div>
+                {isSelected ? (
+                    <div className="mt-2 rounded-md border-2 border-orange-500">
+                        <div className="flex items-center justify-between border-b border-orange-500/50 p-2">
+                            <span className="text-xs text-white/70">Texto</span>
+                            <button className="rounded bg-black/30 p-1 hover:bg-black/50">
+                                <Code size={14} className="text-white/70" />
+                            </button>
+                        </div>
+                        <div className="p-2">
+                            <input
+                                type="text"
+                                className="w-full bg-transparent text-sm text-white outline-none"
+                                placeholder="Digite aqui..."
+                                onClick={(e) => e.stopPropagation()}
+                            />
+                        </div>
+                    </div>
+                ) : (
+                    <div className="mt-2 flex items-center justify-between rounded-md bg-[#181818] p-2">
+                        <div className="flex items-center gap-2">
+                            <MessageCircle size={16} className="text-white/60" />
+                            <span className="text-sm text-white/60">...</span>
+                        </div>
+                        <div className="h-3 w-3 rounded-full border-2 border-orange-400 bg-transparent" />
+                    </div>
+                )}
             </div>
-          </div>
         </div>
-      </div>
     );
   
     return (
@@ -503,7 +532,7 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
       </div>
   
       <div className="w-72 rounded-lg bg-[#262626] p-3 space-y-2">
-        <div className="text-sm font-medium">Group #1</div>
+        <div className="text-sm font-medium">Group #{block.id.toString().slice(-2)}</div>
         <div className="min-h-[50px] rounded-md border border-dashed border-white/20 p-2">
             {block.children?.map(child => (
                  <div key={child.id} className="rounded-md bg-zinc-700 p-2 text-sm">
