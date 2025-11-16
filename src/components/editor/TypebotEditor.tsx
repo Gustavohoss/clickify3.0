@@ -1398,12 +1398,7 @@ export function TypebotEditor({
         }
     } else {
         const block = findBlock(fromBlockId as number);
-        if (block) {
-            startPos = {
-                x: block.position.x + 288 + panOffset.x / zoom, // 288 is width of block
-                y: block.position.y + (36 / 2) + panOffset.y / zoom, // Approx half height of title
-            };
-        }
+        if(block) startPos = { x: block.position.x + 288 + panOffset.x / zoom, y: block.position.y + 36 / 2 + panOffset.y / zoom };
     }
 
     if(startPos) {
@@ -1457,13 +1452,13 @@ export function TypebotEditor({
 
   const processFlow = useCallback((blockId: number | 'start' | null) => {
     if (blockId === null) return;
-
-    const nextBlockId = connections.find(c => c.from === blockId)?.to;
+  
+    const nextBlockId = connections.find((c) => c.from === blockId)?.to;
     if (!nextBlockId) {
-        setWaitingForInput(null); // End of flow
-        return;
+      setWaitingForInput(null);
+      return;
     }
-    
+  
     const findBlockInState = (id: number) => {
       for (const block of canvasBlocksRef.current) {
         if (block.id === id) return block;
@@ -1473,45 +1468,51 @@ export function TypebotEditor({
         }
       }
       return undefined;
-    }
-
+    };
+  
     const nextBlock = findBlockInState(nextBlockId);
-    if (!nextBlock || !nextBlock.children) return;
-
-    setCurrentPreviewBlockId(nextBlockId);
-    
-    let isWaiting = false;
-    
-    for (const child of nextBlock.children) {
-        if (child.type === 'input-text') {
-            setWaitingForInput(child);
-            isWaiting = true;
-        }
-
-        const messageContent = interpolateVariables(child.props.content || child.props.placeholder, previewVariablesRef.current);
-
-        const message: PreviewMessage = {
-            id: Date.now() + Math.random(),
-            sender: 'bot',
-            content: <CanvasTextBlock 
-                        block={{...child, props: {...child.props, content: messageContent}}} 
-                        isSelected={false} 
-                        isChild={true} 
-                        onBlockMouseDown={()=>{}}
-                        onContextMenu={()=>{}}
-                        setSelectedBlockId={()=>{}}
-                        updateBlockProps={()=>{}}
-                        variables={[]}
-                    />
-        };
-        
-        setPreviewMessages(prev => [...prev, message]);
-
-        if (isWaiting) break; 
+    if (!nextBlock || !nextBlock.children) {
+      return;
     }
-
+  
+    setCurrentPreviewBlockId(nextBlockId);
+  
+    let isWaiting = false;
+  
+    for (const child of nextBlock.children) {
+      if (child.type.startsWith('input-')) {
+        setWaitingForInput(child);
+        isWaiting = true;
+        break; 
+      }
+  
+      const messageContent = interpolateVariables(
+        child.props.content,
+        previewVariablesRef.current
+      );
+  
+      const message: PreviewMessage = {
+        id: Date.now() + Math.random(),
+        sender: 'bot',
+        content: (
+          <CanvasTextBlock
+            block={{ ...child, props: { ...child.props, content: messageContent } }}
+            isSelected={false}
+            isChild={true}
+            onBlockMouseDown={() => {}}
+            onContextMenu={() => {}}
+            setSelectedBlockId={() => {}}
+            updateBlockProps={() => {}}
+            variables={[]}
+          />
+        ),
+      };
+  
+      setPreviewMessages((prev) => [...prev, message]);
+    }
+  
     if (!isWaiting) {
-        setTimeout(() => processFlow(nextBlockId), 500);
+      setTimeout(() => processFlow(nextBlockId), 500);
     }
   }, [connections]);
 
