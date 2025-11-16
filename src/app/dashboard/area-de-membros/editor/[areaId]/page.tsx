@@ -11,6 +11,7 @@ import {
   Eye,
   Info,
   Link,
+  Folder,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +25,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
 
 type MemberArea = {
   name: string;
@@ -145,10 +153,20 @@ export default function MemberAreaEditorPage() {
                         <Expand size={16} />
                         Expandir
                     </Button>
-                    <Button className="gap-2 bg-green-600 text-white hover:bg-green-700">
-                        <PlusCircle size={16} />
-                        Adicionar
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button className="gap-2 bg-green-600 text-white hover:bg-green-700">
+                          <PlusCircle size={16} />
+                          Adicionar
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="bg-gray-800 border-gray-700 text-white">
+                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-gray-700">
+                          <Folder size={16} />
+                          <span>Adicionar Módulo</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                  </div>
               </div>
             </TabsContent>
