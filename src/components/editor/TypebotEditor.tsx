@@ -218,6 +218,68 @@ const VideoBlockSettings = ({
   );
 };
 
+const AudioBlockSettings = ({
+    block,
+    onUpdate,
+    position,
+  }: {
+    block: CanvasBlock;
+    onUpdate: (id: number, props: any) => void;
+    position: { x: number; y: number };
+  }) => {
+    const [audioUrl, setAudioUrl] = useState(block.props?.audioUrl || '');
+    const [autoplay, setAutoplay] = useState(block.props?.autoplay || false);
+  
+    const handleAudioUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setAudioUrl(e.target.value);
+      onUpdate(block.id, { ...block.props, audioUrl: e.target.value });
+    };
+
+    const handleAutoplayChange = (checked: boolean) => {
+        setAutoplay(checked);
+        onUpdate(block.id, { ...block.props, autoplay: checked });
+    };
+  
+    return (
+      <div
+        className="absolute w-72 rounded-lg bg-[#262626] p-3 shadow-lg"
+        style={{
+          left: `${position.x + 300}px`,
+          top: `${position.y}px`,
+        }}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <Tabs defaultValue="link" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-transparent p-0 h-auto">
+            <TabsTrigger value="upload" className="text-xs data-[state=active]:bg-[#3f3f46] data-[state=active]:text-white rounded-md">
+              Upload
+            </TabsTrigger>
+            <TabsTrigger value="link" className="text-xs data-[state=active]:bg-[#3f3f46] data-[state=active]:text-white rounded-md">
+              Embed link
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="link" className="mt-4">
+            <div className="space-y-4">
+              <Input
+                placeholder="Paste the audio file link..."
+                value={audioUrl}
+                onChange={handleAudioUrlChange}
+                className="bg-[#181818] border-[#3f3f46] text-white"
+              />
+               <p className="text-xs text-center text-white/50">Works with .MP3s and .WAVs</p>
+              <div className="flex items-center space-x-2">
+                <Switch id="autoplay" checked={autoplay} onCheckedChange={handleAutoplayChange} />
+                <Label htmlFor="autoplay" className="text-sm">
+                  Enable autoplay
+                </Label>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    );
+  };
+
 const CanvasTextBlock = ({
   block,
   onBlockMouseDown,
@@ -266,6 +328,28 @@ const CanvasTextBlock = ({
             <ImageIconLucide size={16} className="text-white/60" />
             <span className="text-sm text-white/60">Click to edit...</span>
           </div>
+        );
+    case 'audio':
+        if (block.props?.audioUrl) {
+          return (
+            <div className="w-full">
+              {hasMounted && (
+                <ReactPlayer
+                  url={block.props.audioUrl}
+                  width="100%"
+                  height="50px"
+                  controls
+                  playing={block.props.autoplay}
+                />
+              )}
+            </div>
+          );
+        }
+        return (
+            <div className="flex items-center gap-2">
+            <AudioWaveform size={16} className="text-white/60" />
+            <span className="text-sm text-white/60">Click to edit...</span>
+            </div>
         );
       case 'video':
         if (block.props?.videoUrl) {
@@ -634,7 +718,7 @@ export function TypebotEditor({
         x: blockToDuplicate.position.x + 20,
         y: blockToDuplicate.position.y + 20,
       },
-      children: blockToDuplicate.children ? [] : undefined, // Don't duplicate children for now
+      children: blockToDuplicate.children ? [] : undefined,
       props: {},
     };
     setCanvasBlocks((prev) => [...prev, newBlock]);
@@ -1204,6 +1288,7 @@ export function TypebotEditor({
             </div>
             {selectedBlock && selectedBlock.type === 'image' && <ImageBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {selectedBlock && selectedBlock.type === 'video' && <VideoBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
+            {selectedBlock && selectedBlock.type === 'audio' && <AudioBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {contextMenu.visible && (
               <ContextMenu
                 x={contextMenu.x}
