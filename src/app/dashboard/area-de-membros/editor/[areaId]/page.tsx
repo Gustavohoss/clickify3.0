@@ -141,10 +141,6 @@ export default function MemberAreaEditorPage() {
               <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-gray-700 py-16">
                  <p className="text-gray-400">Você ainda não adicionou nenhum módulo.</p>
                  <div className="flex items-center gap-4">
-                    <Button variant="outline" className="gap-2 border-gray-600 bg-gray-800 text-gray-300 hover:bg-gray-700">
-                        <Video size={16} />
-                        Biblioteca De Vídeos
-                    </Button>
                      <Button variant="outline" className="gap-2 border-gray-600 bg-gray-800 text-gray-300 hover:bg-gray-700">
                         <Expand size={16} />
                         Expandir
