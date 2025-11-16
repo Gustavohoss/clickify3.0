@@ -668,7 +668,6 @@ const CanvasTextBlock = ({
           }}
         >
           <div className="flex items-center gap-2 w-full">{getBlockContent()}</div>
-          {!isSelected && !block.type.startsWith('input-') && <div className="h-3 w-3 rounded-full border-2 border-orange-400 bg-transparent" />}
         </div>
       </div>
     </div>
@@ -855,6 +854,12 @@ const ContextMenu = ({
   );
 };
 
+type PreviewMessage = {
+    id: number;
+    sender: 'bot' | 'user';
+    content: React.ReactNode;
+}
+
 
 export function TypebotEditor({
   funnel,
@@ -883,24 +888,12 @@ export function TypebotEditor({
   const [connections, setConnections] = useState<CanvasConnection[]>([]);
   const [drawingConnection, setDrawingConnection] = useState<any>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-
-  const [draggingState, setDraggingState] = useState<{
-    blockId: number | null;
-    isDragging: boolean;
-    dragStartMouse: { x: number; y: number };
-    dragStartOffset: { x: number; y: number };
-    originalBlock: CanvasBlock | null;
-    isReadyToDrag: boolean;
-  }>({
-    blockId: null,
-    isDragging: false,
-    dragStartMouse: { x: 0, y: 0 },
-    dragStartOffset: { x: 0, y: 0 },
-    originalBlock: null,
-    isReadyToDrag: false,
-  });
-  const [dropIndicator, setDropIndicator] = useState<DropIndicator>(null);
-
+  const [previewMessages, setPreviewMessages] = useState<PreviewMessage[]>([]);
+  const [currentPreviewBlockId, setCurrentPreviewBlockId] = useState<number | 'start' | null>(null);
+  const [userInput, setUserInput] = useState('');
+  const [previewVariables, setPreviewVariables] = useState<{[key: string]: any}>({});
+  const [waitingForInput, setWaitingForInput] = useState<CanvasBlock | null>(null);
+  
   const addBlock = (type: string) => {
     if (!canvasRef.current) return;
     const canvasRect = canvasRef.current.getBoundingClientRect();
@@ -1008,8 +1001,8 @@ export function TypebotEditor({
     
     setContextMenu({
       visible: true,
-      x: x / zoom,
-      y: y / zoom,
+      x: x / zoom + panOffset.x,
+      y: y / zoom + panOffset.y,
       blockId: block.id,
     });
   };
@@ -1441,6 +1434,116 @@ export function TypebotEditor({
     return {x:0, y:0};
   };
 
+  const processFlow = useCallback((blockId: number | 'start' | null) => {
+    if (blockId === null) return;
+
+    const nextBlockId = connections.find(c => c.from === blockId)?.to;
+    if (!nextBlockId) {
+        setWaitingForInput(null); // End of flow
+        return;
+    }
+    
+    const nextBlock = findBlock(nextBlockId);
+    if (!nextBlock || !nextBlock.children) return;
+
+    setCurrentPreviewBlockId(nextBlockId);
+    
+    let isWaiting = false;
+    
+    for (const child of nextBlock.children) {
+        if (child.type === 'input-text') {
+            setWaitingForInput(child);
+            isWaiting = true;
+        }
+
+        const messageContent = interpolateVariables(child.props.content || child.props.placeholder, previewVariables);
+
+        const message: PreviewMessage = {
+            id: Date.now() + Math.random(),
+            sender: 'bot',
+            content: <CanvasTextBlock 
+                        block={{...child, props: {...child.props, content: messageContent}}} 
+                        isSelected={false} 
+                        isChild={true} 
+                        // Dummy functions, not used in preview
+                        onBlockMouseDown={()=>{}}
+                        onContextMenu={()=>{}}
+                        setSelectedBlockId={()=>{}}
+                        updateBlockProps={()=>{}}
+                        variables={[]}
+                    />
+        };
+        
+        setPreviewMessages(prev => [...prev, message]);
+
+        if (isWaiting) break; 
+    }
+
+    if (!isWaiting) {
+        // If no input was found in the group, automatically move to the next one
+        setTimeout(() => processFlow(nextBlockId), 500);
+    }
+}, [connections, canvasBlocks, previewVariables]);
+
+  const startPreview = useCallback(() => {
+    setPreviewMessages([]);
+    setPreviewVariables({});
+    setWaitingForInput(null);
+    setCurrentPreviewBlockId('start');
+    processFlow('start');
+  }, [processFlow]);
+
+  useEffect(() => {
+      if (isPreviewOpen) {
+          startPreview();
+      }
+  }, [isPreviewOpen, startPreview]);
+
+  const handleUserInput = () => {
+    if (!userInput.trim() || !waitingForInput) return;
+
+    // Add user message to chat
+    setPreviewMessages(prev => [...prev, { id: Date.now(), sender: 'user', content: userInput }]);
+
+    // Save variable if defined
+    if (waitingForInput.props.variable) {
+        setPreviewVariables(prev => ({...prev, [waitingForInput.props.variable]: userInput }));
+    }
+
+    setUserInput('');
+    setWaitingForInput(null);
+
+    // Continue flow
+    processFlow(currentPreviewBlockId);
+  };
+  
+  const interpolateVariables = (text: string = '', vars: {[key:string]: any}) => {
+    return text.replace(/{{(\w+)}}/g, (_, key) => vars[key] || `{{${key}}}`);
+  };
+
+  const renderPreviewMessage = (message: PreviewMessage) => {
+    if (message.sender === 'bot') {
+        return (
+            <div key={message.id} className='flex items-start gap-3'>
+                <Avatar className='h-8 w-8'>
+                    <AvatarImage src='' alt='Bot' />
+                    <AvatarFallback>B</AvatarFallback>
+                </Avatar>
+                <div className='bg-gray-100 rounded-lg rounded-tl-none p-3 max-w-[80%]'>
+                   <div className='text-sm text-black'>{message.content}</div>
+                </div>
+            </div>
+        )
+    }
+    return (
+        <div key={message.id} className='flex justify-end'>
+            <div className='bg-blue-600 text-white rounded-lg rounded-br-none p-3 max-w-[80%]'>
+                <p className='text-sm'>{message.content}</p>
+            </div>
+        </div>
+    )
+  }
+
   const selectedBlock = findBlock(selectedBlockId);
   const selectedBlockPosition = getBlockPosition(selectedBlockId);
 
@@ -1563,7 +1666,15 @@ export function TypebotEditor({
                 const toBlock = findBlock(conn.to);
                 
                 if (conn.from === 'start') {
-                    startPos = { x: 50 + 208, y: 50 + 20 };
+                    const startNode = document.getElementById('start-node');
+                    if (startNode) {
+                        const rect = startNode.getBoundingClientRect();
+                        const canvasRect = canvasRef.current!.getBoundingClientRect();
+                        startPos = { 
+                            x: (rect.right - canvasRect.left) / zoom - panOffset.x/zoom, 
+                            y: (rect.top + rect.height / 2 - canvasRect.top) / zoom - panOffset.y/zoom 
+                        };
+                    }
                 } else {
                     const fromBlock = findBlock(conn.from as number);
                     if(fromBlock) startPos = { x: fromBlock.position.x + 288, y: fromBlock.position.y + 36 / 2 };
@@ -1682,7 +1793,7 @@ export function TypebotEditor({
                     <Globe size={14} className='mr-2' />
                     Web
                 </Button>
-                <Button variant="ghost" size="sm" className='text-gray-600'>
+                <Button variant="ghost" size="sm" className='text-gray-600' onClick={startPreview}>
                     <RefreshCw size={14} className='mr-2' />
                     Reiniciar
                 </Button>
@@ -1691,28 +1802,32 @@ export function TypebotEditor({
                     <X size={16} />
                 </Button>
             </div>
-            <div className='flex-1 p-4 space-y-4 overflow-y-auto'>
-                <div className='flex items-start gap-3'>
-                    <Avatar className='h-8 w-8'>
-                        <AvatarImage src='' alt='Bot' />
-                        <AvatarFallback>B</AvatarFallback>
-                    </Avatar>
-                    <div className='bg-gray-100 rounded-lg rounded-tl-none p-3 max-w-[80%]'>
-                        <p className='text-sm text-black'>Olá tudo bem?</p>
-                    </div>
+            <ScrollArea className='flex-1 p-4'>
+                <div className='space-y-4'>
+                    {previewMessages.map(renderPreviewMessage)}
                 </div>
-
-            </div>
+            </ScrollArea>
             <div className='border-t border-gray-200 p-4'>
-                <div className='relative'>
-                    <Input placeholder='Type your answer...' className='bg-white text-black border-gray-300 pr-12' />
-                    <Button size='icon' className='absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 bg-orange-500 hover:bg-orange-600'>
+                <form onSubmit={(e) => { e.preventDefault(); handleUserInput(); }} className='relative'>
+                    <Input 
+                        placeholder='Digite sua resposta...' 
+                        className='bg-white text-black border-gray-300 pr-12'
+                        value={userInput}
+                        onChange={(e) => setUserInput(e.target.value)}
+                        disabled={!waitingForInput}
+                    />
+                    <Button 
+                        type="submit" 
+                        size='icon' 
+                        className='absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 bg-orange-500 hover:bg-orange-600'
+                        disabled={!waitingForInput}
+                    >
                         <ArrowRight size={16} className='text-white' />
                     </Button>
-                </div>
+                </form>
                 <div className='text-center mt-3'>
                     <Button variant='link' size='sm' className='text-gray-400'>
-                        Made with Typebot
+                        Feito com Typebot
                     </Button>
                 </div>
             </div>
