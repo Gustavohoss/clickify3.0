@@ -9,6 +9,8 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { Bar, BarChart as RechartsBarChart, XAxis, YAxis } from 'recharts';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query, where } from 'firebase/firestore';
 
 const chartData = [
   { month: 'Jan', desktop: 0 },
@@ -27,6 +29,21 @@ const chartConfig = {
 };
 
 export default function DashboardPage() {
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const funnelsQuery = useMemoFirebase(
+    () =>
+      user && firestore
+        ? query(collection(firestore, 'funnels'), where('userId', '==', user.uid))
+        : null,
+    [firestore, user]
+  );
+
+  const { data: funnels } = useCollection(funnelsQuery);
+
+  const funnelCount = funnels?.length || 0;
+
   return (
     <div className="space-y-8">
       <div>
@@ -55,8 +72,10 @@ export default function DashboardPage() {
             <Milestone className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">Nenhum funil ativo no momento.</p>
+            <div className="text-2xl font-bold">{funnelCount}</div>
+            <p className="text-xs text-muted-foreground">
+              {funnelCount === 0 ? 'Nenhum funil ativo no momento.' : `${funnelCount} funis criados.`}
+            </p>
           </CardContent>
         </Card>
         <Card>
