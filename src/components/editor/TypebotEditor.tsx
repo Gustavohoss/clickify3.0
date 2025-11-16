@@ -864,7 +864,7 @@ const CanvasTextBlock = ({
 
   const handleContentChange = () => {
     if (editableDivRef.current) {
-      updateBlockProps(block.id, { content: editableDivRef.current.innerHTML });
+        updateBlockProps(block.id, { content: editableDivRef.current.innerHTML });
     }
   };
   
@@ -874,8 +874,8 @@ const CanvasTextBlock = ({
   
     editor.focus();
     
-    const html = `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`;
-    document.execCommand('insertHTML', false, html);
+    const htmlToInsert = `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`;
+    document.execCommand('insertHTML', false, htmlToInsert);
     
     handleContentChange();
     setIsPopoverOpen(false);
@@ -961,43 +961,43 @@ const CanvasTextBlock = ({
       case 'text':
         if (isSelected) {
             return (
-              <div className="relative w-full">
+                <div className="relative w-full">
                 <div
-                  ref={editableDivRef}
-                  contentEditable
-                  suppressContentEditableWarning
-                  onInput={handleContentChange}
-                  onClick={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  dangerouslySetInnerHTML={{ __html: block.props?.content || '' }}
-                  data-placeholder="Digite sua mensagem..."
-                  className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8 min-h-[40px] [&[data-placeholder]]:before:content-[attr(data-placeholder)] [&[data-placeholder]]:before:text-white/40 [&:not(:empty)]:before:hidden"
+                    ref={editableDivRef}
+                    contentEditable
+                    suppressContentEditableWarning
+                    onInput={handleContentChange}
+                    onClick={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    dangerouslySetInnerHTML={{ __html: block.props?.content || '' }}
+                    data-placeholder="Digite sua mensagem..."
+                    className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8 min-h-[20px] [&[data-placeholder]]:before:content-[attr(data-placeholder)] [&[data-placeholder]]:before:text-white/40 [&:not(:empty)]:before:hidden"
                 />
                 <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-                  <PopoverTrigger asChild>
+                    <PopoverTrigger asChild>
                     <button className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]">
-                      <Braces size={14} />
+                        <Braces size={14} />
                     </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-48 p-0 bg-[#262626] border-[#3f3f46] text-white">
+                    </PopoverTrigger>
+                    <PopoverContent className="w-48 p-0 bg-[#262626] border-[#3f3f46] text-white">
                     <Command>
-                      <CommandInput placeholder="Procurar variável..." className="h-9 text-white" />
-                      <CommandList>
+                        <CommandInput placeholder="Procurar variável..." className="h-9 text-white" />
+                        <CommandList>
                         <CommandEmpty>Nenhuma variável encontrada.</CommandEmpty>
                         <CommandGroup>
-                          {variables.map((variable) => (
+                            {variables.map((variable) => (
                             <CommandItem key={variable} value={variable} onSelect={() => handleVariableInsert(variable)}>
-                              {variable}
+                                {variable}
                             </CommandItem>
-                          ))}
+                            ))}
                         </CommandGroup>
-                      </CommandList>
+                        </CommandList>
                     </Command>
-                  </PopoverContent>
+                    </PopoverContent>
                 </Popover>
-              </div>
+                </div>
             );
-          }
+        }
         if (block.props?.content) {
           return <div className="text-sm text-white/80 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: block.props.content }} />;
         }
@@ -1820,18 +1820,16 @@ export function TypebotEditor({
 
   const canvasBlocksRef = useRef(canvasBlocks);
   canvasBlocksRef.current = canvasBlocks;
-  const previewVariablesRef = useRef(previewVariables);
-  previewVariablesRef.current = previewVariables;
   const connectionsRef = useRef(connections);
   connectionsRef.current = connections;
 
-  const interpolateVariables = (text: string = '', vars: {[key:string]: any}) => {
+  const interpolateVariables = useCallback((text: string = '', vars: {[key:string]: any}) => {
     return text.replace(/{{\s*(\w+)\s*}}/g, (_, key) => {
         return vars[key] || `{{${key}}}`;
     });
-  };
+  }, []);
 
-  const processFlow = useCallback((blockId: number | 'start' | null, startIndex = 0) => {
+  const processFlow = useCallback((blockId: number | 'start' | null, startIndex = 0, currentVars: any) => {
     if (blockId === null) {
         setWaitingForInput(null);
         return;
@@ -1872,7 +1870,7 @@ export function TypebotEditor({
             const duration = child.props.duration || 0;
             if (duration > 0) {
                  setTimeout(() => {
-                    processFlow(currentBlockId, startIndex + i + 1);
+                    processFlow(currentBlockId, startIndex + i + 1, currentVars);
                 }, duration * 1000);
                 isWaiting = true;
                 break;
@@ -1885,12 +1883,12 @@ export function TypebotEditor({
             isWaiting = true;
             break; 
         }
-
+        
         const interpolatedContent = interpolateVariables(
             child.props.content,
-            previewVariablesRef.current
+            currentVars
         );
-
+        
         setPreviewMessages((prev) => [
             ...prev,
             {
@@ -1904,19 +1902,19 @@ export function TypebotEditor({
     if (!isWaiting) {
         const nextGroupId = connectionsRef.current.find((c) => c.from === currentBlockId)?.to;
         if (nextGroupId) {
-            setTimeout(() => processFlow(nextGroupId), 500);
+            setTimeout(() => processFlow(nextGroupId, 0, currentVars), 500);
         } else {
             setWaitingForInput(null);
         }
     }
-  }, []);
+  }, [interpolateVariables]);
 
   const startPreview = useCallback(() => {
     setPreviewMessages([]);
     setPreviewVariables({});
     setWaitingForInput(null);
     setCurrentPreviewBlockId('start');
-    processFlow('start');
+    processFlow('start', 0, {});
   }, [processFlow]);
 
   useEffect(() => {
@@ -1930,9 +1928,11 @@ export function TypebotEditor({
   
     setPreviewMessages(prev => [...prev, { id: Date.now(), sender: 'user', content: userInput }]);
   
+    const newVars = { ...previewVariables };
     if (waitingForInput.props.variable) {
-        setPreviewVariables(prev => ({...prev, [waitingForInput.props.variable]: userInput }));
+        newVars[waitingForInput.props.variable] = userInput;
     }
+    setPreviewVariables(newVars);
     
     const lastBlockId = currentPreviewBlockId;
     const lastInputBlock = waitingForInput;
@@ -1943,16 +1943,16 @@ export function TypebotEditor({
       const parentBlock = canvasBlocksRef.current.find(b => b.id === lastBlockId);
       if (parentBlock && parentBlock.children) {
         const lastInputIndex = parentBlock.children.findIndex(c => c.id === lastInputBlock.id);
-        if (lastInputIndex !== -1 && lastInputIndex < parentBlock.children.length - 1) {
-          processFlow(lastBlockId, lastInputIndex + 1);
-          return;
+        if (lastInputIndex !== -1) {
+            processFlow(lastBlockId, lastInputIndex + 1, newVars);
+            return;
         }
       }
     }
   
     const nextGroupId = connectionsRef.current.find(c => c.from === lastBlockId)?.to;
     if (nextGroupId) {
-      processFlow(nextGroupId);
+      processFlow(nextGroupId, 0, newVars);
     }
   };
 
