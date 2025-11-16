@@ -7,26 +7,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Search, Loader2, AlertCircle } from 'lucide-react';
 import { AdCard, Ad } from '@/components/dashboard/ad-card';
 
-const initialToken = 'EAAQZBL4qStBIBPZCcRbRypj1OIpeTLfZCkB0j48JEV73a5u8OS3NqrU98rGFULZB3LbCDTi8H54eL3anZCkJmamomOXAXi6Ngmoi9ZBE1HC870C35ZCIzAEjR0lZB90cdCsJ83IEFpt4bcYCtZAueyk1WZBSfDEZCmIlg7rG3UFOYAGoUJyYnMOKr2oaKJVnhlnMCEGtDAjY9p7TbnQsAcs0fP4R7pv3fncwyIwikZChzf6uwm2MA7rU';
+const accessToken = 'EAAQZBL4qStBIBPZCcRbRypj1OIpeTLfZCkB0j48JEV73a5u8OS3NqrU98rGFULZB3LbCDTi8H54eL3anZCkJmamomOXAXi6Ngmoi9ZBE1HC870C35ZCIzAEjR0lZB90cdCsJ83IEFpt4bcYCtZAueyk1WZBSfDEZCmIlg7rG3UFOYAGoUJyYnMOKr2oaKJVnhlnMCEGtDAjY9p7TbnQsAcs0fP4R7pv3fncwyIwikZChzf6uwm2MA7rU';
 
 export default function MineradorDeAnunciosPage() {
-  const [accessToken, setAccessToken] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [ads, setAds] = useState<Ad[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nextPage, setNextPage] = useState<string | null>(null);
-
-  useEffect(() => {
-    const storedToken = localStorage.getItem('fb_ad_library_token') || initialToken;
-    setAccessToken(storedToken);
-  }, []);
-
-  const handleTokenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newAccessToken = e.target.value;
-    setAccessToken(newAccessToken);
-    localStorage.setItem('fb_ad_library_token', newAccessToken);
-  };
 
   const handleSearch = async (url?: string) => {
     if (!searchTerm.trim()) {
@@ -34,7 +22,7 @@ export default function MineradorDeAnunciosPage() {
       return;
     }
     if (!accessToken.trim()) {
-        setError('Por favor, insira seu Access Token do Facebook.');
+        setError('O Access Token do Facebook não está configurado.');
         return;
     }
 
@@ -97,19 +85,6 @@ export default function MineradorDeAnunciosPage() {
 
       <Card>
         <CardContent className="p-6 space-y-4">
-            <div>
-                <label htmlFor="token-input" className="text-sm font-medium text-muted-foreground">
-                Seu Access Token da Meta Ad Library
-                </label>
-                <Input
-                    id="token-input"
-                    type="password"
-                    placeholder="Cole seu token de acesso aqui"
-                    value={accessToken}
-                    onChange={handleTokenChange}
-                    className="mt-1"
-                />
-            </div>
             <div className="flex flex-col sm:flex-row items-center gap-2">
                 <Input
                 type="text"
