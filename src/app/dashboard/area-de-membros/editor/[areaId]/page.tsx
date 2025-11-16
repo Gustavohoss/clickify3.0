@@ -12,6 +12,8 @@ import {
   Info,
   Link,
   Folder,
+  X,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +33,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 
 
 type MemberArea = {
@@ -43,6 +46,7 @@ export default function MemberAreaEditorPage() {
   const { areaId } = useParams() as { areaId: string };
   const firestore = useFirestore();
   const [headerUrl, setHeaderUrl] = useState('');
+  const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
 
   const areaRef = useMemoFirebase(
     () => (firestore && areaId ? doc(firestore, 'memberAreas', areaId) : null),
@@ -91,12 +95,17 @@ export default function MemberAreaEditorPage() {
             </TabsList>
             <TabsContent value="content" className="space-y-6">
               <div className="relative flex min-h-[200px] items-center justify-center overflow-hidden rounded-lg border border-gray-700 bg-gray-800/50">
-                {areaData?.headerImageUrl && (
+                {areaData?.headerImageUrl ? (
                     <Image src={areaData.headerImageUrl} layout="fill" objectFit="cover" alt="Header da área de membros" />
+                ) : (
+                    <div className="text-center text-gray-500">
+                        <ImageIcon size={48} />
+                        <p>Nenhum header definido</p>
+                    </div>
                 )}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="gap-2 border-gray-600 bg-gray-800/50 text-gray-300 hover:bg-gray-700 backdrop-blur-sm">
+                    <Button variant="outline" className="absolute gap-2 border-gray-600 bg-gray-800/50 text-gray-300 hover:bg-gray-700 backdrop-blur-sm">
                       <Pencil size={16} />
                       Editar Header
                     </Button>
@@ -153,20 +162,79 @@ export default function MemberAreaEditorPage() {
                         <Expand size={16} />
                         Expandir
                     </Button>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button className="gap-2 bg-green-600 text-white hover:bg-green-700">
-                          <PlusCircle size={16} />
-                          Adicionar
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="bg-gray-800 border-gray-700 text-white">
-                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-gray-700">
-                          <Folder size={16} />
-                          <span>Adicionar Módulo</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Dialog open={isAddModuleOpen} onOpenChange={setIsAddModuleOpen}>
+                        <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button className="gap-2 bg-green-600 text-white hover:bg-green-700">
+                            <PlusCircle size={16} />
+                            Adicionar
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-gray-800 border-gray-700 text-white">
+                            <DialogTrigger asChild>
+                                <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-gray-700">
+                                <Folder size={16} />
+                                <span>Adicionar Módulo</span>
+                                </DropdownMenuItem>
+                            </DialogTrigger>
+                        </DropdownMenuContent>
+                        </DropdownMenu>
+                        <DialogContent className="bg-[#2D3748] border-gray-700 text-white max-w-3xl p-0">
+                            <DialogHeader className="p-6">
+                                <div className="flex items-start gap-4">
+                                <div className="p-2 rounded-lg bg-gray-600/50">
+                                    <Folder size={20} />
+                                </div>
+                                <div>
+                                    <DialogTitle className="text-xl">Módulos</DialogTitle>
+                                    <DialogDescription className="text-gray-400">
+                                        Preencha os campos abaixo
+                                    </DialogDescription>
+                                </div>
+                                </div>
+                                <DialogClose asChild>
+                                    <button className="absolute right-6 top-6 text-gray-400 hover:text-white">
+                                        <X size={20} />
+                                    </button>
+                                </DialogClose>
+                            </DialogHeader>
+                            <Tabs defaultValue="general" className="w-full">
+                                <div className="px-6 border-b border-gray-700">
+                                    <TabsList className="bg-transparent p-0">
+                                        <TabsTrigger value="general" className="pb-3 text-gray-300 data-[state=active]:text-white data-[state=active]:shadow-[inset_0_-2px_0_hsl(var(--primary))] rounded-none">Geral</TabsTrigger>
+                                        <TabsTrigger value="cover" className="pb-3 text-gray-300 data-[state=active]:text-white data-[state=active]:shadow-[inset_0_-2px_0_hsl(var(--primary))] rounded-none">Cover</TabsTrigger>
+                                    </TabsList>
+                                </div>
+                                <div className="p-6">
+                                <TabsContent value="general">
+                                    <div className="grid grid-cols-3 gap-6">
+                                        <div className="col-span-2 space-y-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="module-name">Nome do Módulo</Label>
+                                                <Input id="module-name" placeholder="Ex: Módulo 1" className="bg-gray-800 border-gray-600" />
+                                            </div>
+                                        </div>
+                                        <div className="col-span-1">
+                                            <div className="relative aspect-[9/12] w-full overflow-hidden rounded-lg bg-gray-800">
+                                                <div className="flex flex-col h-full items-center justify-center text-gray-500">
+                                                    <ImageIcon size={48} />
+                                                </div>
+                                                <Badge className="absolute top-2 right-2 bg-green-600 text-white">0 Aulas</Badge>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </TabsContent>
+                                <TabsContent value="cover">
+                                    <p>Conteúdo da aba de capa aqui.</p>
+                                </TabsContent>
+                                </div>
+                            </Tabs>
+                            <DialogFooter className="px-6 py-4 bg-gray-800/50 border-t border-gray-700">
+                                <Button variant="ghost" onClick={() => setIsAddModuleOpen(false)}>Cancelar</Button>
+                                <Button className="bg-green-600 hover:bg-green-700">Salvar</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                  </div>
               </div>
             </TabsContent>
