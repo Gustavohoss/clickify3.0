@@ -907,7 +907,7 @@ const CanvasTextBlock = ({
         }
         return (
           <div className="flex items-center gap-2">
-            <ImageIconLucide size={16} className="text-white/60" />
+            <ImageIconLucide size={16} className="text-sky-400" />
             <span className="text-sm text-white/60">Clique para editar...</span>
           </div>
         );
@@ -921,7 +921,7 @@ const CanvasTextBlock = ({
         }
         return (
           <div className="flex items-center gap-2">
-            <AudioWaveform size={16} className="text-white/60" />
+            <AudioWaveform size={16} className="text-sky-400" />
             <span className="text-sm text-white/60">Clique para editar...</span>
           </div>
         );
@@ -935,7 +935,7 @@ const CanvasTextBlock = ({
         }
         return (
           <div className="flex items-center gap-2">
-            <Video size={16} className="text-white/60" />
+            <Video size={16} className="text-sky-400" />
             <span className="text-sm text-white/60">Clique para editar...</span>
           </div>
         );
@@ -1005,14 +1005,14 @@ const CanvasTextBlock = ({
         }
         return (
           <div className="flex items-center gap-2">
-            <MessageCircle size={16} className="text-white/60" />
+            <MessageCircle size={16} className="text-sky-400" />
             <span className="text-sm text-white/60">...</span>
           </div>
         );
       default:
         return (
           <div className="flex items-center gap-2">
-            <MessageCircle size={16} className="text-white/60" />
+            <MessageCircle size={16} className="text-sky-400" />
             <span className="text-sm text-white/60">...</span>
           </div>
         );
@@ -1436,7 +1436,7 @@ export function TypebotEditor({
       { name: 'Pular para', icon: <GitCommit size={16} />, type: 'logic-jump', color: 'text-indigo-400' },
       { name: 'Retornar', icon: <GitPullRequest size={16} />, type: 'logic-return', color: 'text-indigo-400' },
     ],
-    "Grupos": [{ name: 'Grupo', icon: <Combine size={16} />, type: 'group' }],
+    "Grupos": [{ name: 'Grupo', icon: <Combine size={16} />, type: 'group', color: 'text-gray-400' }],
   };
 
   const handleCanvasMouseDown = (e: React.MouseEvent<HTMLElement>) => {
@@ -1539,10 +1539,10 @@ export function TypebotEditor({
   };
   
   const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
-    if (isPanning || (draggingState && draggingState.isDragging)) {
+    if (isPanning || draggingState.isDragging) {
       setIsPanning(false);
 
-      if (draggingState && draggingState.isDragging && draggingState.originalBlock && draggingState.blockId) {
+      if (draggingState.isDragging && draggingState.originalBlock && draggingState.blockId) {
         const currentDraggedBlock = findBlock(draggingState.blockId);
         
         if (!currentDraggedBlock) {
@@ -1825,6 +1825,10 @@ export function TypebotEditor({
   const connectionsRef = useRef(connections);
   connectionsRef.current = connections;
 
+  const interpolateVariables = (text: string = '', vars: {[key:string]: any}) => {
+    return text.replace(/{{(\w+)}}/g, (_, key) => vars[key] || `{{${key}}}`);
+  };
+
   const processFlow = useCallback((blockId: number | 'start' | null, startIndex = 0) => {
     if (blockId === null) {
         setWaitingForInput(null);
@@ -1958,10 +1962,6 @@ export function TypebotEditor({
     if (nextGroupId) {
       processFlow(nextGroupId);
     }
-  };
-  
-  const interpolateVariables = (text: string = '', vars: {[key:string]: any}) => {
-    return text.replace(/{{(\w+)}}/g, (_, key) => vars[key] || `{{${key}}}`);
   };
 
   const renderPreviewMessage = (message: PreviewMessage) => {
