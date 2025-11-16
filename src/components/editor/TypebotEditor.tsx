@@ -93,6 +93,8 @@ import {
   Video,
   Plus,
   ChevronsUpDown,
+  Globe,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -113,6 +115,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.tsx';
 
 const ImageBlockSettings = ({
   block,
@@ -458,8 +461,6 @@ const AudioBlockSettings = ({
 const CanvasTextBlock = ({
   block,
   onBlockMouseDown,
-  onDuplicate,
-  onDelete,
   onContextMenu,
   isSelected,
   setSelectedBlockId,
@@ -469,8 +470,6 @@ const CanvasTextBlock = ({
 }: {
   block: CanvasBlock;
   onBlockMouseDown: (e: React.MouseEvent, block: CanvasBlock) => void;
-  onDuplicate: (e: React.MouseEvent) => void;
-  onDelete: (e: React.MouseEvent) => void;
   onContextMenu: (e: React.MouseEvent, block: CanvasBlock) => void;
   isSelected: boolean;
   setSelectedBlockId: (id: number | null) => void;
@@ -657,37 +656,6 @@ const CanvasTextBlock = ({
       }}
       onContextMenu={(e) => onContextMenu(e, block)}
     >
-      {!isChild && (
-        <div className="absolute -top-10 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-md bg-[#181818] p-1 opacity-0 transition-opacity group-hover:opacity-100">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-          >
-            <Play size={14} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white"
-            onClick={onDuplicate}
-          >
-            <Copy size={14} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white"
-            onClick={onDelete}
-          >
-            <Trash2 size={14} />
-          </Button>
-        </div>
-      )}
-
       <div className={cn('w-full rounded-lg', !isChild && 'bg-[#262626] p-3', isChild && 'relative')}>
         <div
           className={cn(
@@ -721,7 +689,7 @@ const ConnectionHandle = ({
 }) => (
   <div
     className={cn(
-      'absolute top-1/2 -translate-y-1/2 h-3 w-3 rounded-full border-2 border-orange-400 bg-[#111111] cursor-pointer',
+      'absolute top-1/2 -translate-y-1/2 h-3 w-3 rounded-full border-2 border-orange-400 bg-[#111111] cursor-pointer z-10',
       isInput ? '-left-[5px]' : '-right-[5px]'
     )}
     onMouseDown={onMouseDown}
@@ -735,9 +703,7 @@ const getSmoothStepPath = (
   y2: number
 ) => {
   const dx = x2 - x1;
-  const dy = y2 - y1;
   const halfDx = dx / 2;
-  const halfDy = dy / 2;
 
   return `M ${x1},${y1} C ${x1 + halfDx},${y1} ${x1 + halfDx},${y2} ${x2},${y2}`;
 };
@@ -838,14 +804,6 @@ const CanvasGroupBlock = ({
             <CanvasTextBlock
               block={child}
               onBlockMouseDown={(e, b) => onBlockMouseDown(e, b)}
-              onDuplicate={(e) => {
-                e.stopPropagation();
-                /* Not implemented for children */
-              }}
-              onDelete={(e) => {
-                e.stopPropagation();
-                deleteBlock(child.id);
-              }}
               onContextMenu={(e, block) => onContextMenu(e, block)}
               isSelected={selectedBlockId === child.id}
               setSelectedBlockId={setSelectedBlockId}
@@ -924,6 +882,7 @@ export function TypebotEditor({
   const [variables, setVariables] = useState<string[]>([]);
   const [connections, setConnections] = useState<CanvasConnection[]>([]);
   const [drawingConnection, setDrawingConnection] = useState<any>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const [draggingState, setDraggingState] = useState<{
     blockId: number | null;
@@ -1046,11 +1005,11 @@ export function TypebotEditor({
     const canvasRect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - canvasRect.left;
     const y = e.clientY - canvasRect.top;
-
+    
     setContextMenu({
       visible: true,
-      x,
-      y,
+      x: x / zoom,
+      y: y / zoom,
       blockId: block.id,
     });
   };
@@ -1252,7 +1211,7 @@ export function TypebotEditor({
     };
 
     if (drawingConnection) {
-        setDrawingConnection((prev: any) => ({ ...prev, to: mousePos }));
+        setDrawingConnection((prev: any) => ({ ...prev, to: { x: mousePos.x - panOffset.x/zoom, y: mousePos.y - panOffset.y/zoom } }));
         return;
     }
     
@@ -1424,16 +1383,16 @@ export function TypebotEditor({
         if (startNode) {
             const rect = startNode.getBoundingClientRect();
             startPos = {
-                x: (rect.right - canvasRect.left) / zoom,
-                y: (rect.top + rect.height / 2 - canvasRect.top) / zoom,
+                x: (rect.right - canvasRect.left - panOffset.x) / zoom,
+                y: (rect.top + rect.height / 2 - canvasRect.top - panOffset.y) / zoom,
             };
         }
     } else {
-        const block = findBlock(fromBlockId);
+        const block = findBlock(fromBlockId as number);
         if (block) {
             startPos = {
-                x: (block.position.x + 288 + panOffset.x) / zoom, // 288 is width of block
-                y: (block.position.y + 20 + panOffset.y) / zoom, // 20 is half-height approx
+                x: block.position.x + 288, // 288 is width of block
+                y: block.position.y + (36 / 2), // Approx half height of title
             };
         }
     }
@@ -1509,7 +1468,11 @@ export function TypebotEditor({
           <Button variant="ghost" className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white">
             <Share2 size={16} /> Compartilhar
           </Button>
-          <Button variant="ghost" className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white">
+          <Button 
+            variant="ghost" 
+            className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white"
+            onClick={() => setIsPreviewOpen(true)}
+            >
             <TestTube2 size={16} /> Testar
           </Button>
           <Button className="h-9 bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700">Publicar</Button>
@@ -1585,9 +1548,9 @@ export function TypebotEditor({
              <svg
               className="absolute w-full h-full pointer-events-none"
               style={{
-                transform: `translate(${panOffset.x}px, ${panOffset.y}px)`,
                 width: `calc(100% / ${zoom})`,
                 height: `calc(100% / ${zoom})`,
+                transform: `translate(${panOffset.x}px, ${panOffset.y}px)`,
               }}
             >
               <defs>
@@ -1600,14 +1563,14 @@ export function TypebotEditor({
                 const toBlock = findBlock(conn.to);
                 
                 if (conn.from === 'start') {
-                    startPos = { x: 50 + 200, y: 50 + 20 };
+                    startPos = { x: 50 + 208, y: 50 + 20 };
                 } else {
                     const fromBlock = findBlock(conn.from as number);
-                    if(fromBlock) startPos = { x: fromBlock.position.x + 288, y: fromBlock.position.y + 20 };
+                    if(fromBlock) startPos = { x: fromBlock.position.x + 288, y: fromBlock.position.y + 36 / 2 };
                 }
 
                 if(toBlock) {
-                    endPos = { x: toBlock.position.x, y: toBlock.position.y + 20 };
+                    endPos = { x: toBlock.position.x, y: toBlock.position.y + 36 / 2 };
                 }
 
                 if (startPos && endPos) {
@@ -1628,10 +1591,10 @@ export function TypebotEditor({
             {drawingConnection && (
                 <path
                     d={getSmoothStepPath(
-                        (drawingConnection.from.x * zoom + panOffset.x) / zoom,
-                        (drawingConnection.from.y * zoom + panOffset.y) / zoom,
-                        (drawingConnection.to.x * zoom) / zoom,
-                        (drawingConnection.to.y * zoom) / zoom
+                        drawingConnection.from.x,
+                        drawingConnection.from.y,
+                        drawingConnection.to.x,
+                        drawingConnection.to.y
                     )}
                     stroke="#f97316"
                     strokeWidth="2"
@@ -1711,6 +1674,50 @@ export function TypebotEditor({
             )}
           </div>
         </main>
+        {isPreviewOpen && (
+          <aside className="w-96 shrink-0 border-l border-[#262626] bg-white flex flex-col">
+            <div className="flex h-14 items-center justify-between border-b border-gray-200 px-4">
+               <div className='flex items-center gap-2'>
+                <Button variant="outline" size="sm" className='text-black border-gray-300'>
+                    <Globe size={14} className='mr-2' />
+                    Web
+                </Button>
+                <Button variant="ghost" size="sm" className='text-gray-600'>
+                    <RefreshCw size={14} className='mr-2' />
+                    Reiniciar
+                </Button>
+               </div>
+               <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500" onClick={() => setIsPreviewOpen(false)}>
+                    <X size={16} />
+                </Button>
+            </div>
+            <div className='flex-1 p-4 space-y-4 overflow-y-auto'>
+                <div className='flex items-start gap-3'>
+                    <Avatar className='h-8 w-8'>
+                        <AvatarImage src='' alt='Bot' />
+                        <AvatarFallback>B</AvatarFallback>
+                    </Avatar>
+                    <div className='bg-gray-100 rounded-lg rounded-tl-none p-3 max-w-[80%]'>
+                        <p className='text-sm text-black'>Olá tudo bem?</p>
+                    </div>
+                </div>
+
+            </div>
+            <div className='border-t border-gray-200 p-4'>
+                <div className='relative'>
+                    <Input placeholder='Type your answer...' className='bg-white text-black border-gray-300 pr-12' />
+                    <Button size='icon' className='absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 bg-orange-500 hover:bg-orange-600'>
+                        <ArrowRight size={16} className='text-white' />
+                    </Button>
+                </div>
+                <div className='text-center mt-3'>
+                    <Button variant='link' size='sm' className='text-gray-400'>
+                        Made with Typebot
+                    </Button>
+                </div>
+            </div>
+          </aside>
+        )}
       </div>
     </div>
   );
