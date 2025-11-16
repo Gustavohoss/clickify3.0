@@ -23,7 +23,7 @@ export default function MineradorDeAnunciosPage() {
     setIsLoading(true);
     setError(null);
     if (!url) {
-        setAds([]);
+      setAds([]);
     }
 
     try {
@@ -83,7 +83,7 @@ export default function MineradorDeAnunciosPage() {
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 className="flex-grow"
                 />
-                <Button onClick={() => handleSearch()} disabled={isLoading} className="w-full sm:w-auto">
+                <Button onClick={() => handleSearch()} disabled={isLoading && !nextPage} className="w-full sm:w-auto">
                 {isLoading && !nextPage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
                 Buscar Anúncios
                 </Button>
