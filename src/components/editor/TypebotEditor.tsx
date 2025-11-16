@@ -871,11 +871,13 @@ const CanvasTextBlock = ({
   const handleVariableInsert = (variable: string) => {
     const editor = editableDivRef.current;
     if (!editor) return;
-
+  
     editor.focus();
     
+    // Use document.execCommand for inserting HTML, which is more robust for contentEditable
     document.execCommand('insertHTML', false, `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`);
     
+    // Manually trigger the onInput handler since execCommand might not
     handleContentChange();
     setIsPopoverOpen(false);
   };
