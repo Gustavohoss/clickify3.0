@@ -39,6 +39,7 @@ export default function MineradorDeAnunciosPage() {
         const params = new URLSearchParams({
             search_terms: searchTerm,
             ad_type: 'ALL',
+            ad_reached_countries: "['BR']",
             fields: fields,
             access_token: accessToken,
             limit: '24',
