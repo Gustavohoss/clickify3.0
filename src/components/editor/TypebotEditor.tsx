@@ -874,29 +874,9 @@ const CanvasTextBlock = ({
   
     editor.focus();
     
-    // Create a styled span for the variable
-    const span = document.createElement('span');
-    span.style.color = '#a78bfa'; // Purple color
-    span.textContent = `{{${variable}}}`;
-    span.setAttribute('contenteditable', 'false'); // Make the span itself non-editable
-  
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      range.deleteContents();
-      
-      // Insert the span
-      range.insertNode(span);
-  
-      // Move cursor after the inserted span
-      const newRange = document.createRange();
-      newRange.setStartAfter(span);
-      newRange.setEndAfter(span);
-      selection.removeAllRanges();
-      selection.addRange(newRange);
-    }
-  
-    // Update the block's content
+    const html = `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>`;
+    document.execCommand('insertHTML', false, html);
+    
     handleContentChange();
     popoverOpen.current = false;
   };
@@ -1557,25 +1537,26 @@ export function TypebotEditor({
   };
   
   const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
-    if (isPanning || draggingState.isDragging) {
+    const currentState = draggingState;
+    if (isPanning || currentState.isDragging) {
       setIsPanning(false);
 
-      if (draggingState.isDragging && draggingState.originalBlock && draggingState.blockId) {
-        const currentDraggedBlock = findBlock(draggingState.blockId);
+      if (currentState.isDragging && currentState.originalBlock && currentState.blockId) {
+        const currentDraggedBlock = findBlock(currentState.blockId);
         
         if (!currentDraggedBlock) {
              setCanvasBlocks(prevBlocks => {
                 let restoredBlocks = [...prevBlocks];
                 
-                restoredBlocks = restoredBlocks.filter(b => b.id !== draggingState.blockId);
+                restoredBlocks = restoredBlocks.filter(b => b.id !== currentState.blockId);
 
-                const parentIndex = restoredBlocks.findIndex(p => p.id === draggingState.originalBlock!.parentId);
+                const parentIndex = restoredBlocks.findIndex(p => p.id === currentState.originalBlock!.parentId);
                 if (parentIndex > -1) {
                     const parent = { ...restoredBlocks[parentIndex] };
                     const children = [...(parent.children || [])];
-                    const childExists = children.some(c => c.id === draggingState.originalBlock!.id);
+                    const childExists = children.some(c => c.id === currentState.originalBlock!.id);
                     if (!childExists) {
-                       children.push(draggingState.originalBlock!); 
+                       children.push(currentState.originalBlock!); 
                        parent.children = children;
                        restoredBlocks[parentIndex] = parent;
                     }
@@ -1845,8 +1826,6 @@ export function TypebotEditor({
   connectionsRef.current = connections;
 
   const interpolateVariables = (text: string = '', vars: {[key:string]: any}) => {
-    // This regex will find all occurrences of {{variableName}}
-    // It captures 'variableName' which can be alphanumeric
     return text.replace(/{{\s*(\w+)\s*}}/g, (_, key) => {
         return vars[key] || `{{${key}}}`;
     });
@@ -1907,7 +1886,7 @@ export function TypebotEditor({
             break; 
         }
 
-        const messageContent = interpolateVariables(
+        const interpolatedContent = interpolateVariables(
             child.props.content,
             previewVariablesRef.current
         );
@@ -1915,7 +1894,7 @@ export function TypebotEditor({
         const message: PreviewMessage = {
             id: Date.now() + Math.random(),
             sender: 'bot',
-            content: <p className="text-sm text-black whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: messageContent }} />,
+            content: <p className="text-sm text-black whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: interpolatedContent }} />,
         };
 
         setPreviewMessages((prev) => [...prev, message]);
@@ -1985,7 +1964,7 @@ export function TypebotEditor({
                     <AvatarFallback>B</AvatarFallback>
                 </Avatar>
                 <div className='bg-gray-100 rounded-lg rounded-tl-none p-3 max-w-[80%]'>
-                   <div className='text-sm text-black'>{message.content}</div>
+                   {message.content}
                 </div>
             </div>
         )
