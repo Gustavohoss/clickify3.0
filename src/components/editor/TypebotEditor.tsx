@@ -969,7 +969,6 @@ const CanvasTextBlock = ({
                     onClick={(e) => e.stopPropagation()}
                     onMouseDown={(e) => {
                       e.stopPropagation();
-                      // This ensures that clicking doesn't trigger the block drag
                       if (document.activeElement !== editableDivRef.current) {
                         editableDivRef.current?.focus();
                       }
@@ -1829,7 +1828,7 @@ export function TypebotEditor({
   canvasBlocksRef.current = canvasBlocks;
   const connectionsRef = useRef(connections);
   connectionsRef.current = connections;
-
+  
   const interpolateVariables = useCallback((text: string = '') => {
     return text.replace(/{{\s*(\w+)\s*}}/g, (_, key) => {
         return previewVariablesRef.current[key] || `{{${key}}}`;
