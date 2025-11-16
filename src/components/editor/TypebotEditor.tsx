@@ -255,13 +255,12 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
           }
       
           // It's a child block, find its parent and remove it
-          let groupBecameEmpty = false;
           const newBlocks = prev.map(parent => {
             if (parent.children) {
               const newChildren = parent.children.filter(child => child.id !== blockId);
                if (parent.children.length > 0 && newChildren.length === 0) {
-                groupBecameEmpty = true;
-                return null; // This group will be removed
+                // If the group becomes empty, remove the group itself
+                return null;
               }
               return { ...parent, children: newChildren };
             }
@@ -467,66 +466,63 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
             const dx = Math.abs(e.clientX - draggingState.dragStartMouse.x);
             const dy = Math.abs(e.clientY - draggingState.dragStartMouse.y);
             if (dx > 5 || dy > 5) {
-              setDraggingState(prev => ({ ...prev, isDragging: true }));
-              if (canvasRef.current) {
-                canvasRef.current.style.cursor = 'grabbing';
-              }
-        
-              if (draggingState.originalBlock?.parentId && canvasRef.current) {
-                const groupElement = document.getElementById(`block-${draggingState.originalBlock.parentId}`);
-                if (!groupElement) return;
-        
-                const groupRect = groupElement.getBoundingClientRect();
-                const childElement = document.getElementById(`block-${draggingState.originalBlock.id}`);
-                if (!childElement) return;
-                const childRect = childElement.getBoundingClientRect();
-                
-                const relativeChildX = (childRect.left - groupRect.left) / zoom;
-                const relativeChildY = (childRect.top - groupRect.top) / zoom;
-
-                const newBlockId = Date.now();
-
-                const detachedBlock: CanvasBlock = {
-                  ...draggingState.originalBlock,
-                  id: newBlockId,
-                  parentId: undefined,
-                  position: {
-                    x: (groupRect.left - canvasRect.left + panOffset.x) / zoom + relativeChildX,
-                    y: (groupRect.top - canvasRect.top + panOffset.y) / zoom + relativeChildY,
-                  },
-                };
-
-                 const parentGroup = canvasBlocks.find(p => p.id === draggingState.originalBlock!.parentId);
-                 const groupIsNowEmpty = parentGroup?.children?.length === 1;
-
-                setCanvasBlocks(prevBlocks => [
-                  ...prevBlocks.map(p =>
-                    p.id === draggingState.originalBlock!.parentId
-                      ? { ...p, children: p.children?.filter(c => c.id !== draggingState.originalBlock!.id) }
-                      : p
-                  ).filter(p => !(p.id === draggingState.originalBlock!.parentId && groupIsNowEmpty)),
-                  detachedBlock,
-                ]);
-
-                setDraggingState(prev => ({
-                    ...prev,
-                    blockId: newBlockId,
-                    dragStartOffset: {
-                      x: (e.clientX - childRect.left) / zoom,
-                      y: (e.clientY - childRect.top) / zoom,
+                setDraggingState(prev => ({ ...prev, isDragging: true }));
+                if (canvasRef.current) {
+                  canvasRef.current.style.cursor = 'grabbing';
+                }
+          
+                if (draggingState.originalBlock?.parentId && canvasRef.current) {
+                  const groupElement = document.getElementById(`block-${draggingState.originalBlock.parentId}`);
+                  if (!groupElement) return;
+          
+                  const groupRect = groupElement.getBoundingClientRect();
+                  const childElement = document.getElementById(`block-${draggingState.originalBlock.id}`);
+                  if (!childElement) return;
+                  const childRect = childElement.getBoundingClientRect();
+                  
+                  const newBlockId = Date.now();
+  
+                  const detachedBlock: CanvasBlock = {
+                    ...draggingState.originalBlock,
+                    id: newBlockId,
+                    parentId: undefined,
+                    position: {
+                      x: (childRect.left - canvasRect.left + panOffset.x) / zoom,
+                      y: (childRect.top - canvasRect.top + panOffset.y) / zoom,
                     },
-                }));
+                  };
+
+                  const parentGroup = canvasBlocks.find(p => p.id === draggingState.originalBlock!.parentId);
+                  const groupIsNowEmpty = parentGroup?.children?.length === 1;
+
+                  setCanvasBlocks(prevBlocks => [
+                    ...prevBlocks.map(p =>
+                        p.id === draggingState.originalBlock!.parentId
+                        ? { ...p, children: p.children?.filter(c => c.id !== draggingState.originalBlock!.id) }
+                        : p
+                    ).filter(p => !(p.id === draggingState.originalBlock!.parentId && groupIsNowEmpty)),
+                    detachedBlock,
+                  ]);
+  
+                  setDraggingState(prev => ({
+                      ...prev,
+                      blockId: newBlockId,
+                      dragStartOffset: {
+                        x: (e.clientX - childRect.left) / zoom,
+                        y: (e.clientY - childRect.top) / zoom,
+                      },
+                  }));
+                }
               }
-            }
           }
 
         if (draggingState.isDragging && draggingState.blockId && canvasRef.current) {
-            const newX = (e.clientX - canvasRect.left - panOffset.x) / zoom - draggingState.dragStartOffset.x;
-            const newY = (e.clientY - canvasRect.top - panOffset.y) / zoom - draggingState.dragStartOffset.y;
+            const newX = (e.clientX - canvasRect.left) / zoom - draggingState.dragStartOffset.x;
+            const newY = (e.clientY - canvasRect.top) / zoom - draggingState.dragStartOffset.y;
 
             setCanvasBlocks(prevBlocks =>
                 prevBlocks.map(block =>
-                    block.id === draggingState.blockId ? { ...block, position: { x: newX, y: newY } } : block
+                    block.id === draggingState.blockId ? { ...block, position: { x: newX + panOffset.x/zoom, y: newY + panOffset.y/zoom } } : block
                 )
             );
 
@@ -562,7 +558,7 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
                       if(childEl.dataset.testid === 'drop-placeholder') continue;
                       const childRect = childEl.getBoundingClientRect();
                       const childTopInCanvas = (childRect.top - canvasRect.top) / zoom;
-                      const dropZoneMidpoint = childTopInCanvas + (childRect.height / zoom) / 2 + 5;
+                      const dropZoneMidpoint = childTopInCanvas + (childRect.height / zoom) / 2;
         
                       if (dropY < dropZoneMidpoint) {
                         newIndex = i;
@@ -586,36 +582,17 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
         e.stopPropagation();
         
         if (!canvasRef.current) return;
-        const canvasRect = canvasRef.current.getBoundingClientRect();
     
-        const isChild = !!block.parentId;
-        let blockToDrag: CanvasBlock = block;
-        let positionOnCanvas = block.position;
-
-        if (isChild) {
-            const parentGroup = canvasBlocks.find(p => p.id === block.parentId);
-            if (!parentGroup) return;
-            const childElement = document.getElementById(`block-${block.id}`);
-            if(!childElement) return;
-
-            const childRect = childElement.getBoundingClientRect();
-
-            positionOnCanvas = {
-                x: (childRect.left - canvasRect.left) / zoom,
-                y: (childRect.top - canvasRect.top) / zoom
-            };
-        }
-        
         setDraggingState({
             blockId: block.id,
             isDragging: false,
             isReadyToDrag: true,
             dragStartMouse: { x: e.clientX, y: e.clientY },
             dragStartOffset: {
-                x: (e.clientX - canvasRect.left) / zoom - positionOnCanvas.x,
-                y: (e.clientY - canvasRect.top) / zoom - positionOnCanvas.y,
+                x: (e.clientX - canvasRef.current.getBoundingClientRect().left) / zoom - block.position.x - panOffset.x,
+                y: (e.clientY - canvasRef.current.getBoundingClientRect().top) / zoom - block.position.y - panOffset.y,
             },
-            originalBlock: JSON.parse(JSON.stringify(blockToDrag))
+            originalBlock: JSON.parse(JSON.stringify(block))
         });
     };
     
@@ -630,12 +607,22 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
         {name}
       </Button>
     );
-    const selectedBlock = canvasBlocks.find(b => b.id === selectedBlockId) || canvasBlocks.flatMap(b => b.children || []).find(c => c.id === selectedBlockId);
-
-    const getSelectedBlockPosition = () => {
-        if (!selectedBlock || !canvasRef.current) return { x: 0, y: 0 };
+    const findBlock = (id: number | null): CanvasBlock | undefined => {
+        if (id === null) return undefined;
+        for (const block of canvasBlocks) {
+          if (block.id === id) return block;
+          if (block.children) {
+            const child = block.children.find(c => c.id === id);
+            if (child) return child;
+          }
+        }
+        return undefined;
+      };
     
-        const blockElement = document.getElementById(`block-${selectedBlock.id}`);
+      const getBlockPosition = (id: number | null): { x: number, y: number } => {
+        if (id === null || !canvasRef.current) return { x: 0, y: 0 };
+    
+        const blockElement = document.getElementById(`block-${id}`);
         if (!blockElement) return { x: 0, y: 0 };
     
         const blockRect = blockElement.getBoundingClientRect();
@@ -646,6 +633,9 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
           y: (blockRect.top - canvasRect.top) / zoom,
         };
       };
+    
+      const selectedBlock = findBlock(selectedBlockId);
+      const selectedBlockPosition = getBlockPosition(selectedBlockId);
 
     return (
       <div className="flex h-screen w-full flex-col bg-[#111111] text-white">
@@ -791,7 +781,7 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
                 );
               })}
                 {selectedBlock && selectedBlock.type === 'image' && (
-                    <ImageBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={getSelectedBlockPosition()} />
+                    <ImageBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />
                 )}
               </div>
             </div>
@@ -916,24 +906,33 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
     selectedBlockId?: number | null;
   }) => {
     const getBlockContent = () => {
-      switch (block.type) {
-        case 'image':
-          return (
-            <>
-              <ImageIconLucide size={16} className="text-white/60" />
-              <span className="text-sm text-white/60">Click to edit...</span>
-            </>
-          );
-        case 'text':
-        default:
-          return (
-            <>
-              <MessageCircle size={16} className="text-white/60" />
-              <span className="text-sm text-white/60">...</span>
-            </>
-          );
-      }
-    };
+        switch (block.type) {
+          case 'image':
+            if (block.props?.imageUrl) {
+              return (
+                <img
+                  src={block.props.imageUrl}
+                  alt="User provided content"
+                  className="max-h-24 w-full object-contain rounded-md"
+                />
+              );
+            }
+            return (
+              <>
+                <ImageIconLucide size={16} className="text-white/60" />
+                <span className="text-sm text-white/60">Click to edit...</span>
+              </>
+            );
+          case 'text':
+          default:
+            return (
+              <>
+                <MessageCircle size={16} className="text-white/60" />
+                <span className="text-sm text-white/60">...</span>
+              </>
+            );
+        }
+      };
   
     return (
       <div
