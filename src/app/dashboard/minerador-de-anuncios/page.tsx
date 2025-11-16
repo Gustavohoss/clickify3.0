@@ -15,13 +15,16 @@ export default function MineradorDeAnunciosPage() {
   const [nextPage, setNextPage] = useState<string | null>(null);
 
   const handleSearch = async (url?: string) => {
-    if (!searchTerm.trim()) {
+    if (!searchTerm.trim() && !url) {
       setError('Por favor, insira um termo de busca.');
       return;
     }
 
     setIsLoading(true);
     setError(null);
+    if (!url) {
+        setAds([]);
+    }
 
     try {
       let requestUrl = '/api/ads';
@@ -40,18 +43,14 @@ export default function MineradorDeAnunciosPage() {
       const data = await response.json();
       
       if (!response.ok) {
+        // Now, we can expect a more detailed error from our own API route
         throw new Error(data.error?.message || 'Ocorreu um erro ao buscar os anúncios.');
       }
 
-      if (url) {
-        setAds(prev => [...prev, ...data.data]);
-      } else {
-        setAds(data.data);
-      }
-
+      setAds(prev => url ? [...prev, ...data.data] : data.data);
       setNextPage(data.paging?.next || null);
 
-      if (data.data.length === 0) {
+      if (data.data.length === 0 && !url) {
         setError('Nenhum anúncio encontrado para este termo de busca.');
       }
 
@@ -104,8 +103,8 @@ export default function MineradorDeAnunciosPage() {
 
       {ads.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {ads.map((ad) => (
-            <AdCard key={ad.id} ad={ad} />
+          {ads.map((ad, index) => (
+            <AdCard key={`${ad.id}-${index}`} ad={ad} />
           ))}
         </div>
       )}

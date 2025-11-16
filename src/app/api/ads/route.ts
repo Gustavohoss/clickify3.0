@@ -46,15 +46,20 @@ export async function GET(req: NextRequest) {
       }
     });
 
+    // We first get the data, regardless of the response status
     const data = await response.json();
     
+    // If the response was not OK, we forward the error from Meta's API
     if (!response.ok) {
-        return NextResponse.json(data, { status: response.status });
+        // The error response from Meta is often in `data.error`
+        return NextResponse.json({ error: data.error || { message: 'An unknown API error occurred.' } }, { status: response.status });
     }
     
+    // If OK, we return the data as is
     return NextResponse.json(data);
 
   } catch (error: any) {
+    // This catches network errors or issues with fetch itself
     return NextResponse.json({ error: { message: error.message || 'An unknown server error occurred.' } }, { status: 500 });
   }
 }
