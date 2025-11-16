@@ -8,6 +8,8 @@ import {
   Settings,
   ArrowRight,
   Upload,
+  List,
+  Plus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +21,8 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { useParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 
 const NavItem = ({
   icon,
@@ -62,6 +66,9 @@ export default function WorkspaceSettingsPage() {
   const [supportEmail, setSupportEmail] = useState('');
   const [primaryColor, setPrimaryColor] = useState('#6366F1');
   const [logoUrl, setLogoUrl] = useState('');
+  const [commentsEnabled, setCommentsEnabled] = useState(false);
+  const [menuItems, setMenuItems] = useState<string[]>([]);
+
 
   useState(() => {
     if (areaData) {
@@ -80,6 +87,8 @@ export default function WorkspaceSettingsPage() {
         supportEmail,
         primaryColor,
         logoUrl,
+        commentsEnabled,
+        menuItems,
       });
       toast({ title: 'Sucesso!', description: 'Configurações salvas.' });
     } catch (error) {
@@ -160,9 +169,6 @@ export default function WorkspaceSettingsPage() {
                 className="mt-2"
               />
             </div>
-            <Button onClick={handleSave} className="mt-auto">
-              Salvar
-            </Button>
           </div>
         </Card>
 
@@ -238,6 +244,65 @@ export default function WorkspaceSettingsPage() {
             </div>
           </div>
         </Card>
+
+        <Card className="p-6">
+          <div className="grid grid-cols-1 items-center gap-6 md:grid-cols-2">
+            <div>
+              <h3 className="font-semibold">Recursos</h3>
+              <p className="text-sm text-muted-foreground">
+                Ative ou desative recursos da área de membros.
+              </p>
+            </div>
+            <Card className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">Ativar Comentários</p>
+                  <p className="text-sm text-muted-foreground">
+                    Permitir que membros comentem em cursos e aulas
+                  </p>
+                </div>
+                <Switch
+                  checked={commentsEnabled}
+                  onCheckedChange={setCommentsEnabled}
+                />
+              </div>
+            </Card>
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2">
+            <div>
+              <h3 className="font-semibold">Menu de Navegação</h3>
+              <p className="text-sm text-muted-foreground">
+                Configure o menu de navegação da sua área de membros.
+              </p>
+            </div>
+            <div className="rounded-lg border-2 border-dashed border-border p-6 text-center">
+              <List className="mx-auto h-8 w-8 text-muted-foreground" />
+              <h4 className="mt-4 font-semibold">Nenhum item de menu ainda</h4>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Adicione itens de menu para criar navegação para sua área de membros.
+              </p>
+              <Button variant="outline" className="mt-6">
+                <Plus className="mr-2 h-4 w-4" />
+                Adicionar Primeiro
+              </Button>
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                <Badge variant="secondary">Dashboard</Badge>
+                <Badge variant="secondary">Meus Cursos</Badge>
+                <Badge variant="secondary">Comunidade</Badge>
+                <Badge variant="secondary">Suporte</Badge>
+              </div>
+            </div>
+          </div>
+        </Card>
+        
+        <div className="flex justify-end">
+          <Button onClick={handleSave}>
+            Salvar Configurações
+          </Button>
+        </div>
       </div>
     </div>
   );
