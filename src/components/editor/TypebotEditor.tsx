@@ -1648,55 +1648,56 @@ export function TypebotEditor({
     }
 
     if (draggingState.isDragging && draggingState.blockId && canvasRef.current) {
-      const newX = (e.clientX - canvasRect.left - panOffset.x) / zoom - draggingState.dragStartOffset.x;
-      const newY = (e.clientY - canvasRect.top - panOffset.y) / zoom - draggingState.dragStartOffset.y;
+        if (isPanning) return;
+        const newX = (e.clientX - canvasRect.left - panOffset.x) / zoom - draggingState.dragStartOffset.x;
+        const newY = (e.clientY - canvasRect.top - panOffset.y) / zoom - draggingState.dragStartOffset.y;
 
-      setCanvasBlocks((prevBlocks) => prevBlocks.map((block) => (block.id === draggingState.blockId ? { ...block, position: { x: newX, y: newY } } : block)));
+        setCanvasBlocks((prevBlocks) => prevBlocks.map((block) => (block.id === draggingState.blockId ? { ...block, position: { x: newX, y: newY } } : block)));
 
-      const dropX = (e.clientX - canvasRect.left) / zoom;
-      const dropY = (e.clientY - canvasRect.top) / zoom;
+        const dropX = (e.clientX - canvasRect.left) / zoom;
+        const dropY = (e.clientY - canvasRect.top) / zoom;
 
-      let foundTarget = false;
+        let foundTarget = false;
 
-      for (const block of canvasBlocks) {
-        if (block.type === 'group' && block.id !== draggingState.blockId) {
-          const groupEl = document.getElementById(`block-${block.id}`);
-          if (!groupEl) continue;
+        for (const block of canvasBlocks) {
+            if (block.type === 'group' && block.id !== draggingState.blockId) {
+            const groupEl = document.getElementById(`block-${block.id}`);
+            if (!groupEl) continue;
 
-          const groupRect = groupEl.getBoundingClientRect();
-          const groupLeft = (groupRect.left - canvasRect.left) / zoom;
-          const groupTop = (groupRect.top - canvasRect.top) / zoom;
-          const groupWidth = groupRect.width / zoom;
-          const groupHeight = groupRect.height / zoom;
+            const groupRect = groupEl.getBoundingClientRect();
+            const groupLeft = (groupRect.left - canvasRect.left) / zoom;
+            const groupTop = (groupRect.top - canvasRect.top) / zoom;
+            const groupWidth = groupRect.width / zoom;
+            const groupHeight = groupRect.height / zoom;
 
-          if (dropX >= groupLeft && dropX <= groupLeft + groupWidth && dropY >= groupTop && dropY <= groupTop + groupHeight) {
-            foundTarget = true;
-            let newIndex = block.children?.length || 0;
-            const childrenContainer = groupEl.querySelector('[data-children-container]');
+            if (dropX >= groupLeft && dropX <= groupLeft + groupWidth && dropY >= groupTop && dropY <= groupTop + groupHeight) {
+                foundTarget = true;
+                let newIndex = block.children?.length || 0;
+                const childrenContainer = groupEl.querySelector('[data-children-container]');
 
-            if (childrenContainer) {
-              const childElements = Array.from(childrenContainer.children) as HTMLElement[];
-              for (let i = 0; i < childElements.length; i++) {
-                const childEl = childElements[i];
-                if (childEl.dataset.testid === 'drop-placeholder') continue;
-                const childRect = childEl.getBoundingClientRect();
-                const childTopInCanvas = (childRect.top - canvasRect.top) / zoom;
-                const dropZoneMidpoint = childTopInCanvas + childRect.height / zoom / 2;
+                if (childrenContainer) {
+                const childElements = Array.from(childrenContainer.children) as HTMLElement[];
+                for (let i = 0; i < childElements.length; i++) {
+                    const childEl = childElements[i];
+                    if (childEl.dataset.testid === 'drop-placeholder') continue;
+                    const childRect = childEl.getBoundingClientRect();
+                    const childTopInCanvas = (childRect.top - canvasRect.top) / zoom;
+                    const dropZoneMidpoint = childTopInCanvas + childRect.height / zoom / 2;
 
-                if (dropY < dropZoneMidpoint) {
-                  newIndex = i;
-                  break;
+                    if (dropY < dropZoneMidpoint) {
+                    newIndex = i;
+                    break;
+                    }
                 }
-              }
+                }
+                setDropIndicator({ groupId: block.id, index: newIndex });
+                break;
             }
-            setDropIndicator({ groupId: block.id, index: newIndex });
-            break;
-          }
+            }
         }
-      }
-      if (!foundTarget) {
-        setDropIndicator(null);
-      }
+        if (!foundTarget) {
+            setDropIndicator(null);
+        }
     }
   };
 
@@ -1892,18 +1893,7 @@ export function TypebotEditor({
         const message: PreviewMessage = {
             id: Date.now() + Math.random(),
             sender: 'bot',
-            content: (
-                <CanvasTextBlock
-                    block={{ ...child, props: { ...child.props, content: messageContent } }}
-                    isSelected={false}
-                    isChild={true}
-                    onBlockMouseDown={() => {}}
-                    onContextMenu={() => {}}
-                    setSelectedBlockId={() => {}}
-                    updateBlockProps={() => {}}
-                    variables={[]}
-                />
-            ),
+            content: <p className="text-sm text-black whitespace-pre-wrap">{messageContent}</p>,
         };
 
         setPreviewMessages((prev) => [...prev, message]);
