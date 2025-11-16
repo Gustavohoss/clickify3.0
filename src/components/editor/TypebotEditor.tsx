@@ -929,14 +929,12 @@ const EditableTextBlock = memo(
       if (!editor) return;
 
       editor.focus();
-      const selection = window.getSelection();
-      if (!selection) return;
-
-      const range = document.createRange();
-      range.selectNodeContents(editor);
-      range.collapse(false);
-      selection.removeAllRanges();
-      selection.addRange(range);
+      document.execCommand(
+        'insertHTML',
+        false,
+        `<span style="color: #a78bfa;" contenteditable="false">{{...}}</span>&nbsp;`
+      );
+      handleBlur(); // Save content after inserting
     };
 
     return (
@@ -1125,12 +1123,7 @@ const CanvasTextBlock = ({
               />
               {block.props?.multipleChoice && <div className="absolute -top-1 -left-1"><CheckSquare2 size={12} className="text-orange-400" /></div>}
             </div>
-            {(block.props?.buttons || []).map((button: any, index: number) => (
-                <Button key={index} variant="outline" className="w-full bg-[#3f3f46] border-[#52525b] text-white justify-center h-8 text-sm">
-                    {button.text}
-                </Button>
-            ))}
-            <Button variant="outline" className="w-full border-dashed border-[#52525b] text-white/50 h-8 text-sm" onClick={() => setSelectedBlockId(block.id)}>
+            <Button variant="outline" className="w-full bg-[#2a2a2a] border-[#3f3f46] text-white justify-center h-8 text-sm hover:bg-[#3f3f46]" onClick={() => setSelectedBlockId(block.id)}>
                 Add Button
             </Button>
           </div>
