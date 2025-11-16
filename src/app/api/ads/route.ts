@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const FB_GRAPH_VERSION = 'v19.0';
-// O token de acesso é armazenado de forma segura no servidor.
-const ACCESS_TOKEN = "EAAQZBL4qStBIBPZCcRbRypj1OIpeTLfZCkB0j48JEV73a5u8OS3NqrU98rGFULZB3LbCDTi8H54eL3anZCkJmamomOXAXi6Ngmoi9ZBE1HC870C35ZCIzAEjR0lZB90cdCsJ83IEFpt4bcYCtZAueyk1WZBSfDEZCmIlg7rG3UFOYAGoUJyYnMOKr2oaKJVnhlnMCEGtDAjY9p7TbnQsAcs0fP4R7pv3fncwyIwikZChzf6uwm2MA7rU";
+const FB_GRAPH_VERSION = process.env.FACEBOOK_GRAPH_VERSION || 'v19.0';
+const ACCESS_TOKEN = process.env.FACEBOOK_ACCESS_TOKEN;
 
 export async function GET(req: NextRequest) {
   if (!ACCESS_TOKEN) {
