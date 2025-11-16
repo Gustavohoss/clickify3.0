@@ -253,3 +253,8 @@ export type CanvasBlock = {
     children?: CanvasBlock[];
     props: { [key: string]: any };
 };
+
+export type CanvasConnection = {
+  from: number | 'start';
+  to: number;
+};

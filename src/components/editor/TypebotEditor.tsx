@@ -101,7 +101,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import type { Funnel, CanvasBlock } from './types.tsx';
+import type { Funnel, CanvasBlock, CanvasConnection } from './types.tsx';
 import ReactPlayer from 'react-player';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select.tsx';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -552,18 +552,18 @@ const CanvasTextBlock = ({
         );
       case 'video':
         if (block.props?.videoUrl) {
-          return (
-            <div className="w-full aspect-video">
-              {hasMounted && (
-                <ReactPlayer
-                  url={block.props.videoUrl}
-                  width="100%"
-                  height="100%"
-                  controls
-                />
-              )}
-            </div>
-          );
+            return (
+              <div className="w-full aspect-video">
+                {hasMounted && (
+                  <ReactPlayer
+                    url={block.props.videoUrl}
+                    width="100%"
+                    height="100%"
+                    controls
+                  />
+                )}
+              </div>
+            );
         }
         return (
           <div className="flex items-center gap-2">
@@ -723,6 +723,37 @@ type DropIndicator = {
   index: number;
 } | null;
 
+const ConnectionHandle = ({
+  onMouseDown,
+  isInput = false,
+}: {
+  onMouseDown: (e: React.MouseEvent) => void;
+  isInput?: boolean;
+}) => (
+  <div
+    className={cn(
+      'absolute top-1/2 -translate-y-1/2 h-3 w-3 rounded-full border-2 border-orange-400 bg-[#111111] cursor-pointer',
+      isInput ? '-left-[5px]' : '-right-[5px]'
+    )}
+    onMouseDown={onMouseDown}
+  />
+);
+
+const getSmoothStepPath = (
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
+) => {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const halfDx = dx / 2;
+  const halfDy = dy / 2;
+
+  return `M ${x1},${y1} C ${x1 + halfDx},${y1} ${x1 + halfDx},${y2} ${x2},${y2}`;
+};
+
+
 const CanvasGroupBlock = ({
   block,
   groupIndex,
@@ -738,6 +769,7 @@ const CanvasGroupBlock = ({
   selectedBlockId,
   updateBlockProps,
   variables,
+  onConnectionStart,
 }: {
   block: CanvasBlock;
   groupIndex: number;
@@ -753,6 +785,11 @@ const CanvasGroupBlock = ({
   selectedBlockId: number | null;
   updateBlockProps: (id: number, props: any) => void;
   variables: string[];
+  onConnectionStart: (
+    e: React.MouseEvent,
+    fromBlockId: number,
+    fromHandle: 'output'
+  ) => void;
 }) => (
   <div
     id={`block-${block.id}`}
@@ -766,6 +803,14 @@ const CanvasGroupBlock = ({
     }}
     onContextMenu={(e) => onContextMenu(e, block)}
   >
+    <ConnectionHandle
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        onConnectionStart(e, block.id, 'output');
+      }}
+    />
+    <ConnectionHandle isInput onMouseDown={(e) => e.stopPropagation()} />
+
     <div className="absolute -top-10 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-md bg-[#181818] p-1 opacity-0 transition-opacity group-hover:opacity-100">
       <Button
         variant="ghost"
@@ -888,6 +933,8 @@ export function TypebotEditor({
     blockId: number | null;
   }>({ visible: false, x: 0, y: 0, blockId: null });
   const [variables, setVariables] = useState<string[]>(['Nome', 'Email']);
+  const [connections, setConnections] = useState<CanvasConnection[]>([]);
+  const [drawingConnection, setDrawingConnection] = useState<any>(null);
 
   const [draggingState, setDraggingState] = useState<{
     blockId: number | null;
@@ -1084,6 +1131,24 @@ export function TypebotEditor({
   };
 
   const handleMouseUp = (e: React.MouseEvent<HTMLElement>) => {
+    if (drawingConnection) {
+        const targetElement = e.target as HTMLElement;
+        const targetBlockId = targetElement.closest('[id^="block-"]')?.id.split('-')[1];
+  
+        if (targetBlockId) {
+          const toBlockId = parseInt(targetBlockId, 10);
+          const fromBlockId = drawingConnection.fromBlockId;
+          
+          if(fromBlockId !== toBlockId) {
+            setConnections((prev) => [
+              ...prev.filter((c) => c.from !== fromBlockId),
+              { from: fromBlockId, to: toBlockId },
+            ]);
+          }
+        }
+        setDrawingConnection(null);
+    }
+    
     if (draggingState.isDragging && draggingState.blockId !== null && draggingState.originalBlock) {
       const draggedBlock = findBlock(draggingState.blockId);
       if (!draggedBlock) return;
@@ -1144,6 +1209,7 @@ export function TypebotEditor({
     }
   
     setIsPanning(false);
+    setDrawingConnection(null);
     setDraggingState({ blockId: null, isDragging: false, dragStartMouse: { x: 0, y: 0 }, dragStartOffset: { x: 0, y: 0 }, originalBlock: null, isReadyToDrag: false });
     setDropIndicator(null);
     if (canvasRef.current) {
@@ -1191,7 +1257,16 @@ export function TypebotEditor({
   const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
     if (!canvasRef.current) return;
     const canvasRect = canvasRef.current.getBoundingClientRect();
+    const mousePos = {
+        x: (e.clientX - canvasRect.left) / zoom,
+        y: (e.clientY - canvasRect.top) / zoom,
+    };
 
+    if (drawingConnection) {
+        setDrawingConnection((prev: any) => ({ ...prev, to: mousePos }));
+        return;
+    }
+    
     if (isPanning) {
       const dx = e.clientX - startPanPosition.current.x;
       const dy = e.clientY - startPanPosition.current.y;
@@ -1345,6 +1420,46 @@ export function TypebotEditor({
     });
   };
 
+  const handleConnectionStart = (
+    e: React.MouseEvent,
+    fromBlockId: number | 'start',
+    fromHandle: 'output'
+  ) => {
+    e.stopPropagation();
+    if (!canvasRef.current) return;
+    const canvasRect = canvasRef.current.getBoundingClientRect();
+
+    let startPos;
+    if (fromBlockId === 'start') {
+        const startNode = document.getElementById('start-node');
+        if (startNode) {
+            const rect = startNode.getBoundingClientRect();
+            startPos = {
+                x: (rect.right - canvasRect.left) / zoom,
+                y: (rect.top + rect.height / 2 - canvasRect.top) / zoom,
+            };
+        }
+    } else {
+        const block = findBlock(fromBlockId);
+        if (block) {
+            startPos = {
+                x: (block.position.x + 288 + panOffset.x) / zoom, // 288 is width of block
+                y: (block.position.y + 20 + panOffset.y) / zoom, // 20 is half-height approx
+            };
+        }
+    }
+
+    if(startPos) {
+        setDrawingConnection({
+            fromBlockId,
+            fromHandle,
+            from: startPos,
+            to: { x: startPos.x, y: startPos.y },
+        });
+    }
+  };
+
+
   const findBlock = (id: number | null): CanvasBlock | undefined => {
     if (id === null) return undefined;
     for (const block of canvasBlocks) {
@@ -1454,7 +1569,9 @@ export function TypebotEditor({
           onMouseLeave={handleMouseLeave}
           onContextMenu={(e) => e.preventDefault()}
         >
-          <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2">
+          <div
+            className="absolute left-1/2 top-4 z-10 -translate-x-1/2"
+          >
             <div className="flex items-center gap-1 rounded-md bg-[#181818] p-1">
               {['Fluxo', 'Tema', 'Configurações', 'Compartilhar'].map((tab) => (
                 <Button
@@ -1476,17 +1593,77 @@ export function TypebotEditor({
               transformOrigin: 'top left',
             }}
           >
+             <svg
+              className="absolute w-full h-full pointer-events-none"
+              style={{
+                transform: `translate(${panOffset.x}px, ${panOffset.y}px)`,
+                width: `calc(100% / ${zoom})`,
+                height: `calc(100% / ${zoom})`,
+              }}
+            >
+              <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
+                </marker>
+              </defs>
+              {connections.map((conn, index) => {
+                let startPos, endPos;
+                const toBlock = findBlock(conn.to);
+                
+                if (conn.from === 'start') {
+                    startPos = { x: 50 + 200, y: 50 + 20 };
+                } else {
+                    const fromBlock = findBlock(conn.from as number);
+                    if(fromBlock) startPos = { x: fromBlock.position.x + 288, y: fromBlock.position.y + 20 };
+                }
+
+                if(toBlock) {
+                    endPos = { x: toBlock.position.x, y: toBlock.position.y + 20 };
+                }
+
+                if (startPos && endPos) {
+                  return (
+                    <path
+                      key={index}
+                      d={getSmoothStepPath(startPos.x, startPos.y, endPos.x, endPos.y)}
+                      stroke="#f97316"
+                      strokeWidth="2"
+                      fill="none"
+                      markerEnd="url(#arrowhead)"
+                    />
+                  );
+                }
+                return null;
+              })}
+
+            {drawingConnection && (
+                <path
+                    d={getSmoothStepPath(
+                        (drawingConnection.from.x * zoom + panOffset.x) / zoom,
+                        (drawingConnection.from.y * zoom + panOffset.y) / zoom,
+                        (drawingConnection.to.x * zoom) / zoom,
+                        (drawingConnection.to.y * zoom) / zoom
+                    )}
+                    stroke="#f97316"
+                    strokeWidth="2"
+                    fill="none"
+                    markerEnd="url(#arrowhead)"
+                />
+            )}
+            </svg>
             <div className="absolute" style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px)` }}>
                 {/* Static Start Node */}
                 <div
-                className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2"
+                id="start-node"
+                className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2 w-52"
                 style={{
                     transform: `translate(50px, 50px)`,
                 }}
                 >
                 <PlaySquare size={16} className="text-white/60" />
                 <span className="text-sm font-medium">Início</span>
-                <div className="h-3 w-3 rounded-full border-2 border-orange-400 bg-transparent" />
+                <div className="flex-grow" />
+                <ConnectionHandle onMouseDown={(e) => handleConnectionStart(e, 'start', 'output')} />
                 </div>
 
                 {/* Dynamically Rendered Blocks */}
@@ -1518,6 +1695,7 @@ export function TypebotEditor({
                         selectedBlockId={selectedBlockId}
                         updateBlockProps={updateBlockProps}
                         variables={variables}
+                        onConnectionStart={handleConnectionStart}
                     />
                     );
                 })}
