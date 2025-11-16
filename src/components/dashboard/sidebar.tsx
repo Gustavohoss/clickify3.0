@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   Package,
+  BookUser,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/landing/logo';
@@ -20,7 +21,7 @@ import { useAuth } from '@/firebase';
 const navLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/produtos', label: 'Produtos', icon: ShoppingBag },
-  { href: '/dashboard/entregaveis', label: 'Entregáveis', icon: Package },
+  { href: '/dashboard/area-de-membros', label: 'Área de Membros', icon: BookUser },
   { href: '/dashboard/funis', label: 'Funis', icon: Milestone },
   { href: '/dashboard/social', label: 'Social', icon: Users },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart },
@@ -47,7 +48,7 @@ export function Sidebar({ className }: { className?: string }) {
           <Button
             key={link.href}
             asChild
-            variant={pathname === link.href ? 'secondary' : 'ghost'}
+            variant={pathname.startsWith(link.href) && (link.href !== '/dashboard' || pathname === '/dashboard') ? 'secondary' : 'ghost'}
             className="w-full justify-start"
           >
             <Link href={link.href}>
