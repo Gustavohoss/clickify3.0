@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -494,7 +493,7 @@ const CanvasGroupBlock = ({
 
 const DropPlaceholder = () => <div data-testid="drop-placeholder" className="h-10 w-full rounded-md border-2 border-dashed border-orange-500 bg-orange-500/10" />;
 
-export const TypebotEditor = ({
+export function TypebotEditor({
   funnel,
   setFunnel,
   debouncedUpdateFunnel,
@@ -502,7 +501,7 @@ export const TypebotEditor = ({
   funnel: Funnel;
   setFunnel: (updater: (prev: Funnel | null) => Funnel | null) => void;
   debouncedUpdateFunnel: any;
-}) => {
+}) {
   const [activeTab, setActiveTab] = useState('Flow');
   const [isPanning, setIsPanning] = useState(false);
   const [zoom, setZoom] = useState(1);
