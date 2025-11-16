@@ -14,7 +14,7 @@ import {
   Link,
   Folder,
   X,
-  Image as ImageIcon,
+  ImageIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -58,7 +58,7 @@ export default function MemberAreaEditorPage() {
   const { data: areaData, isLoading } = useDoc<MemberArea>(areaRef);
 
   const handleSaveHeaderImage = async () => {
-    if (areaRef) {
+    if (areaRef && headerUrl) {
       await updateDoc(areaRef, { headerImageUrl: headerUrl });
     }
   };
@@ -218,9 +218,13 @@ export default function MemberAreaEditorPage() {
                                         </div>
                                         <div className="col-span-1">
                                             <div className="relative aspect-[9/12] w-full overflow-hidden rounded-lg bg-gray-800">
-                                                <div className="flex flex-col h-full items-center justify-center text-gray-500">
-                                                    <ImageIcon size={48} />
-                                                </div>
+                                                {coverUrl ? (
+                                                    <Image src={coverUrl} layout="fill" objectFit="cover" alt="Capa do módulo" />
+                                                ) : (
+                                                    <div className="flex flex-col h-full items-center justify-center text-gray-500">
+                                                        <ImageIcon size={48} />
+                                                    </div>
+                                                )}
                                                 <Badge className="absolute top-2 right-2 bg-green-600 text-white">0 Aulas</Badge>
                                             </div>
                                         </div>
