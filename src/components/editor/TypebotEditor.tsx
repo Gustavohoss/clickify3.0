@@ -96,6 +96,7 @@ import {
   Image as ImageIconLucide,
   GanttChart,
   AtSign,
+  Braces,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -160,7 +161,137 @@ type DropIndicator = {
       </div>
     );
   };
-
+  const CanvasTextBlock = ({
+    block,
+    onBlockMouseDown,
+    onDuplicate,
+    onDelete,
+    isSelected,
+    setSelectedBlockId,
+    isChild = false,
+    updateBlockProps,
+  }: {
+    block: CanvasBlock;
+    onBlockMouseDown: (e: React.MouseEvent, block: CanvasBlock) => void;
+    onDuplicate: (e: React.MouseEvent) => void;
+    onDelete: (e: React.MouseEvent) => void;
+    isSelected: boolean;
+    setSelectedBlockId: (id: number | null) => void;
+    isChild?: boolean;
+    updateBlockProps: (id: number, props: any) => void;
+  }) => {
+    const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        updateBlockProps(block.id, { content: e.target.value });
+    };
+    
+    const getBlockContent = () => {
+      switch (block.type) {
+        case 'image':
+          if (block.props?.imageUrl) {
+            return (
+              <img
+                src={block.props.imageUrl}
+                alt="User provided content"
+                className="max-w-full h-auto object-contain rounded-md"
+              />
+            );
+          }
+          return (
+            <div className="flex items-center gap-2">
+              <ImageIconLucide size={16} className="text-white/60" />
+              <span className="text-sm text-white/60">Click to edit...</span>
+            </div>
+          );
+        case 'text':
+          if (isSelected) {
+              return (
+                <div className="relative w-full">
+                  <textarea
+                    value={block.props?.content || ''}
+                    onChange={handleTextChange}
+                    onClick={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    placeholder="Type your message..."
+                    className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8"
+                    rows={3}
+                  />
+                  <button className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]">
+                    <Braces size={14} />
+                  </button>
+                </div>
+              );
+            }
+          if (block.props?.content) {
+            return <p className="text-sm text-white/80 whitespace-pre-wrap">{block.props.content}</p>;
+          }
+          return (
+            <div className="flex items-center gap-2">
+              <MessageCircle size={16} className="text-white/60" />
+              <span className="text-sm text-white/60">...</span>
+            </div>
+          );
+        default:
+          return (
+            <div className="flex items-center gap-2">
+              <MessageCircle size={16} className="text-white/60" />
+              <span className="text-sm text-white/60">...</span>
+            </div>
+          );
+      }
+    };
+  
+    return (
+      <div
+        id={`block-${block.id}`}
+        className={cn(
+          'group w-full cursor-grab select-none',
+          !isChild && 'absolute w-72'
+        )}
+        style={!isChild ? {
+          transform: `translate(${block.position.x}px, ${block.position.y}px)`,
+        } : {}}
+        onMouseDown={(e) => onBlockMouseDown(e, block)}
+      >
+        {!isChild && (
+          <div className="absolute -top-10 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-md bg-[#181818] p-1 opacity-0 transition-opacity group-hover:opacity-100">
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white" onClick={(e) => { e.stopPropagation(); }}>
+              <Play size={14} />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white" onClick={onDuplicate}>
+              <Copy size={14} />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white" onClick={onDelete}>
+              <Trash2 size={14} />
+            </Button>
+          </div>
+        )}
+  
+        <div className={cn("w-full rounded-lg", !isChild && "bg-[#262626] p-3", isChild && "relative")}>
+          {isChild && onDelete && (
+            <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 text-white/40 opacity-0 group-hover:opacity-100" onClick={onDelete}>
+              <Trash2 size={12} />
+            </Button>
+          )}
+  
+          <div
+            className={cn(
+              "flex items-center justify-between rounded-md bg-[#181818] p-2 min-h-[40px]",
+              isSelected && (block.type === 'text' ? "border border-orange-500" : "ring-2 ring-blue-500")
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedBlockId(block.id);
+            }}
+          >
+            <div className="flex items-center gap-2 w-full">
+              {getBlockContent()}
+            </div>
+            {!isSelected && block.type !== 'text' && <div className="h-3 w-3 rounded-full border-2 border-orange-400 bg-transparent" />}
+          </div>
+        </div>
+      </div>
+    );
+  };
 export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { funnel: Funnel, setFunnel: (updater: (prev: Funnel) => Funnel) => void, debouncedUpdateFunnel: any, deleteBlock?: (id: number) => void }) => {
     const [activeTab, setActiveTab] = useState('Flow');
     const [isPanning, setIsPanning] = useState(false);
@@ -252,13 +383,11 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
               if (!parent.children) return parent;
               const newChildren = parent.children.filter(child => child.id !== blockId);
               if (newChildren.length === 0) {
-                  // If the group becomes empty, filter out the group itself
                   return null;
               }
               return { ...parent, children: newChildren };
           }).filter(b => b !== null) as CanvasBlock[];
 
-          // Also handle deletion of top-level blocks
           return newBlocks.filter(b => b.id !== blockId);
         });
       
@@ -467,8 +596,11 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
                     const parentGroup = canvasBlocks.find(p => p.id === draggingState.originalBlock!.parentId);
                     if (!parentGroup) return;
           
-                    const groupRect = document.getElementById(`block-${parentGroup.id}`)!.getBoundingClientRect();
-                    const childRect = document.getElementById(`block-${draggingState.originalBlock.id}`)!.getBoundingClientRect();
+                    const groupEl = document.getElementById(`block-${parentGroup.id}`);
+                    const childEl = document.getElementById(`block-${draggingState.originalBlock.id}`);
+                    if(!groupEl || !childEl) return;
+                    const groupRect = groupEl.getBoundingClientRect();
+                    const childRect = childEl.getBoundingClientRect();
                     const newBlockId = Date.now();
   
                     const detachedBlock: CanvasBlock = {
@@ -476,8 +608,8 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
                         id: newBlockId,
                         parentId: undefined,
                         position: {
-                            x: parentGroup.position.x + (childRect.left - groupRect.left) / zoom,
-                            y: parentGroup.position.y + (childRect.top - groupRect.top) / zoom,
+                            x: (groupRect.left - canvasRect.left + childRect.left - groupRect.left) / zoom,
+                            y: (groupRect.top - canvasRect.top + childRect.top - groupRect.top) / zoom,
                         },
                     };
                     
@@ -505,17 +637,18 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
           }
 
         if (draggingState.isDragging && draggingState.blockId && canvasRef.current) {
-            const newX = (e.clientX - canvasRect.left) / zoom - draggingState.dragStartOffset.x;
-            const newY = (e.clientY - canvasRect.top) / zoom - draggingState.dragStartOffset.y;
+          const newX = (e.clientX - canvasRect.left - panOffset.x) / zoom - draggingState.dragStartOffset.x;
+          const newY = (e.clientY - canvasRect.top - panOffset.y) / zoom - draggingState.dragStartOffset.y;
 
-            setCanvasBlocks(prevBlocks =>
-                prevBlocks.map(block =>
-                    block.id === draggingState.blockId ? { ...block, position: { x: newX + panOffset.x/zoom, y: newY + panOffset.y/zoom } } : block
-                )
-            );
+          setCanvasBlocks(prevBlocks =>
+              prevBlocks.map(block =>
+                  block.id === draggingState.blockId ? { ...block, position: { x: newX, y: newY } } : block
+              )
+          );
 
-            const dropX = (e.clientX - canvasRect.left) / zoom;
-            const dropY = (e.clientY - canvasRect.top) / zoom;
+          const dropX = (e.clientX - canvasRect.left) / zoom;
+          const dropY = (e.clientY - canvasRect.top) / zoom;
+            
             let foundTarget = false;
         
             for (const block of canvasBlocks) {
@@ -577,13 +710,11 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
         let dragStartOffset;
 
         if(blockToDrag.parentId) {
-            const parent = findBlock(blockToDrag.parentId);
-            if (!parent) return;
-            dragStartOffset = { x: 0, y: 0 }; // Will be recalculated on drag start
+            dragStartOffset = { x: 0, y: 0 }; 
         } else {
              dragStartOffset = {
-                x: (e.clientX - canvasRef.current.getBoundingClientRect().left) / zoom - blockToDrag.position.x - (panOffset.x / zoom),
-                y: (e.clientY - canvasRef.current.getBoundingClientRect().top) / zoom - blockToDrag.position.y - (panOffset.y / zoom)
+                x: (e.clientX - panOffset.x - canvasRef.current.getBoundingClientRect().left) / zoom - blockToDrag.position.x,
+                y: (e.clientY - panOffset.y - canvasRef.current.getBoundingClientRect().top) / zoom - blockToDrag.position.y
             };
         }
     
@@ -626,8 +757,23 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
         const blockElement = document.getElementById(`block-${id}`);
         if (!blockElement) return { x: 0, y: 0 };
     
-        const blockRect = blockElement.getBoundingClientRect();
         const canvasRect = canvasRef.current.getBoundingClientRect();
+        const blockRect = blockElement.getBoundingClientRect();
+    
+        const block = findBlock(id);
+        if (block?.parentId) {
+          const parent = findBlock(block.parentId);
+          if (parent) {
+            const parentEl = document.getElementById(`block-${parent.id}`);
+            if (parentEl) {
+              const parentRect = parentEl.getBoundingClientRect();
+               return {
+                  x: (parentRect.left - canvasRect.left + blockRect.left - parentRect.left) / zoom,
+                  y: (parentRect.top - canvasRect.top + blockRect.top - parentRect.top) / zoom,
+               }
+            }
+          }
+        }
     
         return {
           x: (blockRect.left - canvasRect.left) / zoom,
@@ -729,24 +875,14 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
             <div 
               className="relative h-full w-full"
                style={{
-                  transform: `scale(${zoom})`,
+                  transform: `scale(${zoom}) translate(${panOffset.x / zoom}px, ${panOffset.y / zoom}px)`,
                   transformOrigin: 'top left',
                }}
             >
-             <div
-                style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    transform: `translate(${panOffset.x / zoom}px, ${panOffset.y / zoom}px)`,
-                    width: '100%',
-                    height: '100%',
-                }}
-             >
               {/* Static Start Node */}
               <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-lg bg-[#262626] px-3 py-2"
                   style={{
-                      transform: `translate(${panOffset.x}px, ${panOffset.y}px) translate(-200px, 0px)`
+                      transform: `translate(-200px, 0px)`
                   }}
               >
                   <PlaySquare size={16} className="text-white/60" />
@@ -778,6 +914,7 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
                     allBlocks={canvasBlocks}
                     deleteBlock={deleteBlock}
                     selectedBlockId={selectedBlockId}
+                    updateBlockProps={updateBlockProps}
                   />
                 );
               })}
@@ -804,6 +941,7 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
     allBlocks,
     deleteBlock,
     selectedBlockId,
+    updateBlockProps,
   }: {
     block: CanvasBlock;
     groupIndex: number;
@@ -816,6 +954,7 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
     allBlocks: CanvasBlock[];
     deleteBlock: (id: number) => void;
     selectedBlockId: number | null;
+    updateBlockProps: (id: number, props: any) => void;
   }) => (
     <div
       id={`block-${block.id}`}
@@ -871,9 +1010,7 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
                         isSelected={selectedBlockId === child.id}
                         setSelectedBlockId={setSelectedBlockId}
                         isChild={true}
-                        allBlocks={allBlocks}
-                        deleteBlock={deleteBlock}
-                        selectedBlockId={selectedBlockId}
+                        updateBlockProps={updateBlockProps}
                     />
                 </React.Fragment>
             ))}
@@ -884,119 +1021,7 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
   );
   
 
-  const CanvasTextBlock = ({
-    block,
-    onBlockMouseDown,
-    onDuplicate,
-    onDelete,
-    isSelected,
-    setSelectedBlockId,
-    isChild = false,
-  }: {
-    block: CanvasBlock;
-    onBlockMouseDown: (e: React.MouseEvent, block: CanvasBlock) => void;
-    onDuplicate: (e: React.MouseEvent) => void;
-    onDelete: (e: React.MouseEvent) => void;
-    isSelected: boolean;
-    setSelectedBlockId: (id: number | null) => void;
-    isChild?: boolean;
-    allBlocks: CanvasBlock[];
-    dropIndicator?: DropIndicator;
-    groupIndex?: number;
-    deleteBlock?: (id: number) => void;
-    selectedBlockId?: number | null;
-  }) => {
-    const getBlockContent = () => {
-        switch (block.type) {
-          case 'image':
-            if (block.props?.imageUrl) {
-              return (
-                <img
-                  src={block.props.imageUrl}
-                  alt="User provided content"
-                  className="max-w-full h-auto object-contain rounded-md"
-                />
-              );
-            }
-            return (
-              <>
-                <ImageIconLucide size={16} className="text-white/60" />
-                <span className="text-sm text-white/60">Click to edit...</span>
-              </>
-            );
-          case 'text':
-          default:
-            return (
-              <>
-                <MessageCircle size={16} className="text-white/60" />
-                <span className="text-sm text-white/60">...</span>
-              </>
-            );
-        }
-      };
-  
-    return (
-      <div
-        id={`block-${block.id}`}
-        className={cn(
-          'group w-full cursor-grab select-none',
-          !isChild && 'absolute w-72'
-        )}
-        style={!isChild ? {
-          transform: `translate(${block.position.x}px, ${block.position.y}px)`,
-        } : {}}
-        onMouseDown={(e) => onBlockMouseDown(e, block)}
-      >
-        {!isChild && (
-          <div className="absolute -top-10 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-md bg-[#181818] p-1 opacity-0 transition-opacity group-hover:opacity-100">
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white" onClick={(e) => { e.stopPropagation(); }}>
-              <Play size={14} />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white" onClick={onDuplicate}>
-              <Copy size={14} />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:bg-[#3f3f46] hover:text-white" onClick={onDelete}>
-              <Trash2 size={14} />
-            </Button>
-          </div>
-        )}
-  
-        <div className={cn("w-full rounded-lg", !isChild && "bg-[#262626] p-3", isChild && "relative")}>
-          {isChild && onDelete && (
-            <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 text-white/40 opacity-0 group-hover:opacity-100" onClick={onDelete}>
-              <Trash2 size={12} />
-            </Button>
-          )}
-  
-          <div
-            className={cn("flex items-center justify-between rounded-md bg-[#181818] p-2", isSelected && "ring-2 ring-blue-500")}
-            onClick={(e) => {
-              e.stopPropagation();
-              setSelectedBlockId(block.id);
-            }}
-          >
-            <div className="flex items-center gap-2">
-              {getBlockContent()}
-            </div>
-            <div className="h-3 w-3 rounded-full border-2 border-orange-400 bg-transparent" />
-          </div>
-  
-          {isSelected && block.type === 'text' && (
-            <div className="mt-2 rounded-md border border-blue-500 bg-[#181818] p-2">
-              <input
-                type="text"
-                className="w-full bg-transparent text-sm text-white outline-none"
-                placeholder="Digite aqui..."
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
-
 const DropPlaceholder = () => (
     <div data-testid="drop-placeholder" className="h-10 w-full rounded-md border-2 border-dashed border-orange-500 bg-orange-500/10" />
 );
+
