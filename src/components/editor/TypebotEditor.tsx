@@ -102,12 +102,6 @@ import { cn } from '@/lib/utils';
 import type { Funnel, CanvasBlock } from './types.tsx';
 import ReactPlayer from 'react-player';
 
-
-type DropIndicator = {
-  groupId: number;
-  index: number;
-} | null;
-
 const ImageBlockSettings = ({
   block,
   onUpdate,
@@ -243,6 +237,12 @@ const CanvasTextBlock = ({
   isChild?: boolean;
   updateBlockProps: (id: number, props: any) => void;
 }) => {
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateBlockProps(block.id, { content: e.target.value });
   };
@@ -269,7 +269,7 @@ const CanvasTextBlock = ({
         if (block.props?.videoUrl) {
             return (
                 <div className="w-full aspect-video">
-                    <ReactPlayer url={block.props.videoUrl} width="100%" height="100%" controls />
+                    {hasMounted && <ReactPlayer url={block.props.videoUrl} width="100%" height="100%" controls />}
                 </div>
             );
         }
@@ -390,6 +390,12 @@ const CanvasTextBlock = ({
     </div>
   );
 };
+
+
+type DropIndicator = {
+  groupId: number;
+  index: number;
+} | null;
 
 const CanvasGroupBlock = ({
   block,
@@ -804,8 +810,8 @@ export const TypebotEditor = ({
                 id: newBlockId,
                 parentId: undefined,
                 position: {
-                    x: parentGroup.position.x + (draggingState.dragStartMouse.x - (parentGroup.position.x * zoom + panOffset.x + canvasRect.left)) / zoom,
-                    y: parentGroup.position.y + (draggingState.dragStartMouse.y - (parentGroup.position.y * zoom + panOffset.y + canvasRect.top)) / zoom,
+                    x: parentGroup.position.x + (e.clientX - canvasRect.left - panOffset.x) / zoom - draggingState.dragStartOffset.x,
+                    y: parentGroup.position.y + (e.clientY - canvasRect.top - panOffset.y) / zoom - draggingState.dragStartOffset.y,
                 },
             };
 
