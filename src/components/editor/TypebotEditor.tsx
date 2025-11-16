@@ -94,7 +94,7 @@ import {
   Plus,
   ChevronsUpDown,
   Globe,
-  X
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -117,6 +117,7 @@ import {
 } from '@/components/ui/command';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.tsx';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion.tsx';
+import { Badge } from '../ui/badge.tsx';
 
 const ImageBlockSettings = ({
   block,
@@ -842,7 +843,7 @@ const CanvasTextBlock = ({
   setSelectedBlockId,
   isChild = false,
   updateBlockProps,
-  variables
+  variables,
 }: {
   block: CanvasBlock;
   onBlockMouseDown: (e: React.MouseEvent, block: CanvasBlock) => void;
@@ -856,7 +857,6 @@ const CanvasTextBlock = ({
   const [hasMounted, setHasMounted] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-
   useEffect(() => {
     setHasMounted(true);
   }, []);
@@ -864,7 +864,7 @@ const CanvasTextBlock = ({
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateBlockProps(block.id, { content: e.target.value });
   };
-  
+
   const handleVariableInsert = (variable: string) => {
     const textarea = textareaRef.current;
     if (!textarea) return;
@@ -884,18 +884,26 @@ const CanvasTextBlock = ({
     }, 0);
   };
 
+  const renderInputBlock = (icon: React.ReactNode, placeholder: string) => (
+    <div className="flex flex-col gap-2 w-full">
+      <div className="flex items-center gap-2 text-sm text-white/80 w-full">
+        {icon}
+        <span className="truncate">{placeholder}</span>
+      </div>
+      {block.props?.variable && (
+        <div className="flex items-center gap-1.5 text-xs text-white/60">
+          Set
+          <Badge className="bg-indigo-500 text-white hover:bg-indigo-600 px-2 py-0.5">{block.props.variable}</Badge>
+        </div>
+      )}
+    </div>
+  );
 
   const getBlockContent = () => {
     switch (block.type) {
       case 'image':
         if (block.props?.imageUrl) {
-          return (
-            <img
-              src={block.props.imageUrl}
-              alt="Conteúdo fornecido pelo usuário"
-              className="max-w-full h-auto object-contain rounded-md"
-            />
-          );
+          return <img src={block.props.imageUrl} alt="Conteúdo fornecido pelo usuário" className="max-w-full h-auto object-contain rounded-md" />;
         }
         return (
           <div className="flex items-center gap-2">
@@ -907,38 +915,23 @@ const CanvasTextBlock = ({
         if (block.props?.audioUrl) {
           return (
             <div className="w-full">
-              {hasMounted && (
-                <ReactPlayer
-                  url={block.props.audioUrl}
-                  width="100%"
-                  height="50px"
-                  controls
-                  playing={block.props.autoplay}
-                />
-              )}
+              {hasMounted && <ReactPlayer url={block.props.audioUrl} width="100%" height="50px" controls playing={block.props.autoplay} />}
             </div>
           );
         }
         return (
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <AudioWaveform size={16} className="text-white/60" />
             <span className="text-sm text-white/60">Clique para editar...</span>
-            </div>
+          </div>
         );
       case 'video':
         if (block.props?.videoUrl) {
-            return (
-              <div className="w-full aspect-video">
-                {hasMounted && (
-                  <ReactPlayer
-                    url={block.props.videoUrl}
-                    width="100%"
-                    height="100%"
-                    controls
-                  />
-                )}
-              </div>
-            );
+          return (
+            <div className="w-full aspect-video">
+              {hasMounted && <ReactPlayer url={block.props.videoUrl} width="100%" height="100%" controls />}
+            </div>
+          );
         }
         return (
           <div className="flex items-center gap-2">
@@ -946,36 +939,28 @@ const CanvasTextBlock = ({
             <span className="text-sm text-white/60">Clique para editar...</span>
           </div>
         );
-        case 'input-text':
-            return (
-              <div className="flex items-center gap-2 text-sm text-white/80 w-full">
-                <TextCursorInput size={16} className="text-orange-400 flex-shrink-0" />
-                <span className='truncate'>{block.props?.placeholder || 'Digite sua resposta...'}</span>
-              </div>
-            );
-        case 'input-email':
-            return (
-                <div className="flex items-center gap-2 text-sm text-white/80 w-full">
-                <AtSign size={16} className="text-orange-400 flex-shrink-0" />
-                <span className='truncate'>{block.props?.placeholder || 'Digite seu email...'}</span>
-                </div>
-            );
-        case 'input-date':
-            return (
-                <div className="flex items-center gap-2 text-sm text-white/80 w-full">
-                <Calendar size={16} className="text-orange-400 flex-shrink-0" />
-                <span className='truncate'>{block.props?.placeholder || 'Escolha uma data...'}</span>
-                </div>
-            );
-        case 'logic-wait':
-                return (
-                    <div className="flex items-center gap-2 text-sm text-white/80 w-full">
-                        <Clock10 size={16} className="text-indigo-400 flex-shrink-0" />
-                        <span className='truncate'>
-                            Aguarde por {block.props.duration || 0} segundo(s)
-                        </span>
-                    </div>
-                );
+      case 'input-text':
+        return renderInputBlock(
+          <TextCursorInput size={16} className="text-orange-400 flex-shrink-0" />,
+          block.props?.placeholder || 'Digite sua resposta...'
+        );
+      case 'input-email':
+        return renderInputBlock(
+          <AtSign size={16} className="text-orange-400 flex-shrink-0" />,
+          block.props?.placeholder || 'Digite seu email...'
+        );
+      case 'input-date':
+        return renderInputBlock(
+          <Calendar size={16} className="text-orange-400 flex-shrink-0" />,
+          block.props?.placeholder || 'Escolha uma data...'
+        );
+      case 'logic-wait':
+        return (
+          <div className="flex items-center gap-2 text-sm text-white/80 w-full">
+            <Clock10 size={16} className="text-indigo-400 flex-shrink-0" />
+            <span className="truncate">Aguarde por {block.props.duration || 0} segundo(s)</span>
+          </div>
+        );
       case 'text':
         if (isSelected) {
           return (
@@ -1003,11 +988,7 @@ const CanvasTextBlock = ({
                       <CommandEmpty>Nenhuma variável encontrada.</CommandEmpty>
                       <CommandGroup>
                         {variables.map((variable) => (
-                          <CommandItem
-                            key={variable}
-                            value={variable}
-                            onSelect={() => handleVariableInsert(variable)}
-                          >
+                          <CommandItem key={variable} value={variable} onSelect={() => handleVariableInsert(variable)}>
                             {variable}
                           </CommandItem>
                         ))}
@@ -1042,23 +1023,17 @@ const CanvasTextBlock = ({
     <div
       id={`block-${block.id}`}
       className={cn('group w-full cursor-grab select-none', !isChild && 'absolute w-72')}
-      style={
-        !isChild
-          ? {
-              transform: `translate(${block.position.x}px, ${block.position.y}px)`,
-            }
-          : {}
-      }
+      style={!isChild ? { transform: `translate(${block.position.x}px, ${block.position.y}px)` } : {}}
       onMouseDown={(e) => {
         if (e.button !== 0) return;
-        onBlockMouseDown(e, block)
+        onBlockMouseDown(e, block);
       }}
       onContextMenu={(e) => onContextMenu(e, block)}
     >
       <div className={cn('w-full rounded-lg', !isChild && 'bg-[#262626] p-3', isChild && 'relative')}>
         <div
           className={cn(
-            'flex items-center justify-between rounded-md bg-[#181818] p-2 min-h-[40px]',
+            'flex flex-col items-start justify-between rounded-md bg-[#181818] p-2 min-h-[40px] gap-2',
             isSelected && (block.type.startsWith('input-') ? 'border border-orange-500' : 'ring-2 ring-blue-500')
           )}
           onClick={(e) => {
@@ -1066,7 +1041,7 @@ const CanvasTextBlock = ({
             setSelectedBlockId(block.id);
           }}
         >
-          <div className="flex items-center gap-2 w-full">{getBlockContent()}</div>
+          {getBlockContent()}
         </div>
       </div>
     </div>
@@ -1094,18 +1069,12 @@ const ConnectionHandle = ({
   />
 );
 
-const getSmoothStepPath = (
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number
-) => {
+const getSmoothStepPath = (x1: number, y1: number, x2: number, y2: number) => {
   const dx = x2 - x1;
   const halfDx = dx / 2;
 
   return `M ${x1},${y1} C ${x1 + halfDx},${y1} ${x1 + halfDx},${y2} ${x2},${y2}`;
 };
-
 
 const CanvasGroupBlock = ({
   block,
@@ -1138,11 +1107,7 @@ const CanvasGroupBlock = ({
   selectedBlockId: number | null;
   updateBlockProps: (id: number, props: any) => void;
   variables: string[];
-  onConnectionStart: (
-    e: React.MouseEvent,
-    fromBlockId: number,
-    fromHandle: 'output'
-  ) => void;
+  onConnectionStart: (e: React.MouseEvent, fromBlockId: number, fromHandle: 'output') => void;
 }) => (
   <div
     id={`block-${block.id}`}
@@ -1151,8 +1116,8 @@ const CanvasGroupBlock = ({
       transform: `translate(${block.position.x}px, ${block.position.y}px)`,
     }}
     onMouseDown={(e) => {
-        if (e.button !== 0) return;
-        onBlockMouseDown(e, block)
+      if (e.button !== 0) return;
+      onBlockMouseDown(e, block);
     }}
     onContextMenu={(e) => onContextMenu(e, block)}
   >
@@ -1574,10 +1539,10 @@ export function TypebotEditor({
   };
   
   const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
-    if (isPanning || draggingState.isDragging) {
+    if (isPanning || (draggingState && draggingState.isDragging)) {
       setIsPanning(false);
 
-      if (draggingState.isDragging && draggingState.originalBlock && draggingState.blockId) {
+      if (draggingState && draggingState.isDragging && draggingState.originalBlock && draggingState.blockId) {
         const currentDraggedBlock = findBlock(draggingState.blockId);
         
         if (!currentDraggedBlock) {
