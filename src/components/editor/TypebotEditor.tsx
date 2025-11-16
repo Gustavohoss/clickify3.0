@@ -855,33 +855,50 @@ const CanvasTextBlock = ({
   variables: string[];
 }) => {
   const [hasMounted, setHasMounted] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editableDivRef = useRef<HTMLDivElement>(null);
+  const popoverOpen = useRef(false);
 
   useEffect(() => {
     setHasMounted(true);
   }, []);
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    updateBlockProps(block.id, { content: e.target.value });
+  const handleContentChange = () => {
+    if (editableDivRef.current) {
+      updateBlockProps(block.id, { content: editableDivRef.current.innerHTML });
+    }
   };
-
+  
   const handleVariableInsert = (variable: string) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value;
-    const newText = `${text.substring(0, start)}{{${variable}}}${text.substring(end)}`;
-
-    updateBlockProps(block.id, { content: newText });
-
-    // Focus and set cursor position after update
-    setTimeout(() => {
-      textarea.focus();
-      const newCursorPosition = start + `{{${variable}}}`.length;
-      textarea.setSelectionRange(newCursorPosition, newCursorPosition);
-    }, 0);
+    const editor = editableDivRef.current;
+    if (!editor) return;
+  
+    editor.focus();
+    
+    // Create a styled span for the variable
+    const span = document.createElement('span');
+    span.style.color = '#a78bfa'; // Purple color
+    span.textContent = `{{${variable}}}`;
+    span.setAttribute('contenteditable', 'false'); // Make the span itself non-editable
+  
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      
+      // Insert the span
+      range.insertNode(span);
+  
+      // Move cursor after the inserted span
+      const newRange = document.createRange();
+      newRange.setStartAfter(span);
+      newRange.setEndAfter(span);
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+    }
+  
+    // Update the block's content
+    handleContentChange();
+    popoverOpen.current = false;
   };
 
   const renderInputBlock = (icon: React.ReactNode, placeholder: string) => (
@@ -891,8 +908,8 @@ const CanvasTextBlock = ({
         <span className="truncate">{placeholder}</span>
       </div>
       {block.props?.variable && (
-        <div className="flex items-center gap-1.5 text-xs text-white/60">
-          Set
+        <div className="flex items-center gap-1.5 text-xs">
+           <span className='text-white/60'>Set</span>
           <Badge className="bg-indigo-500 text-white hover:bg-indigo-600 px-2 py-0.5">{block.props.variable}</Badge>
         </div>
       )}
@@ -963,45 +980,46 @@ const CanvasTextBlock = ({
         );
       case 'text':
         if (isSelected) {
-          return (
-            <div className="relative w-full">
-              <textarea
-                ref={textareaRef}
-                value={block.props?.content || ''}
-                onChange={handleTextChange}
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-                placeholder="Digite sua mensagem..."
-                className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8"
-                rows={3}
-              />
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]">
-                    <Braces size={14} />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-48 p-0 bg-[#262626] border-[#3f3f46] text-white">
-                  <Command>
-                    <CommandInput placeholder="Procurar variável..." className="h-9 text-white" />
-                    <CommandList>
-                      <CommandEmpty>Nenhuma variável encontrada.</CommandEmpty>
-                      <CommandGroup>
-                        {variables.map((variable) => (
-                          <CommandItem key={variable} value={variable} onSelect={() => handleVariableInsert(variable)}>
-                            {variable}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </div>
-          );
-        }
+            return (
+              <div className="relative w-full">
+                <div
+                  ref={editableDivRef}
+                  contentEditable
+                  suppressContentEditableWarning
+                  onInput={handleContentChange}
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  dangerouslySetInnerHTML={{ __html: block.props?.content || '' }}
+                  data-placeholder="Digite sua mensagem..."
+                  className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8 min-h-[40px] [&[data-placeholder]]:before:content-[attr(data-placeholder)] [&[data-placeholder]]:before:text-white/40 [&:not(:empty)]:before:hidden"
+                />
+                <Popover open={popoverOpen.current} onOpenChange={(isOpen) => popoverOpen.current = isOpen}>
+                  <PopoverTrigger asChild>
+                    <button className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]">
+                      <Braces size={14} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 p-0 bg-[#262626] border-[#3f3f46] text-white">
+                    <Command>
+                      <CommandInput placeholder="Procurar variável..." className="h-9 text-white" />
+                      <CommandList>
+                        <CommandEmpty>Nenhuma variável encontrada.</CommandEmpty>
+                        <CommandGroup>
+                          {variables.map((variable) => (
+                            <CommandItem key={variable} value={variable} onSelect={() => handleVariableInsert(variable)}>
+                              {variable}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            );
+          }
         if (block.props?.content) {
-          return <p className="text-sm text-white/80 whitespace-pre-wrap">{block.props.content}</p>;
+          return <div className="text-sm text-white/80 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: block.props.content }} />;
         }
         return (
           <div className="flex items-center gap-2">
@@ -1827,7 +1845,11 @@ export function TypebotEditor({
   connectionsRef.current = connections;
 
   const interpolateVariables = (text: string = '', vars: {[key:string]: any}) => {
-    return text.replace(/{{\s*(\w+)\s*}}/g, (_, key) => vars[key] || `{{${key}}}`);
+    // This regex will find all occurrences of {{variableName}}
+    // It captures 'variableName' which can be alphanumeric
+    return text.replace(/{{\s*(\w+)\s*}}/g, (_, key) => {
+        return vars[key] || `{{${key}}}`;
+    });
   };
 
   const processFlow = useCallback((blockId: number | 'start' | null, startIndex = 0) => {
@@ -1893,7 +1915,7 @@ export function TypebotEditor({
         const message: PreviewMessage = {
             id: Date.now() + Math.random(),
             sender: 'bot',
-            content: <p className="text-sm text-black whitespace-pre-wrap">{messageContent}</p>,
+            content: <p className="text-sm text-black whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: messageContent }} />,
         };
 
         setPreviewMessages((prev) => [...prev, message]);
@@ -1971,7 +1993,7 @@ export function TypebotEditor({
     return (
         <div key={message.id} className='flex justify-end'>
             <div className='bg-blue-600 text-white rounded-lg rounded-br-none p-3 max-w-[80%]'>
-                <p className='text-sm'>{message.content}</p>
+                <p className='text-sm'>{message.content as string}</p>
             </div>
         </div>
     )
