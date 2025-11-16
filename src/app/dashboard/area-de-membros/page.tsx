@@ -1,69 +1,173 @@
 'use client';
 
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { PlusCircle, BookUser, MoreVertical, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query, where, doc, deleteDoc } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Tv, Package, ArrowRight } from 'lucide-react';
 
-type MemberAreaType = 'netflix' | 'common';
-
-const memberAreaTypes = [
-  {
-    icon: <Tv className="h-8 w-8" />,
-    title: 'Estilo Netflix',
-    description: 'Um layout moderno e visual, perfeito para cursos em vídeo.',
-    type: 'netflix' as MemberAreaType,
-  },
-  {
-    icon: <Package className="h-8 w-8" />,
-    title: 'Área de Membros Comum',
-    description: 'Uma estrutura clássica e organizada para diversos tipos de conteúdo.',
-    type: 'common' as MemberAreaType,
-  },
-];
 
 export default function AreaDeMembrosPage() {
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
   const router = useRouter();
 
-  const handleTypeSelect = (type: MemberAreaType) => {
-    // Redireciona para a nova página de criação com o tipo como parâmetro de busca
-    router.push(`/dashboard/area-de-membros/novo?type=${type}`);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [areaToDelete, setAreaToDelete] = useState<string | null>(null);
+
+  const areasQuery = useMemoFirebase(
+    () =>
+      user && firestore
+        ? query(collection(firestore, 'memberAreas'), where('userId', '==', user.uid))
+        : null,
+    [firestore, user]
+  );
+
+  const { data: memberAreas, isLoading } = useCollection(areasQuery);
+
+  const openDeleteDialog = (areaId: string) => {
+    setAreaToDelete(areaId);
+    setIsDeleteDialogOpen(true);
   };
+
+  const handleDelete = async () => {
+    if (!areaToDelete || !firestore) return;
+
+    try {
+      const areaRef = doc(firestore, 'memberAreas', areaToDelete);
+      await deleteDoc(areaRef);
+      toast({
+        title: 'Área de membros excluída!',
+        description: 'Sua área de membros foi removida com sucesso.',
+      });
+    } catch (error) {
+      console.error("Error deleting member area: ", error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao excluir',
+        description: 'Não foi possível excluir a área de membros. Tente novamente.',
+      });
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setAreaToDelete(null);
+    }
+  };
+
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">
-          Qual estilo de Área de Membros você quer criar?
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          Escolha um modelo para organizar e entregar seu conteúdo.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">
+            Minhas Áreas de Membros 🚀
+          </h1>
+          <p className="mt-2 text-muted-foreground">
+            Crie e gerencie o conteúdo exclusivo para seus clientes.
+          </p>
+        </div>
+        <Button size="lg" asChild>
+          <Link href="/dashboard/area-de-membros/novo">
+            <PlusCircle className="mr-2 h-5 w-5" />
+            Criar Nova Área
+          </Link>
+        </Button>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {memberAreaTypes.map((area) => (
-          <button
-            onClick={() => handleTypeSelect(area.type)}
-            key={area.title}
-            className="block text-left"
-          >
-            <Card className="group h-full transform transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:border-primary">
-              <CardHeader className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    {area.icon}
-                  </div>
-                  <ArrowRight className="h-6 w-6 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-primary" />
-                </div>
-                <CardTitle className="text-xl font-bold">{area.title}</CardTitle>
-                <CardDescription className="mt-2 text-muted-foreground">
-                  {area.description}
-                </CardDescription>
-              </CardHeader>
+      {isLoading && <p>Carregando...</p>}
+
+      {!isLoading && memberAreas && memberAreas.length > 0 ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {memberAreas.map((area) => (
+             <Card key={area.id} className="group relative flex flex-col transition-all hover:shadow-lg hover:-translate-y-1">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100">
+                            <MoreVertical className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => router.push(`/dashboard/area-de-membros/editor/${area.id}`)}>
+                            Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                openDeleteDialog(area.id);
+                            }}
+                        >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Excluir
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+              <Link href={`/dashboard/area-de-membros/editor/${area.id}`} className="flex-grow">
+                <CardHeader>
+                  <CardTitle>{area.name}</CardTitle>
+                  <CardDescription>{area.type === 'netflix' ? 'Estilo Netflix' : 'Comum'}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Módulos: {area.modules?.length || 0}
+                  </p>
+                </CardContent>
+              </Link>
             </Card>
-          </button>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        !isLoading && (
+            <Card className="flex flex-col items-center justify-center py-20 border-dashed">
+            <div className="text-center">
+                <div className="flex justify-center mb-4">
+                <BookUser className="h-16 w-16 text-muted-foreground" />
+                </div>
+                <h3 className="text-xl font-semibold">Nenhuma área de membros por aqui ainda</h3>
+                <p className="text-muted-foreground mt-2 mb-6 max-w-sm">
+                Comece a construir seu espaço exclusivo. Crie sua primeira área e veja a mágica acontecer.
+                </p>
+                <Button asChild>
+                <Link href="/dashboard/area-de-membros/novo">
+                    <PlusCircle className="mr-2 h-5 w-5" />
+                    Criar Primeira Área
+                </Link>
+                </Button>
+            </div>
+            </Card>
+        )
+      )}
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. Isso excluirá permanentemente sua área de membros e todos os dados associados a ela.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Continuar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

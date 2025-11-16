@@ -1,25 +1,71 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { File, Sparkles, BookCopy, Folder } from 'lucide-react';
+import { File, Sparkles, BookCopy, Folder, ArrowLeft } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { useAuth, useFirestore, useUser } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 export default function NovaAreaDeMembrosPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const firestore = useFirestore();
+  const { user } = useUser();
+  const { toast } = useToast();
+
   const [workspaceName, setWorkspaceName] = useState('');
   const [description, setDescription] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+  const type = searchParams.get('type') || 'common';
 
-  const handleContinue = () => {
-    // Lógica para salvar e ir para a próxima etapa
-    console.log({ workspaceName, description });
-    // router.push('/dashboard/area-de-membros/novo/passo-2');
+  const handleContinue = async () => {
+    if (!workspaceName.trim() || !user) {
+      toast({
+        variant: 'destructive',
+        title: 'Nome é obrigatório',
+        description: 'Por favor, dê um nome para sua área de membros.',
+      });
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      const memberAreasCol = collection(firestore, 'memberAreas');
+      const newAreaDoc = await addDoc(memberAreasCol, {
+        name: workspaceName.trim(),
+        description: description.trim(),
+        type: type,
+        slug: generateSlug(workspaceName),
+        userId: user.uid,
+        createdAt: serverTimestamp(),
+        modules: [],
+      });
+      
+      toast({
+        title: 'Área de Membros Criada!',
+        description: 'Agora você pode começar a adicionar conteúdo.',
+      });
+      
+      // router.push(`/dashboard/area-de-membros/editor/${newAreaDoc.id}`);
+       router.push(`/dashboard/area-de-membros`);
+
+    } catch (error) {
+      console.error('Error creating member area: ', error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao criar',
+        description: 'Não foi possível criar a área de membros. Tente novamente.',
+      });
+      setIsCreating(false);
+    }
   };
 
   const generateSlug = (name: string) => {
@@ -33,38 +79,10 @@ export default function NovaAreaDeMembrosPage() {
   return (
     <div className="flex min-h-screen flex-col items-center bg-background text-foreground">
       <header className="flex w-full max-w-5xl items-center justify-between p-6">
-        <div className="flex items-center gap-2">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M12 2L2 7V17L12 22L22 17V7L12 2Z"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M2 7L12 12L22 7"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M12 22V12"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <span className="font-semibold">LaunchMe Members</span>
-        </div>
+         <Button variant="ghost" onClick={() => router.back()} className="gap-2">
+          <ArrowLeft className="h-4 w-4" />
+          Voltar
+        </Button>
       </header>
       <main className="w-full max-w-2xl flex-1 px-4 py-8">
         <div className="space-y-2 text-center">
@@ -72,7 +90,7 @@ export default function NovaAreaDeMembrosPage() {
             Informações básicas
           </h1>
           <p className="text-muted-foreground">
-            Forneça informações básicas sobre o seu workspace.
+            Forneça informações básicas sobre sua área de membros.
           </p>
         </div>
 
@@ -105,7 +123,7 @@ export default function NovaAreaDeMembrosPage() {
             <div className="flex items-center gap-2">
               <File className="h-5 w-5" />
               <Label htmlFor="workspaceName" className="text-base font-semibold">
-                Nome do workspace
+                Nome da área de membros
               </Label>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -131,11 +149,11 @@ export default function NovaAreaDeMembrosPage() {
               </Label>
             </div>
             <p className="text-sm text-muted-foreground">
-              Uma breve descrição do propósito do seu workspace (opcional).
+              Uma breve descrição do propósito da sua área de membros (opcional).
             </p>
             <Textarea
               id="description"
-              placeholder="Descreva o propósito deste workspace"
+              placeholder="Descreva o propósito deste espaço"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               maxLength={500}
@@ -150,7 +168,7 @@ export default function NovaAreaDeMembrosPage() {
              <div className="flex items-center gap-2">
               <BookCopy className="h-5 w-5" />
               <h3 className="text-base font-semibold">
-                Preview do workspace
+                Preview
               </h3>
             </div>
             <Card className="bg-card/50 p-6">
@@ -160,10 +178,10 @@ export default function NovaAreaDeMembrosPage() {
                     </div>
                     <div className="flex-1">
                         <h4 className={cn("font-bold text-lg", !workspaceName && 'text-muted-foreground/50')}>
-                            {workspaceName || 'Curso 01'}
+                            {workspaceName || 'Nome do Curso'}
                         </h4>
-                        <p className={cn("mt-1 text-sm text-muted-foreground", !description && 'italic')}>
-                            {description || 'Ola esse e meu curso'}
+                        <p className={cn("mt-1 text-sm text-muted-foreground", !description && 'italic text-muted-foreground/50')}>
+                            {description || 'Uma breve descrição sobre o que seus membros encontrarão aqui.'}
                         </p>
                         <p className="mt-4 text-xs text-green-400">
                           seudominio.com/{generateSlug(workspaceName)}
@@ -175,7 +193,9 @@ export default function NovaAreaDeMembrosPage() {
         </div>
 
         <div className="mt-12 flex justify-end">
-            <Button onClick={handleContinue}>Continuar</Button>
+            <Button onClick={handleContinue} disabled={isCreating}>
+                {isCreating ? 'Criando...' : 'Continuar'}
+            </Button>
         </div>
       </main>
     </div>

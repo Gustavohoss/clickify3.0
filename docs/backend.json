@@ -216,6 +216,25 @@
         }
       },
       "required": ["id", "name", "type", "userId", "createdAt", "steps"]
+    },
+     "MemberArea": {
+      "title": "MemberArea",
+      "type": "object",
+      "description": "Represents a user-created members area.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "description": { "type": "string" },
+        "type": { "type": "string", "enum": ["netflix", "common"] },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "modules": {
+          "type": "array",
+          "items": { "type": "object" }
+        }
+      },
+      "required": ["id", "name", "slug", "type", "userId", "createdAt"]
     }
   },
   "auth": {
@@ -305,6 +324,20 @@
             {
               "name": "funnelId",
               "description": "The unique identifier of the funnel."
+            }
+          ]
+        }
+      },
+       {
+        "path": "/memberAreas/{memberAreaId}",
+        "definition": {
+          "entityName": "MemberArea",
+          "schema": { "$ref": "#/backend/entities/MemberArea" },
+          "description": "Stores user-created member areas.",
+           "params": [
+            {
+              "name": "memberAreaId",
+              "description": "The unique identifier of the member area."
             }
           ]
         }
