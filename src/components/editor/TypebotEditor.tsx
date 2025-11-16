@@ -1255,7 +1255,7 @@ export function TypebotEditor({
   const [previewMessages, setPreviewMessages] = useState<PreviewMessage[]>([]);
   const [currentPreviewBlockId, setCurrentPreviewBlockId] = useState<number | 'start' | null>(null);
   const [userInput, setUserInput] = useState('');
-  const [previewVariables, setPreviewVariables] = useState<{[key: string]: any}>({});
+  const [previewVariables, setPreviewVariables] = useState<{[key:string]: any}>({});
   const [waitingForInput, setWaitingForInput] = useState<CanvasBlock | null>(null);
   const [draggingState, setDraggingState] = useState<{
     blockId: number | null;
@@ -1826,7 +1826,7 @@ export function TypebotEditor({
   connectionsRef.current = connections;
 
   const interpolateVariables = (text: string = '', vars: {[key:string]: any}) => {
-    return text.replace(/{{(\w+)}}/g, (_, key) => vars[key] || `{{${key}}}`);
+    return text.replace(/{{\s*(\w+)\s*}}/g, (_, key) => vars[key] || `{{${key}}}`);
   };
 
   const processFlow = useCallback((blockId: number | 'start' | null, startIndex = 0) => {
