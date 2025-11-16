@@ -11,12 +11,12 @@ import {
 import { Bar, BarChart as RechartsBarChart, XAxis, YAxis } from 'recharts';
 
 const chartData = [
-  { month: 'Jan', desktop: 186 },
-  { month: 'Feb', desktop: 305 },
-  { month: 'Mar', desktop: 237 },
-  { month: 'Apr', desktop: 73 },
-  { month: 'May', desktop: 209 },
-  { month: 'Jun', desktop: 214 },
+  { month: 'Jan', desktop: 0 },
+  { month: 'Feb', desktop: 0 },
+  { month: 'Mar', desktop: 0 },
+  { month: 'Apr', desktop: 0 },
+  { month: 'May', desktop: 0 },
+  { month: 'Jun', desktop: 0 },
 ];
 
 const chartConfig = {
@@ -45,8 +45,8 @@ export default function DashboardPage() {
             <BrainCircuit className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">5</div>
-            <p className="text-xs text-muted-foreground">+2 nesta semana</p>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">Nenhum produto criado ainda.</p>
           </CardContent>
         </Card>
         <Card>
@@ -55,8 +55,8 @@ export default function DashboardPage() {
             <Milestone className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2</div>
-            <p className="text-xs text-muted-foreground">+1 desde ontem</p>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">Nenhum funil ativo no momento.</p>
           </CardContent>
         </Card>
         <Card>
@@ -65,8 +65,8 @@ export default function DashboardPage() {
             <Bot className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">34</div>
-            <p className="text-xs text-muted-foreground">+12 nesta semana</p>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">Nenhuma ideia gerada ainda.</p>
           </CardContent>
         </Card>
       </div>
