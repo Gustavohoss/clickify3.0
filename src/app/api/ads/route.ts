@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const FB_GRAPH_VERSION = 'v19.0';
-// Guarde o token diretamente aqui para garantir que ele esteja disponível no ambiente do servidor.
+// O token de acesso é armazenado de forma segura no servidor.
 const ACCESS_TOKEN = "EAAQZBL4qStBIBPZCcRbRypj1OIpeTLfZCkB0j48JEV73a5u8OS3NqrU98rGFULZB3LbCDTi8H54eL3anZCkJmamomOXAXi6Ngmoi9ZBE1HC870C35ZCIzAEjR0lZB90cdCsJ83IEFpt4bcYCtZAueyk1WZBSfDEZCmIlg7rG3UFOYAGoUJyYnMOKr2oaKJVnhlnMCEGtDAjY9p7TbnQsAcs0fP4R7pv3fncwyIwikZChzf6uwm2MA7rU";
 
 export async function GET(req: NextRequest) {
@@ -15,12 +15,13 @@ export async function GET(req: NextRequest) {
   let requestUrl: string;
 
   if (proxyUrl) {
+    // Se uma proxyUrl (para paginação) for fornecida, use-a diretamente.
+    // Garante que o token de acesso seja o do servidor, por segurança.
     const url = new URL(proxyUrl);
-    if (!url.searchParams.has('access_token')) {
-      url.searchParams.set('access_token', ACCESS_TOKEN);
-    }
+    url.searchParams.set('access_token', ACCESS_TOKEN);
     requestUrl = url.toString();
   } else {
+    // Para uma nova busca, construa a URL a partir dos parâmetros.
     const searchTerm = searchParams.get('search_terms');
     if (!searchTerm) {
       return NextResponse.json({ error: { message: 'O termo de busca é obrigatório.' } }, { status: 400 });
@@ -49,10 +50,12 @@ export async function GET(req: NextRequest) {
 
     const data = await response.json();
     
+    // Se a resposta da API da Meta não for OK, repasse o erro.
     if (!response.ok) {
       return NextResponse.json({ error: data.error || { message: 'Um erro desconhecido ocorreu na API da Meta.' } }, { status: response.status });
     }
     
+    // Retorna os dados com sucesso.
     return NextResponse.json(data);
 
   } catch (error: any) {

@@ -15,7 +15,7 @@ export default function MineradorDeAnunciosPage() {
   const [nextPageUrl, setNextPageUrl] = useState<string | null>(null);
 
   const handleSearch = async (isNewSearch = true) => {
-    if (!searchTerm.trim()) {
+    if (!searchTerm.trim() && isNewSearch) {
       setError('Por favor, insira um termo de busca.');
       return;
     }
@@ -33,10 +33,10 @@ export default function MineradorDeAnunciosPage() {
       if (isNewSearch) {
         params.append('search_terms', searchTerm);
       } else if (nextPageUrl) {
-        // If it's not a new search, we use the proxyUrl param to pass the full next page URL
+        // Para paginação, usamos a proxyUrl para passar a URL completa para a nossa API.
         params.append('proxyUrl', nextPageUrl);
       } else {
-        // No next page URL and not a new search, do nothing.
+        // Não faz nada se não for uma nova busca e não houver próxima página.
         setIsLoading(false);
         return;
       }
@@ -112,7 +112,7 @@ export default function MineradorDeAnunciosPage() {
         </div>
       )}
 
-      {nextPageUrl && !isLoading && (
+      {nextPageUrl && (
         <div className="text-center mt-8">
             <Button onClick={() => handleSearch(false)} disabled={isLoading}>
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Carregar Mais'}
