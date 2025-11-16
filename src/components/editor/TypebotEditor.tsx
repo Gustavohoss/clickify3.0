@@ -871,7 +871,7 @@ const CanvasTextBlock = ({
   const handleVariableInsert = (variable: string) => {
     const editor = editableDivRef.current;
     if (!editor) return;
-  
+
     editor.focus();
     
     document.execCommand('insertHTML', false, `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`);
@@ -961,44 +961,45 @@ const CanvasTextBlock = ({
         if (isSelected) {
             return (
                 <div className="relative w-full">
-                <div
-                    ref={editableDivRef}
-                    contentEditable
-                    suppressContentEditableWarning
-                    onInput={handleContentChange}
-                    onClick={(e) => e.stopPropagation()}
-                    onMouseDown={(e) => {
-                      e.stopPropagation();
-                      if (document.activeElement !== editableDivRef.current) {
-                        editableDivRef.current?.focus();
-                      }
-                    }}
-                    dangerouslySetInnerHTML={{ __html: block.props?.content || '' }}
-                    data-placeholder="Digite sua mensagem..."
-                    className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8 min-h-[20px] [&[data-placeholder]]:before:content-[attr(data-placeholder)] [&[data-placeholder]]:before:text-white/40 [&:not(:empty)]:before:hidden"
-                />
-                <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-                    <PopoverTrigger asChild>
-                    <button className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]">
-                        <Braces size={14} />
-                    </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-48 p-0 bg-[#262626] border-[#3f3f46] text-white">
-                    <Command>
-                        <CommandInput placeholder="Procurar variável..." className="h-9 text-white" />
-                        <CommandList>
-                        <CommandEmpty>Nenhuma variável encontrada.</CommandEmpty>
-                        <CommandGroup>
-                            {variables.map((variable) => (
-                            <CommandItem key={variable} value={variable} onSelect={() => handleVariableInsert(variable)}>
-                                {variable}
-                            </CommandItem>
-                            ))}
-                        </CommandGroup>
-                        </CommandList>
-                    </Command>
-                    </PopoverContent>
-                </Popover>
+                    <div
+                        ref={editableDivRef}
+                        contentEditable
+                        suppressContentEditableWarning
+                        onInput={handleContentChange}
+                        onClick={(e) => e.stopPropagation()}
+                        onMouseDown={(e) => {
+                          e.stopPropagation();
+                          if (document.activeElement !== editableDivRef.current) {
+                            editableDivRef.current?.focus();
+                          }
+                        }}
+                        dangerouslySetInnerHTML={{ __html: block.props?.content || '' }}
+                        data-placeholder="Digite sua mensagem..."
+                        className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8 min-h-[20px] [&[data-placeholder]]:before:content-[attr(data-placeholder)] [&[data-placeholder]]:before:text-white/40 [&:not(:empty)]:before:hidden"
+                    />
+
+                    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+                        <PopoverTrigger asChild>
+                        <button className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]">
+                            <Braces size={14} />
+                        </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-48 p-0 bg-[#262626] border-[#3f3f46] text-white">
+                        <Command>
+                            <CommandInput placeholder="Procurar variável..." className="h-9 text-white" />
+                            <CommandList>
+                            <CommandEmpty>Nenhuma variável encontrada.</CommandEmpty>
+                            <CommandGroup>
+                                {variables.map((variable) => (
+                                <CommandItem key={variable} value={variable} onSelect={() => handleVariableInsert(variable)}>
+                                    {variable}
+                                </CommandItem>
+                                ))}
+                            </CommandGroup>
+                            </CommandList>
+                        </Command>
+                        </PopoverContent>
+                    </Popover>
                 </div>
             );
         }
@@ -1895,13 +1896,13 @@ export function TypebotEditor({
         );
         
         setPreviewMessages((prev) => [
-            ...prev,
-            {
-              id: Date.now() + Math.random(),
-              sender: 'bot',
-              content: <div className="text-sm text-black whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: interpolatedContent }} />,
-            },
-          ]);
+          ...prev,
+          {
+            id: Date.now() + Math.random(),
+            sender: 'bot',
+            content: <div dangerouslySetInnerHTML={{ __html: interpolatedContent }} />,
+          },
+        ]);
     }
 
     if (!isWaiting) {
@@ -1967,7 +1968,7 @@ export function TypebotEditor({
                     <AvatarImage src='' alt='Bot' />
                     <AvatarFallback>B</AvatarFallback>
                 </Avatar>
-                <div className='bg-gray-100 rounded-lg rounded-tl-none p-3 max-w-[80%]'>
+                <div className='bg-gray-100 rounded-lg rounded-tl-none p-3 max-w-[80%] text-black'>
                    {message.content}
                 </div>
             </div>
