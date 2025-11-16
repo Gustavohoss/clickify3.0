@@ -1012,13 +1012,13 @@ export function TypebotEditor({
 
     if (!canvasRef.current) return;
     const canvasRect = canvasRef.current.getBoundingClientRect();
-    const x = (e.clientX - canvasRect.left) / zoom;
-    const y = (e.clientY - canvasRect.top) / zoom;
+    const x = (e.clientX - canvasRect.left);
+    const y = (e.clientY - canvasRect.top);
     
     setContextMenu({
       visible: true,
-      x,
-      y,
+      x: x,
+      y: y,
       blockId: block.id,
     });
   };
@@ -1779,6 +1779,14 @@ export function TypebotEditor({
                     );
                 })}
             </div>
+            {contextMenu.visible && (
+              <ContextMenu
+                x={contextMenu.x}
+                y={contextMenu.y}
+                onDuplicate={handleDuplicateFromMenu}
+                onDelete={handleDeleteFromMenu}
+              />
+            )}
             {selectedBlock && selectedBlock.type === 'image' && <ImageBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {selectedBlock && selectedBlock.type === 'video' && <VideoBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {selectedBlock && selectedBlock.type === 'audio' && <AudioBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
@@ -1790,14 +1798,6 @@ export function TypebotEditor({
                     variables={variables}
                     onAddVariable={(newVar) => setVariables((prev) => [...prev, newVar])}
                 />
-            )}
-            {contextMenu.visible && (
-              <ContextMenu
-                x={contextMenu.x + panOffset.x/zoom}
-                y={contextMenu.y + panOffset.y/zoom}
-                onDuplicate={handleDuplicateFromMenu}
-                onDelete={handleDeleteFromMenu}
-              />
             )}
           </div>
         </main>
