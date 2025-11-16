@@ -10,6 +10,7 @@ import {
   BarChart,
   Settings,
   LogOut,
+  Diamond,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/landing/logo';
@@ -20,6 +21,7 @@ const navLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/produtos', label: 'Produtos', icon: ShoppingBag },
   { href: '/dashboard/funis', label: 'Funis', icon: Milestone },
+  { href: '/dashboard/minerador-de-ofertas', label: 'Minerador de Ofertas', icon: Diamond },
   { href: '/dashboard/social', label: 'Social', icon: Users },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart },
   { href: '/dashboard/configuracoes', label: 'Configurações', icon: Settings },
