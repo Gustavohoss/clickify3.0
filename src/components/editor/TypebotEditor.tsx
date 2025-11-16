@@ -689,17 +689,6 @@ const CanvasTextBlock = ({
       )}
 
       <div className={cn('w-full rounded-lg', !isChild && 'bg-[#262626] p-3', isChild && 'relative')}>
-        {isChild && onDelete && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 text-white/40 opacity-0 group-hover:opacity-100"
-            onClick={onDelete}
-          >
-            <Trash2 size={12} />
-          </Button>
-        )}
-
         <div
           className={cn(
             'flex items-center justify-between rounded-md bg-[#181818] p-2 min-h-[40px]',
