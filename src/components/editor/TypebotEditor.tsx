@@ -874,8 +874,7 @@ const CanvasTextBlock = ({
   
     editor.focus();
     
-    const htmlToInsert = `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`;
-    document.execCommand('insertHTML', false, htmlToInsert);
+    document.execCommand('insertHTML', false, `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`);
     
     handleContentChange();
     setIsPopoverOpen(false);
@@ -968,7 +967,13 @@ const CanvasTextBlock = ({
                     suppressContentEditableWarning
                     onInput={handleContentChange}
                     onClick={(e) => e.stopPropagation()}
-                    onMouseDown={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      // This ensures that clicking doesn't trigger the block drag
+                      if (document.activeElement !== editableDivRef.current) {
+                        editableDivRef.current?.focus();
+                      }
+                    }}
                     dangerouslySetInnerHTML={{ __html: block.props?.content || '' }}
                     data-placeholder="Digite sua mensagem..."
                     className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8 min-h-[20px] [&[data-placeholder]]:before:content-[attr(data-placeholder)] [&[data-placeholder]]:before:text-white/40 [&:not(:empty)]:before:hidden"
@@ -1023,7 +1028,7 @@ const CanvasTextBlock = ({
       className={cn('group w-full cursor-grab select-none', !isChild && 'absolute w-72')}
       style={!isChild ? { transform: `translate(${block.position.x}px, ${block.position.y}px)` } : {}}
       onMouseDown={(e) => {
-        if (e.button !== 0) return;
+        if (e.button !== 0 || (isSelected && e.target === editableDivRef.current)) return;
         onBlockMouseDown(e, block);
       }}
       onContextMenu={(e) => onContextMenu(e, block)}
@@ -1253,7 +1258,7 @@ export function TypebotEditor({
   const [previewMessages, setPreviewMessages] = useState<PreviewMessage[]>([]);
   const [currentPreviewBlockId, setCurrentPreviewBlockId] = useState<number | 'start' | null>(null);
   const [userInput, setUserInput] = useState('');
-  const [previewVariables, setPreviewVariables] = useState<{[key:string]: any}>({});
+  
   const [waitingForInput, setWaitingForInput] = useState<CanvasBlock | null>(null);
   const [draggingState, setDraggingState] = useState<{
     blockId: number | null;
@@ -1271,6 +1276,8 @@ export function TypebotEditor({
     originalBlock: null
   });
   const [dropIndicator, setDropIndicator] = useState<DropIndicator>(null);
+
+  const previewVariablesRef = useRef<{[key:string]: any}>({});
   
   const addBlock = (type: string) => {
     if (!canvasRef.current) return;
@@ -1401,38 +1408,38 @@ export function TypebotEditor({
 
   const blocks = {
     "Bolhas": [
-      { name: 'Texto', icon: <MessageCircle size={16} />, type: 'text', color: 'text-sky-400' },
-      { name: 'Imagem', icon: <ImageIconLucide size={16} />, type: 'image', color: 'text-sky-400' },
-      { name: 'Vídeo', icon: <Video size={16} />, type: 'video', color: 'text-sky-400' },
-      { name: 'Embutir', icon: <Code2 size={16} />, type: 'embed', color: 'text-sky-400' },
-      { name: 'Áudio', icon: <AudioWaveform size={16} />, type: 'audio', color: 'text-sky-400' },
+        { name: 'Texto', icon: <MessageCircle size={16} />, type: 'text', color: 'text-sky-400' },
+        { name: 'Imagem', icon: <ImageIconLucide size={16} />, type: 'image', color: 'text-sky-400' },
+        { name: 'Vídeo', icon: <Video size={16} />, type: 'video', color: 'text-sky-400' },
+        { name: 'Embutir', icon: <Code2 size={16} />, type: 'embed', color: 'text-sky-400' },
+        { name: 'Áudio', icon: <AudioWaveform size={16} />, type: 'audio', color: 'text-sky-400' },
     ],
     "Entradas": [
-      { name: 'Texto', icon: <TextCursorInput size={16} />, type: 'input-text', color: 'text-orange-400' },
-      { name: 'Número', icon: <span className="font-bold">7</span>, type: 'input-number', color: 'text-orange-400' },
-      { name: 'Email', icon: <AtSign size={16} />, type: 'input-email', color: 'text-orange-400' },
-      { name: 'Website', icon: <Link2 size={16} />, type: 'input-website', color: 'text-orange-400' },
-      { name: 'Data', icon: <Calendar size={16} />, type: 'input-date', color: 'text-orange-400' },
-      { name: 'Hora', icon: <Clock size={16} />, type: 'input-time', color: 'text-orange-400' },
-      { name: 'Telefone', icon: <Phone size={16} />, type: 'input-phone', color: 'text-orange-400' },
-      { name: 'Botões', icon: <CheckSquare2 size={16} />, type: 'input-buttons', color: 'text-orange-400' },
-      { name: 'Escolha de Imagem', icon: <PictureInPicture size={16} />, type: 'input-pic', color: 'text-orange-400' },
-      { name: 'Pagamento', icon: <CreditCard size={16} />, type: 'input-payment', color: 'text-orange-400' },
-      { name: 'Avaliação', icon: <StarHalf size={16} />, type: 'input-rating', color: 'text-orange-400' },
-      { name: 'Arquivo', icon: <UploadCloud size={16} />, type: 'input-file', color: 'text-orange-400' },
-      { name: 'Cartões', icon: <GanttChart size={16} />, type: 'input-cards', color: 'text-orange-400' },
+        { name: 'Texto', icon: <TextCursorInput size={16} />, type: 'input-text', color: 'text-orange-400' },
+        { name: 'Número', icon: <span className="font-bold">7</span>, type: 'input-number', color: 'text-orange-400' },
+        { name: 'Email', icon: <AtSign size={16} />, type: 'input-email', color: 'text-orange-400' },
+        { name: 'Website', icon: <Link2 size={16} />, type: 'input-website', color: 'text-orange-400' },
+        { name: 'Data', icon: <Calendar size={16} />, type: 'input-date', color: 'text-orange-400' },
+        { name: 'Hora', icon: <Clock size={16} />, type: 'input-time', color: 'text-orange-400' },
+        { name: 'Telefone', icon: <Phone size={16} />, type: 'input-phone', color: 'text-orange-400' },
+        { name: 'Botões', icon: <CheckSquare2 size={16} />, type: 'input-buttons', color: 'text-orange-400' },
+        { name: 'Escolha de Imagem', icon: <PictureInPicture size={16} />, type: 'input-pic', color: 'text-orange-400' },
+        { name: 'Pagamento', icon: <CreditCard size={16} />, type: 'input-payment', color: 'text-orange-400' },
+        { name: 'Avaliação', icon: <StarHalf size={16} />, type: 'input-rating', color: 'text-orange-400' },
+        { name: 'Arquivo', icon: <UploadCloud size={16} />, type: 'input-file', color: 'text-orange-400' },
+        { name: 'Cartões', icon: <GanttChart size={16} />, type: 'input-cards', color: 'text-orange-400' },
     ],
     "Lógica": [
-      { name: 'Definir variável', icon: <Variable size={16} />, type: 'logic-variable', color: 'text-indigo-400' },
-      { name: 'Condição', icon: <GitBranch size={16} />, type: 'logic-condition', color: 'text-indigo-400' },
-      { name: 'Redirecionar', icon: <ArrowRightLeft size={16} />, type: 'logic-redirect', color: 'text-indigo-400' },
-      { name: 'Script', icon: <FileCode size={16} />, type: 'logic-script', color: 'text-indigo-400' },
-      { name: 'Typebot', icon: <Bot size={16} />, type: 'logic-typebot', color: 'text-indigo-400' },
-      { name: 'Aguardar', icon: <Clock10 size={16} />, type: 'logic-wait', color: 'text-indigo-400' },
-      { name: 'Teste A/B', icon: <GitCompareArrows size={16} />, type: 'logic-abtest', color: 'text-indigo-400' },
-      { name: 'Webhook', icon: <Webhook size={16} />, type: 'logic-webhook', color: 'text-indigo-400' },
-      { name: 'Pular para', icon: <GitCommit size={16} />, type: 'logic-jump', color: 'text-indigo-400' },
-      { name: 'Retornar', icon: <GitPullRequest size={16} />, type: 'logic-return', color: 'text-indigo-400' },
+        { name: 'Definir variável', icon: <Variable size={16} />, type: 'logic-variable', color: 'text-indigo-400' },
+        { name: 'Condição', icon: <GitBranch size={16} />, type: 'logic-condition', color: 'text-indigo-400' },
+        { name: 'Redirecionar', icon: <ArrowRightLeft size={16} />, type: 'logic-redirect', color: 'text-indigo-400' },
+        { name: 'Script', icon: <FileCode size={16} />, type: 'logic-script', color: 'text-indigo-400' },
+        { name: 'Typebot', icon: <Bot size={16} />, type: 'logic-typebot', color: 'text-indigo-400' },
+        { name: 'Aguardar', icon: <Clock10 size={16} />, type: 'logic-wait', color: 'text-indigo-400' },
+        { name: 'Teste A/B', icon: <GitCompareArrows size={16} />, type: 'logic-abtest', color: 'text-indigo-400' },
+        { name: 'Webhook', icon: <Webhook size={16} />, type: 'logic-webhook', color: 'text-indigo-400' },
+        { name: 'Pular para', icon: <GitCommit size={16} />, type: 'logic-jump', color: 'text-indigo-400' },
+        { name: 'Retornar', icon: <GitPullRequest size={16} />, type: 'logic-return', color: 'text-indigo-400' },
     ],
     "Grupos": [{ name: 'Grupo', icon: <Combine size={16} />, type: 'group', color: 'text-gray-400' }],
   };
@@ -1823,13 +1830,13 @@ export function TypebotEditor({
   const connectionsRef = useRef(connections);
   connectionsRef.current = connections;
 
-  const interpolateVariables = useCallback((text: string = '', vars: {[key:string]: any}) => {
+  const interpolateVariables = useCallback((text: string = '') => {
     return text.replace(/{{\s*(\w+)\s*}}/g, (_, key) => {
-        return vars[key] || `{{${key}}}`;
+        return previewVariablesRef.current[key] || `{{${key}}}`;
     });
   }, []);
 
-  const processFlow = useCallback((blockId: number | 'start' | null, startIndex = 0, currentVars: any) => {
+  const processFlow = useCallback((blockId: number | 'start' | null, startIndex = 0) => {
     if (blockId === null) {
         setWaitingForInput(null);
         return;
@@ -1870,7 +1877,7 @@ export function TypebotEditor({
             const duration = child.props.duration || 0;
             if (duration > 0) {
                  setTimeout(() => {
-                    processFlow(currentBlockId, startIndex + i + 1, currentVars);
+                    processFlow(currentBlockId, startIndex + i + 1);
                 }, duration * 1000);
                 isWaiting = true;
                 break;
@@ -1886,7 +1893,6 @@ export function TypebotEditor({
         
         const interpolatedContent = interpolateVariables(
             child.props.content,
-            currentVars
         );
         
         setPreviewMessages((prev) => [
@@ -1902,7 +1908,7 @@ export function TypebotEditor({
     if (!isWaiting) {
         const nextGroupId = connectionsRef.current.find((c) => c.from === currentBlockId)?.to;
         if (nextGroupId) {
-            setTimeout(() => processFlow(nextGroupId, 0, currentVars), 500);
+            setTimeout(() => processFlow(nextGroupId, 0), 500);
         } else {
             setWaitingForInput(null);
         }
@@ -1911,10 +1917,10 @@ export function TypebotEditor({
 
   const startPreview = useCallback(() => {
     setPreviewMessages([]);
-    setPreviewVariables({});
+    previewVariablesRef.current = {};
     setWaitingForInput(null);
     setCurrentPreviewBlockId('start');
-    processFlow('start', 0, {});
+    processFlow('start', 0);
   }, [processFlow]);
 
   useEffect(() => {
@@ -1928,11 +1934,9 @@ export function TypebotEditor({
   
     setPreviewMessages(prev => [...prev, { id: Date.now(), sender: 'user', content: userInput }]);
   
-    const newVars = { ...previewVariables };
     if (waitingForInput.props.variable) {
-        newVars[waitingForInput.props.variable] = userInput;
+        previewVariablesRef.current[waitingForInput.props.variable] = userInput;
     }
-    setPreviewVariables(newVars);
     
     const lastBlockId = currentPreviewBlockId;
     const lastInputBlock = waitingForInput;
@@ -1944,7 +1948,7 @@ export function TypebotEditor({
       if (parentBlock && parentBlock.children) {
         const lastInputIndex = parentBlock.children.findIndex(c => c.id === lastInputBlock.id);
         if (lastInputIndex !== -1) {
-            processFlow(lastBlockId, lastInputIndex + 1, newVars);
+            processFlow(lastBlockId, lastInputIndex + 1);
             return;
         }
       }
@@ -1952,7 +1956,7 @@ export function TypebotEditor({
   
     const nextGroupId = connectionsRef.current.find(c => c.from === lastBlockId)?.to;
     if (nextGroupId) {
-      processFlow(nextGroupId, 0, newVars);
+      processFlow(nextGroupId, 0);
     }
   };
 
