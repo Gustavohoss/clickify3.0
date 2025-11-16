@@ -41,7 +41,7 @@ export default function ConfirmacaoWorkspacePage() {
       title: 'Workspace Criado com Sucesso!',
       description: 'Seu novo espaço está pronto para ser explorado.',
     });
-    router.push('/dashboard/area-de-membros');
+    router.push(`/dashboard/area-de-membros/editor/${areaId}`);
   };
 
   return (
