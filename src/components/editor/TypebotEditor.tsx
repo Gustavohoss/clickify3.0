@@ -921,7 +921,7 @@ export function TypebotEditor({
     y: number;
     blockId: number | null;
   }>({ visible: false, x: 0, y: 0, blockId: null });
-  const [variables, setVariables] = useState<string[]>(['Nome', 'Email']);
+  const [variables, setVariables] = useState<string[]>([]);
   const [connections, setConnections] = useState<CanvasConnection[]>([]);
   const [drawingConnection, setDrawingConnection] = useState<any>(null);
 
