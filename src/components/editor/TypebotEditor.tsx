@@ -893,6 +893,22 @@ export function TypebotEditor({
   const [userInput, setUserInput] = useState('');
   const [previewVariables, setPreviewVariables] = useState<{[key: string]: any}>({});
   const [waitingForInput, setWaitingForInput] = useState<CanvasBlock | null>(null);
+  const [draggingState, setDraggingState] = useState<{
+    blockId: number | null;
+    isDragging: boolean;
+    isReadyToDrag: boolean;
+    dragStartMouse: { x: number, y: number };
+    dragStartOffset: { x: number, y: number };
+    originalBlock: CanvasBlock | null;
+  }>({
+    blockId: null,
+    isDragging: false,
+    isReadyToDrag: false,
+    dragStartMouse: { x: 0, y: 0 },
+    dragStartOffset: { x: 0, y: 0 },
+    originalBlock: null
+  });
+  const [dropIndicator, setDropIndicator] = useState<DropIndicator>(null);
   
   const addBlock = (type: string) => {
     if (!canvasRef.current) return;
@@ -996,13 +1012,13 @@ export function TypebotEditor({
 
     if (!canvasRef.current) return;
     const canvasRect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - canvasRect.left;
-    const y = e.clientY - canvasRect.top;
+    const x = (e.clientX - canvasRect.left) / zoom;
+    const y = (e.clientY - canvasRect.top) / zoom;
     
     setContextMenu({
       visible: true,
-      x: x / zoom + panOffset.x,
-      y: y / zoom + panOffset.y,
+      x,
+      y,
       blockId: block.id,
     });
   };
@@ -1376,16 +1392,16 @@ export function TypebotEditor({
         if (startNode) {
             const rect = startNode.getBoundingClientRect();
             startPos = {
-                x: (rect.right - canvasRect.left - panOffset.x) / zoom,
-                y: (rect.top + rect.height / 2 - canvasRect.top - panOffset.y) / zoom,
+                x: (rect.right - canvasRect.left) / zoom, 
+                y: (rect.top + rect.height / 2 - canvasRect.top) / zoom, 
             };
         }
     } else {
         const block = findBlock(fromBlockId as number);
         if (block) {
             startPos = {
-                x: block.position.x + 288, // 288 is width of block
-                y: block.position.y + (36 / 2), // Approx half height of title
+                x: block.position.x + 288 + panOffset.x / zoom, // 288 is width of block
+                y: block.position.y + (36 / 2) + panOffset.y / zoom, // Approx half height of title
             };
         }
     }
@@ -1394,7 +1410,7 @@ export function TypebotEditor({
         setDrawingConnection({
             fromBlockId,
             fromHandle,
-            from: startPos,
+            from: {x: startPos.x - panOffset.x/zoom, y: startPos.y - panOffset.y/zoom},
             to: { x: startPos.x, y: startPos.y },
         });
     }
@@ -1653,7 +1669,7 @@ export function TypebotEditor({
               style={{
                 width: `calc(100% / ${zoom})`,
                 height: `calc(100% / ${zoom})`,
-                transform: `translate(${panOffset.x}px, ${panOffset.y}px)`,
+                transform: `translate(${panOffset.x/zoom}px, ${panOffset.y/zoom}px)`,
               }}
             >
               <defs>
@@ -1671,17 +1687,17 @@ export function TypebotEditor({
                         const rect = startNode.getBoundingClientRect();
                         const canvasRect = canvasRef.current!.getBoundingClientRect();
                         startPos = { 
-                            x: (rect.right - canvasRect.left) / zoom - panOffset.x/zoom, 
-                            y: (rect.top + rect.height / 2 - canvasRect.top) / zoom - panOffset.y/zoom 
+                            x: (rect.right - canvasRect.left) / zoom, 
+                            y: (rect.top + rect.height / 2 - canvasRect.top) / zoom 
                         };
                     }
                 } else {
                     const fromBlock = findBlock(conn.from as number);
-                    if(fromBlock) startPos = { x: fromBlock.position.x + 288, y: fromBlock.position.y + 36 / 2 };
+                    if(fromBlock) startPos = { x: fromBlock.position.x + 288 + panOffset.x/zoom, y: fromBlock.position.y + 36 / 2 + panOffset.y/zoom };
                 }
 
                 if(toBlock) {
-                    endPos = { x: toBlock.position.x, y: toBlock.position.y + 36 / 2 };
+                    endPos = { x: toBlock.position.x + panOffset.x/zoom, y: toBlock.position.y + 36 / 2 + panOffset.y/zoom };
                 }
 
                 if (startPos && endPos) {
@@ -1777,8 +1793,8 @@ export function TypebotEditor({
             )}
             {contextMenu.visible && (
               <ContextMenu
-                x={contextMenu.x}
-                y={contextMenu.y}
+                x={contextMenu.x + panOffset.x/zoom}
+                y={contextMenu.y + panOffset.y/zoom}
                 onDuplicate={handleDuplicateFromMenu}
                 onDelete={handleDeleteFromMenu}
               />
