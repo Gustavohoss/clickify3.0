@@ -45,6 +45,7 @@ export default function MineradorDeAnunciosPage() {
       const data = await response.json();
       
       if (!response.ok) {
+        // Agora o erro da API será lido da estrutura padronizada
         throw new Error(data.error?.message || 'Ocorreu um erro ao buscar os anúncios.');
       }
 

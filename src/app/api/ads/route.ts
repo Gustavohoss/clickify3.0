@@ -14,12 +14,10 @@ export async function GET(req: NextRequest) {
   let requestUrl: string;
 
   if (proxyUrl) {
-    // Para paginação, a URL completa já é fornecida. Apenas garantimos que o nosso token seja usado.
     const url = new URL(proxyUrl);
     url.searchParams.set('access_token', ACCESS_TOKEN);
     requestUrl = url.toString();
   } else {
-    // Para uma nova busca, construímos a URL a partir dos parâmetros.
     const searchTerm = searchParams.get('search_terms');
     if (!searchTerm) {
       return NextResponse.json({ error: { message: 'O termo de busca é obrigatório.' } }, { status: 400 });
@@ -50,7 +48,9 @@ export async function GET(req: NextRequest) {
     
     if (!response.ok) {
       console.error('Erro da API da Meta:', data);
-      return NextResponse.json({ error: data.error || { message: 'Um erro desconhecido ocorreu na API da Meta.' } }, { status: response.status });
+      // Garante que a resposta de erro sempre tenha a estrutura { error: { message: '...' } }
+      const errorMessage = data.error?.message || 'Um erro desconhecido ocorreu na API da Meta.';
+      return NextResponse.json({ error: { message: errorMessage } }, { status: response.status });
     }
     
     return NextResponse.json(data);
