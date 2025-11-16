@@ -282,7 +282,7 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
           if (dropIndicator) { // Case 1: Dropped into a group
             setCanvasBlocks(prevBlocks => {
               // Remove the temporary dragging block
-              const blocksWithoutTemp = prevBlocks.filter(b => b.id !== draggedBlock.id);
+              let blocksWithoutTemp = prevBlocks.filter(b => b.id !== draggedBlock.id);
               
               const newBlocks = blocksWithoutTemp.map(b => {
                 if (b.id === dropIndicator.groupId) {
@@ -297,6 +297,7 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
           } else { // Case 2: Dropped on the canvas
             if (draggedBlock.type === 'group') {
                 // It's a group, just update its position (already done during drag)
+                 setCanvasBlocks(prevBlocks => prevBlocks.map(b => b.id === draggedBlock.id ? {...b, position: tempDraggedBlock.position} : b));
             } else {
                 // It's a child element, create a new group for it
                 setCanvasBlocks(prevBlocks => {
@@ -331,8 +332,14 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
     const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
       if (e.buttons === 0) { // Check if mouse button is not pressed
         setIsPanning(false);
-        if (draggingState.isDragging) {
-           // Handle cancellation of drag if needed
+        if (draggingState.isDragging && draggingState.originalBlock) {
+             setCanvasBlocks(prevBlocks => {
+                const existingBlockIndex = prevBlocks.findIndex(b => b.id === draggingState.originalBlock!.id);
+                if (existingBlockIndex !== -1) {
+                    return prevBlocks.map(b => b.id === draggingState.originalBlock!.id ? draggingState.originalBlock! : b);
+                }
+                return [...prevBlocks, draggingState.originalBlock!];
+            });
         }
         setDraggingState({ blockId: null, isDragging: false, dragStartMouse: { x: 0, y: 0 }, dragStartOffset: { x: 0, y: 0 }, originalBlock: null });
         setDropIndicator(null);
@@ -347,7 +354,8 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
             const dx = (e.clientX - startPanPosition.current.x);
             const dy = (e.clientY - startPanPosition.current.y);
             setPanOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
-            // No need to update startPanPosition here as it's relative to the whole drag
+            // We update the start position for the next move event to get a delta
+            startPanPosition.current = { x: e.clientX, y: e.clientY };
             return;
         } 
         
@@ -428,44 +436,38 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
         e.stopPropagation();
         
         let blockToDrag = block;
-        let originalParentId: number | null | undefined = block.parentId;
         let originalBlockForState = {...block};
+        let isChild = !!block.parentId;
     
-        if (originalParentId) {
+        if (isChild) {
           setCanvasBlocks(prevBlocks => {
-            let parent;
-            let childIndex = -1;
-            
-            const newBlocks = [...prevBlocks];
-            const parentIndex = newBlocks.findIndex(p => p.id === originalParentId);
+            const parent = prevBlocks.find(p => p.id === block.parentId);
+            if (!parent) return prevBlocks;
     
-            if (parentIndex > -1) {
-              parent = { ...newBlocks[parentIndex] };
-              childIndex = parent.children?.findIndex(c => c.id === block.id) ?? -1;
+            const childRect = document.getElementById(`block-${block.id}`)?.getBoundingClientRect();
+            const canvasRect = canvasRef.current!.getBoundingClientRect();
+  
+            if (childRect && canvasRect) {
+              const absolutePosition = {
+                x: (childRect.left - canvasRect.left - panOffset.x) / zoom,
+                y: (childRect.top - canvasRect.top - panOffset.y) / zoom,
+              };
     
-              if (childIndex > -1) {
-                const childRect = document.getElementById(`block-${block.id}`)?.getBoundingClientRect();
-                const canvasRect = canvasRef.current!.getBoundingClientRect();
-      
-                if (childRect && canvasRect) {
-                  const absolutePosition = {
-                    x: (childRect.left - canvasRect.left - panOffset.x) / zoom,
-                    y: (childRect.top - canvasRect.top - panOffset.y) / zoom,
-                  };
-      
-                  // Create a new representation of the block at the root level for dragging
-                  blockToDrag = { ...block, parentId: null, position: absolutePosition };
-                  
-                  // Remove from parent's children array
-                  parent.children = parent.children?.filter(c => c.id !== block.id);
-                  newBlocks[parentIndex] = parent;
-                  newBlocks.push(blockToDrag);
-                  
-                  return newBlocks;
-                }
-              }
+              // Create a new representation of the block at the root level for dragging
+              blockToDrag = { ...block, parentId: null, position: absolutePosition };
+              
+              // Remove from parent's children array and add the new draggable block to the root
+              const newBlocks = prevBlocks
+                  .map(p => 
+                      p.id === parent.id 
+                          ? { ...p, children: p.children?.filter(c => c.id !== block.id) } 
+                          : p
+                  )
+                  .concat(blockToDrag);
+              
+              return newBlocks;
             }
-            return prevBlocks; // Return original if something fails
+            return prevBlocks;
           });
         }
     
@@ -636,6 +638,7 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
                     dropIndicator={dropIndicator}
                     allBlocks={canvasBlocks}
                     deleteBlock={deleteBlock}
+                    selectedBlockId={selectedBlockId}
                   />
                 );
               })}
@@ -657,7 +660,8 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
     setSelectedBlockId,
     dropIndicator,
     allBlocks,
-    deleteBlock
+    deleteBlock,
+    selectedBlockId
   }: {
     block: CanvasBlock;
     groupIndex: number;
@@ -669,6 +673,7 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
     dropIndicator: DropIndicator;
     allBlocks: CanvasBlock[];
     deleteBlock: (id: number) => void;
+    selectedBlockId: number | null;
   }) => (
     <div
       id={`block-${block.id}`}
