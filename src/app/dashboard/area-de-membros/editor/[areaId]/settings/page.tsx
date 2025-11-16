@@ -89,10 +89,10 @@ export default function WorkspaceSettingsPage() {
     }
   }, [areaData]);
   
-  const addMenuItem = (name: string, url: string) => {
+  const addMenuItem = (name: string, url: string, icon: string) => {
     const newItem: MenuItem = {
       id: Date.now(),
-      icon: '📊',
+      icon: icon,
       name: name,
       url: url,
     };
@@ -318,15 +318,15 @@ export default function WorkspaceSettingsPage() {
                 <p className="mt-1 text-sm text-muted-foreground">
                   Adicione itens de menu para criar navegação para sua área de membros.
                 </p>
-                <Button variant="outline" className="mt-6" onClick={() => addMenuItem('Dashboard', '/dashboard')}>
+                <Button variant="outline" className="mt-6" onClick={() => addMenuItem('Dashboard', '/dashboard', '📊')}>
                   <Plus className="mr-2 h-4 w-4" />
                   Adicionar Primeiro
                 </Button>
                 <div className="mt-4 flex flex-wrap justify-center gap-2">
-                  <Button variant="outline" onClick={() => addMenuItem('Dashboard', '/dashboard')}>Dashboard</Button>
-                  <Button variant="outline" onClick={() => addMenuItem('Meus Cursos', '/my-courses')}>Meus Cursos</Button>
-                  <Button variant="outline" onClick={() => addMenuItem('Comunidade', '/community')}>Comunidade</Button>
-                  <Button variant="outline" onClick={() => addMenuItem('Suporte', '/support')}>Suporte</Button>
+                  <Button variant="outline" onClick={() => addMenuItem('Dashboard', '/dashboard', '📊')}>Dashboard</Button>
+                  <Button variant="outline" onClick={() => addMenuItem('Meus Cursos', '/my-courses', '📚')}>Meus Cursos</Button>
+                  <Button variant="outline" onClick={() => addMenuItem('Comunidade', '/community', '👥')}>Comunidade</Button>
+                  <Button variant="outline" onClick={() => addMenuItem('Suporte', '/support', '❓')}>Suporte</Button>
                 </div>
               </div>
             ) : (
@@ -334,8 +334,8 @@ export default function WorkspaceSettingsPage() {
                 {menuItems.map((item, index) => (
                   <div key={item.id} className='space-y-3 rounded-lg border p-4'>
                      <div className="flex items-center gap-2">
-                      <Button variant="outline" size="icon" className='h-8 w-8'>
-                        <BarChart2 className='h-4 w-4' />
+                      <Button variant="outline" size="icon" className='h-8 w-8 text-xl'>
+                        {item.icon}
                       </Button>
                       <Input
                         value={item.name}
@@ -360,7 +360,7 @@ export default function WorkspaceSettingsPage() {
                     <div>
                       <Label className="text-xs text-muted-foreground">Visualização:</Label>
                       <div className="mt-1 flex items-center gap-3 rounded-md bg-muted/50 p-3">
-                         <BarChart2 className='h-5 w-5 text-muted-foreground' />
+                         <span className="text-xl">{item.icon}</span>
                          <div>
                             <p className="font-medium">{item.name}</p>
                             <p className="text-xs text-muted-foreground">{item.url}</p>
@@ -369,7 +369,7 @@ export default function WorkspaceSettingsPage() {
                     </div>
                   </div>
                 ))}
-                 <Button variant="outline" className="w-full" onClick={() => addMenuItem('Novo Item', '/')}>
+                 <Button variant="outline" className="w-full" onClick={() => addMenuItem('Novo Item', '/', '⭐')}>
                   <Plus className="mr-2 h-4 w-4" />
                   Adicionar Item do Menu
                 </Button>
