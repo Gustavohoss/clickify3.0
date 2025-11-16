@@ -10,7 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { File, Sparkles, BookCopy, Folder, ArrowLeft } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { useAuth, useFirestore, useUser } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
@@ -51,11 +51,10 @@ export default function NovaAreaDeMembrosPage() {
       
       toast({
         title: 'Área de Membros Criada!',
-        description: 'Agora você pode começar a adicionar conteúdo.',
+        description: 'Agora você pode começar a personalizar.',
       });
       
-      // router.push(`/dashboard/area-de-membros/editor/${newAreaDoc.id}`);
-       router.push(`/dashboard/area-de-membros`);
+      router.push(`/dashboard/area-de-membros/novo/personalizar?id=${newAreaDoc.id}`);
 
     } catch (error) {
       console.error('Error creating member area: ', error);
