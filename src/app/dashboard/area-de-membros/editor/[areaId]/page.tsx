@@ -47,9 +47,6 @@ export default function MemberAreaEditorPage() {
           Voltar
         </Button>
         <div className="flex items-center gap-4">
-          <Button variant="outline" className="border-green-500 bg-green-500/10 text-green-400 hover:bg-green-500/20 hover:text-green-300">
-            Cakto Members <Badge className="ml-2 bg-yellow-500 text-black">Beta</Badge>
-          </Button>
           <Button variant="outline" className="gap-2 border-gray-600 bg-transparent text-gray-300 hover:bg-gray-800 hover:text-white">
             <Eye size={16} />
             Pré-Visualizar Curso
