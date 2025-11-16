@@ -289,76 +289,73 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
             return;
         } 
         
-        if (draggingState.blockId !== null) {
+        if (draggingState.blockId !== null && !draggingState.isDragging) {
             const dx = Math.abs(e.clientX - draggingState.dragStartMouse.x);
             const dy = Math.abs(e.clientY - draggingState.dragStartMouse.y);
             
-            if (!draggingState.isDragging && (dx > 5 || dy > 5)) {
+            if (dx > 5 || dy > 5) {
                 setDraggingState(prev => ({ ...prev, isDragging: true }));
                  if (canvasRef.current) {
                     canvasRef.current.style.cursor = 'grabbing';
                 }
             }
+        }
 
-            if (draggingState.isDragging) {
-                const newX = (e.clientX / zoom) - panOffset.x - draggingState.dragStartOffset.x;
-                const newY = (e.clientY / zoom) - panOffset.y - draggingState.dragStartOffset.y;
-        
-                setCanvasBlocks(prevBlocks =>
-                    prevBlocks.map(block =>
-                        block.id === draggingState.blockId ? { ...block, position: { x: newX, y: newY } } : block
-                    )
-                );
+        if (draggingState.isDragging && draggingState.blockId) {
+            const newX = (e.clientX / zoom) + panOffset.x - draggingState.dragStartOffset.x;
+            const newY = (e.clientY / zoom) + panOffset.y - draggingState.dragStartOffset.y;
+    
+            setCanvasBlocks(prevBlocks =>
+                prevBlocks.map(block =>
+                    block.id === draggingState.blockId ? { ...block, position: { x: newX, y: newY } } : block
+                )
+            );
 
-                // Drop indicator logic
-                const dropX = (e.clientX / zoom) - panOffset.x;
-                const dropY = (e.clientY / zoom) - panOffset.y;
-                let foundTarget = false;
+            // Drop indicator logic
+            const dropX = (e.clientX / zoom) + panOffset.x;
+            const dropY = (e.clientY / zoom) + panOffset.y;
+            let foundTarget = false;
 
-                for (const block of canvasBlocks) {
-                    if (block.type === 'group' && block.id !== draggingState.blockId) {
-                        const groupEl = document.getElementById(`block-${block.id}`);
-                        if (!groupEl) continue;
+            for (const block of canvasBlocks) {
+                if (block.type === 'group' && block.id !== draggingState.blockId) {
+                    const groupEl = document.getElementById(`block-${block.id}`);
+                    if (!groupEl) continue;
+                    
+                    const groupRect = groupEl.getBoundingClientRect();
+                    const canvasRect = canvasRef.current!.getBoundingClientRect();
 
-                        const groupRect = groupEl.getBoundingClientRect();
-                        const canvasRect = canvasRef.current!.getBoundingClientRect();
-                        
-                        const groupLeft = (groupRect.left - canvasRect.left) / zoom + panOffset.x;
-                        const groupTop = (groupRect.top - canvasRect.top) / zoom + panOffset.y;
-                        const groupRight = groupLeft + groupRect.width / zoom;
-                        const groupBottom = groupTop + groupRect.height / zoom;
+                    const groupLeft = (groupRect.left - canvasRect.left) / zoom - panOffset.x;
+                    const groupTop = (groupRect.top - canvasRect.top) / zoom - panOffset.y;
+                    
+                    if (
+                        dropX >= groupLeft &&
+                        dropX <= groupLeft + groupRect.width / zoom &&
+                        dropY >= groupTop &&
+                        dropY <= groupTop + groupRect.height / zoom
+                    ) {
+                        foundTarget = true;
+                        let newIndex = block.children?.length || 0;
+                        const childrenContainer = groupEl.querySelector('[data-children-container]');
 
-
-                        if (
-                            dropX >= block.position.x &&
-                            dropX <= block.position.x + groupEl.offsetWidth &&
-                            dropY >= block.position.y &&
-                            dropY <= block.position.y + groupEl.offsetHeight
-                        ) {
-                            foundTarget = true;
-                            let newIndex = block.children?.length || 0;
-                            const childrenContainer = groupEl.querySelector('[data-children-container]');
-
-                            if (childrenContainer) {
-                               const childElements = Array.from(childrenContainer.children);
-                               for (let i = 0; i < childElements.length; i++) {
-                                   const childRect = childElements[i].getBoundingClientRect();
-                                    const childTop = (childRect.top - canvasRect.top) / zoom + panOffset.y;
-                                   if (dropY < childTop + (childRect.height/zoom) / 2) {
-                                       newIndex = i;
-                                       break;
-                                   }
+                        if (childrenContainer) {
+                           const childElements = Array.from(childrenContainer.children);
+                           for (let i = 0; i < childElements.length; i++) {
+                               const childRect = childElements[i].getBoundingClientRect();
+                                const childTop = (childRect.top - canvasRect.top) / zoom + panOffset.y;
+                               if (dropY < childTop + (childRect.height/zoom) / 2) {
+                                   newIndex = i;
+                                   break;
                                }
-                            }
-
-                            setDropIndicator({ groupId: block.id, index: newIndex });
-                            break;
+                           }
                         }
+
+                        setDropIndicator({ groupId: block.id, index: newIndex });
+                        break;
                     }
                 }
-                if (!foundTarget) {
-                    setDropIndicator(null);
-                }
+            }
+            if (!foundTarget) {
+                setDropIndicator(null);
             }
         }
     };
@@ -527,13 +524,14 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
               </div>
   
               {/* Dynamically Rendered Blocks */}
-              {canvasBlocks.filter(b => !b.parentId).map((block) => {
+              {canvasBlocks.filter(b => !b.parentId).map((block, index) => {
                 const BlockComponent = block.type === 'group' ? CanvasGroupBlock : CanvasTextBlock;
                 
                 return (
                   <BlockComponent
                     key={block.id}
                     block={block}
+                    groupIndex={block.type === 'group' ? canvasBlocks.filter(b => b.type === 'group').indexOf(block) : -1}
                     onBlockMouseDown={handleBlockMouseDown}
                     onDuplicate={(e: React.MouseEvent) => {
                       e.stopPropagation();
@@ -559,6 +557,7 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
   
   const CanvasGroupBlock = ({
     block,
+    groupIndex,
     onBlockMouseDown,
     onDuplicate,
     onDelete,
@@ -567,6 +566,7 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
     allBlocks,
   }: {
     block: CanvasBlock;
+    groupIndex: number;
     onBlockMouseDown: (e: React.MouseEvent, block: CanvasBlock) => void;
     onDuplicate: (e: React.MouseEvent) => void;
     onDelete: (e: React.MouseEvent) => void;
@@ -612,7 +612,7 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
       </div>
   
       <div className={cn("w-72 rounded-lg bg-[#262626] p-3 space-y-2", isSelected && "ring-2 ring-orange-500")}>
-        <div className="text-sm font-medium">Group #{block.id.toString().slice(-2)}</div>
+        <div className="text-sm font-medium">Group #{groupIndex + 1}</div>
         <div data-children-container className="min-h-[50px] rounded-md border border-dashed border-white/20 p-2 space-y-2">
             {(block.children || []).map((child, index) => (
                 <React.Fragment key={child.id}>
@@ -654,6 +654,7 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
       isChild?: boolean;
       allBlocks: CanvasBlock[];
       dropIndicator?: DropIndicator;
+      groupIndex?: number;
     }) => (
         <div
             id={`block-${block.id}`}
@@ -746,9 +747,3 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
 const DropPlaceholder = () => (
     <div className="h-10 w-full rounded-md border-2 border-dashed border-orange-500 bg-orange-500/10" />
 );
-
-// Helper function to delete blocks recursively from children
-function deleteBlock(blockId: number) {
-    // This should be implemented where setCanvasBlocks is available
-    // For now, it's a placeholder to show where the logic would go.
-}
