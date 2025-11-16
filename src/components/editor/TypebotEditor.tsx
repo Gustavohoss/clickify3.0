@@ -91,6 +91,8 @@ import {
   AtSign,
   Braces,
   Video,
+  Plus,
+  ChevronsUpDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -102,6 +104,15 @@ import { cn } from '@/lib/utils';
 import type { Funnel, CanvasBlock } from './types.tsx';
 import ReactPlayer from 'react-player';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select.tsx';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 
 const ImageBlockSettings = ({
   block,
@@ -285,17 +296,38 @@ const AudioBlockSettings = ({
     block,
     onUpdate,
     position,
+    variables,
+    onAddVariable,
   }: {
     block: CanvasBlock;
     onUpdate: (id: number, props: any) => void;
     position: { x: number; y: number };
+    variables: string[];
+    onAddVariable: (name: string) => void;
   }) => {
     const props = block.props || {};
+    const [open, setOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
   
     const handleChange = (key: string, value: any) => {
       onUpdate(block.id, { ...props, [key]: value });
     };
+
+    const handleVariableSelect = (value: string) => {
+        handleChange('variable', value);
+        setOpen(false);
+    }
+
+    const handleCreateVariable = () => {
+        if (searchTerm && !variables.includes(searchTerm)) {
+            onAddVariable(searchTerm);
+            handleVariableSelect(searchTerm);
+        }
+    }
   
+    const filteredVariables = variables.filter((v) => v.toLowerCase().includes(searchTerm.toLowerCase()));
+    const showCreateOption = searchTerm && !filteredVariables.some(v => v.toLowerCase() === searchTerm.toLowerCase());
+
     return (
       <div
         className="absolute w-72 rounded-lg bg-[#262626] p-4 shadow-lg space-y-4 text-white"
@@ -366,19 +398,58 @@ const AudioBlockSettings = ({
   
         <div>
           <Label className="text-xs text-white/50">Salvar a resposta em uma variável</Label>
-          <div className="relative mt-1">
-            <Select onValueChange={(v) => handleChange('variable', v)}>
-              <SelectTrigger className="bg-[#181818] border-[#3f3f46]">
-                <SelectValue placeholder="Selecione uma variável" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#262626] border-[#3f3f46] text-white">
-                {/* Add variable options here */}
-              </SelectContent>
-            </Select>
-            <button className="absolute right-2 top-1/2 -translate-y-1/2 text-white/50 hover:text-white">
-              <Settings size={16} />
-            </button>
-          </div>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+                <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className="w-full justify-between bg-[#181818] border-[#3f3f46] hover:bg-[#181818] hover:text-white text-white mt-1"
+                >
+                {props.variable || "Selecione uma variável..."}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-0 bg-[#262626] border-[#3f3f46] text-white">
+                <Command>
+                    <CommandInput 
+                        placeholder="Pesquisar ou criar..." 
+                        className="h-9 text-white" 
+                        value={searchTerm}
+                        onValueChange={setSearchTerm}
+                    />
+                    <CommandList>
+                        <CommandEmpty>Nenhuma variável encontrada.</CommandEmpty>
+                        <CommandGroup>
+                            {filteredVariables.map((variable) => (
+                                <CommandItem
+                                key={variable}
+                                value={variable}
+                                onSelect={() => handleVariableSelect(variable)}
+                                >
+                                <Check
+                                    className={cn(
+                                    "mr-2 h-4 w-4",
+                                    props.variable === variable ? "opacity-100" : "opacity-0"
+                                    )}
+                                />
+                                {variable}
+                                </CommandItem>
+                            ))}
+                             {showCreateOption && (
+                                <CommandItem
+                                    onSelect={handleCreateVariable}
+                                    className="text-blue-400"
+                                >
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Criar <span className="font-bold mx-1">{searchTerm}</span>
+                                </CommandItem>
+                            )}
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
     );
@@ -532,7 +603,10 @@ const CanvasTextBlock = ({
             }
           : {}
       }
-      onMouseDown={(e) => onBlockMouseDown(e, block)}
+      onMouseDown={(e) => {
+        if (e.button !== 0) return;
+        onBlockMouseDown(e, block)
+      }}
       onContextMenu={(e) => onContextMenu(e, block)}
     >
       {!isChild && (
@@ -636,7 +710,10 @@ const CanvasGroupBlock = ({
     style={{
       transform: `translate(${block.position.x}px, ${block.position.y}px)`,
     }}
-    onMouseDown={(e) => onBlockMouseDown(e, block)}
+    onMouseDown={(e) => {
+        if (e.button !== 0) return;
+        onBlockMouseDown(e, block)
+    }}
     onContextMenu={(e) => onContextMenu(e, block)}
   >
     <div className="absolute -top-10 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-md bg-[#181818] p-1 opacity-0 transition-opacity group-hover:opacity-100">
@@ -759,6 +836,7 @@ export function TypebotEditor({
     y: number;
     blockId: number | null;
   }>({ visible: false, x: 0, y: 0, blockId: null });
+  const [variables, setVariables] = useState<string[]>(['Nome', 'Email']);
 
   const [draggingState, setDraggingState] = useState<{
     blockId: number | null;
@@ -879,13 +957,13 @@ export function TypebotEditor({
 
     if (!canvasRef.current) return;
     const canvasRect = canvasRef.current.getBoundingClientRect();
-    const x = (e.clientX - canvasRect.left);
-    const y = (e.clientY - canvasRect.top);
+    const x = e.clientX - canvasRect.left;
+    const y = e.clientY - canvasRect.top;
 
     setContextMenu({
       visible: true,
-      x: x,
-      y: y,
+      x,
+      y,
       blockId: block.id,
     });
   };
@@ -1395,7 +1473,15 @@ export function TypebotEditor({
             {selectedBlock && selectedBlock.type === 'image' && <ImageBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {selectedBlock && selectedBlock.type === 'video' && <VideoBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {selectedBlock && selectedBlock.type === 'audio' && <AudioBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
-            {selectedBlock && selectedBlock.type === 'input-text' && <TextBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
+            {selectedBlock && selectedBlock.type === 'input-text' && (
+                <TextBlockSettings
+                    block={selectedBlock}
+                    onUpdate={updateBlockProps}
+                    position={selectedBlockPosition}
+                    variables={variables}
+                    onAddVariable={(newVar) => setVariables((prev) => [...prev, newVar])}
+                />
+            )}
             {contextMenu.visible && (
               <ContextMenu
                 x={contextMenu.x}
