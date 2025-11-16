@@ -119,6 +119,78 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.tsx';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion.tsx';
 import { Badge } from '../ui/badge.tsx';
 
+const ButtonsBlockSettings = ({
+  block,
+  onUpdate,
+  position,
+}: {
+  block: CanvasBlock;
+  onUpdate: (id: number, props: any) => void;
+  position: { x: number; y: number };
+}) => {
+  const props = block.props || {};
+  const buttons = props.buttons || [];
+
+  const handleChange = (key: string, value: any) => {
+    onUpdate(block.id, { ...props, [key]: value });
+  };
+
+  const handleButtonChange = (index: number, newText: string) => {
+    const newButtons = [...buttons];
+    newButtons[index].text = newText;
+    handleChange('buttons', newButtons);
+  };
+
+  const addButton = () => {
+    const newButtons = [...buttons, { text: 'New Button' }];
+    handleChange('buttons', newButtons);
+  };
+
+  const removeButton = (index: number) => {
+    const newButtons = buttons.filter((_: any, i: number) => i !== index);
+    handleChange('buttons', newButtons);
+  };
+
+  return (
+    <div
+      className="absolute w-72 rounded-lg bg-[#262626] p-4 shadow-lg space-y-4 text-white"
+      style={{
+        left: `${position.x + 300}px`,
+        top: `${position.y}px`,
+      }}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      <div>
+        <Label className="text-xs text-white/50">Item</Label>
+        <div className="space-y-2 mt-1">
+          {buttons.map((button: any, index: number) => (
+            <div key={index} className="flex items-center gap-2">
+              <Input
+                value={button.text}
+                onChange={(e) => handleButtonChange(index, e.target.value)}
+                className="bg-[#181818] border-[#3f3f46] text-white"
+              />
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-white/50 hover:bg-[#3f3f46]" onClick={() => removeButton(index)}>
+                <Trash2 size={14} />
+              </Button>
+            </div>
+          ))}
+        </div>
+        <Button variant="outline" className="w-full mt-2 border-[#3f3f46] hover:bg-[#3f3f46]" onClick={addButton}>
+          Adicionar opção
+        </Button>
+      </div>
+
+      <div className="flex items-center justify-between rounded-lg bg-[#181818] p-3">
+        <Label htmlFor="multiple-choice" className="text-sm">Habilitar múltipla escolha</Label>
+        <Switch id="multiple-choice" checked={props.multipleChoice} onCheckedChange={(c) => handleChange('multipleChoice', c)} />
+      </div>
+
+    </div>
+  );
+};
+
+
 const ImageBlockSettings = ({
   block,
   onUpdate,
@@ -834,87 +906,99 @@ const WaitBlockSettings = ({
     );
 };
 
-const EditableTextBlock = memo(({ initialContent, onSave, onVariableInsert, variables, isSelected }) => {
-  const editorRef = useRef<HTMLDivElement>(null);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+const EditableTextBlock = memo(
+  ({ initialContent, onSave, onVariableInsert, variables, isSelected }) => {
+    const editorRef = useRef<HTMLDivElement>(null);
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-  useEffect(() => {
-    const editor = editorRef.current;
-    if (editor && editor.innerHTML !== initialContent) {
-      editor.innerHTML = initialContent || '';
-    }
-  }, [initialContent, isSelected]);
+    useEffect(() => {
+      const editor = editorRef.current;
+      if (editor && editor.innerHTML !== initialContent) {
+        editor.innerHTML = initialContent || '';
+      }
+    }, [initialContent]);
 
-  const handleBlur = () => {
-    if (editorRef.current) {
-      onSave(editorRef.current.innerHTML);
-    }
-  };
+    const handleBlur = () => {
+      if (editorRef.current) {
+        onSave(editorRef.current.innerHTML);
+      }
+    };
 
-  const handleVariableClick = () => {
-    const editor = editorRef.current;
-    if (!editor) return;
+    const handleVariableClick = () => {
+      const editor = editorRef.current;
+      if (!editor) return;
 
-    editor.focus();
-    const selection = window.getSelection();
-    if (!selection) return;
+      editor.focus();
+      const selection = window.getSelection();
+      if (!selection) return;
 
-    const range = document.createRange();
-    range.selectNodeContents(editor);
-    range.collapse(false);
-    selection.removeAllRanges();
-    selection.addRange(range);
-  };
-  
-  return (
-    <div className="relative w-full">
-      <div
-        ref={editorRef}
-        contentEditable
-        suppressContentEditableWarning
-        onBlur={handleBlur}
-        onClick={(e) => e.stopPropagation()}
-        onMouseDown={(e) => e.stopPropagation()}
-        dangerouslySetInnerHTML={{ __html: initialContent || '' }}
-        data-placeholder="Digite sua mensagem..."
-        className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8 min-h-[20px] [&[data-placeholder]]:before:content-[attr(data-placeholder)] [&[data-placeholder]]:before:text-white/40 [&:not(:empty)]:before:hidden"
-      />
-      <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-        <PopoverTrigger asChild>
-          <button 
-            onClick={handleVariableClick} 
-            className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]"
-          >
-            <Braces size={14} />
-          </button>
-        </PopoverTrigger>
-        <PopoverContent className="w-48 p-0 bg-[#262626] border-[#3f3f46] text-white">
-          <Command>
-            <CommandInput placeholder="Procurar variável..." className="h-9 text-white" />
-            <CommandList>
-              <CommandEmpty>Nenhuma variável encontrada.</CommandEmpty>
-              <CommandGroup>
-                {variables.map((variable) => (
-                  <CommandItem key={variable} value={variable} onSelect={() => {
-                      document.execCommand('insertHTML', false, `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`);
-                      handleBlur(); // Save content after inserting
-                      setIsPopoverOpen(false);
-                  }}>
-                    {variable}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    </div>
-  );
-}, (prevProps, nextProps) => {
-  return prevProps.initialContent === nextProps.initialContent &&
-         prevProps.isSelected === nextProps.isSelected &&
-         prevProps.variables === nextProps.variables;
-});
+      const range = document.createRange();
+      range.selectNodeContents(editor);
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    };
+
+    return (
+      <div className="relative w-full">
+        <div
+          ref={editorRef}
+          contentEditable
+          suppressContentEditableWarning
+          onBlur={handleBlur}
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onInput={(e) => {
+            if (editorRef.current) {
+              onSave(editorRef.current.innerHTML);
+            }
+          }}
+          dangerouslySetInnerHTML={{ __html: initialContent || '' }}
+          data-placeholder="Digite sua mensagem..."
+          className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8 min-h-[20px] [&[data-placeholder]]:before:content-[attr(data-placeholder)] [&[data-placeholder]]:before:text-white/40 [&:not(:empty)]:before:hidden"
+        />
+        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+          <PopoverTrigger asChild>
+            <button
+              onClick={handleVariableClick}
+              className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]"
+            >
+              <Braces size={14} />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-48 p-0 bg-[#262626] border-[#3f3f46] text-white">
+            <Command>
+              <CommandInput placeholder="Procurar variável..." className="h-9 text-white" />
+              <CommandList>
+                <CommandEmpty>Nenhuma variável encontrada.</CommandEmpty>
+                <CommandGroup>
+                  {variables.map((variable) => (
+                    <CommandItem
+                      key={variable}
+                      value={variable}
+                      onSelect={() => {
+                        document.execCommand(
+                          'insertHTML',
+                          false,
+                          `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`
+                        );
+                        handleBlur(); // Save content after inserting
+                        setIsPopoverOpen(false);
+                      }}
+                    >
+                      {variable}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </div>
+    );
+  }
+);
+
 
 const CanvasTextBlock = ({
   block,
@@ -1019,8 +1103,7 @@ const CanvasTextBlock = ({
           </div>
         );
       case 'text':
-        if (isSelected) {
-          return (
+        return (
             <EditableTextBlock 
               initialContent={block.props?.content}
               onSave={(newContent) => updateBlockProps(block.id, { content: newContent })}
@@ -1029,14 +1112,26 @@ const CanvasTextBlock = ({
               isSelected={isSelected}
             />
           );
-        }
-        if (block.props?.content) {
-          return <div className="text-sm text-white/80 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: block.props.content }} />;
-        }
+      case 'input-buttons':
         return (
-          <div className="flex items-center gap-2">
-            <MessageCircle size={16} className="text-sky-400" />
-            <span className="text-sm text-white/60">...</span>
+          <div className="flex flex-col gap-2 w-full">
+            <EditableTextBlock
+              initialContent={block.props?.content}
+              onSave={(newContent) => updateBlockProps(block.id, { content: newContent })}
+              variables={variables}
+              onVariableInsert={() => {}}
+              isSelected={isSelected}
+            />
+            <div className="flex flex-col gap-1.5">
+                {(block.props?.buttons || []).map((button: any, index: number) => (
+                    <Button key={index} variant="outline" className="w-full bg-[#3f3f46] border-[#52525b] text-white justify-start">
+                        {button.text}
+                    </Button>
+                ))}
+                <Button variant="outline" className="w-full border-dashed border-[#52525b] text-white/50">
+                    Adicionar botão
+                </Button>
+            </div>
           </div>
         );
       default:
@@ -2281,6 +2376,13 @@ export function TypebotEditor({
                     variables={variables}
                     onAddVariable={(newVar) => setVariables((prev) => [...prev, newVar])}
                 />
+            )}
+            {selectedBlock && selectedBlock.type === 'input-buttons' && (
+              <ButtonsBlockSettings
+                block={selectedBlock}
+                onUpdate={updateBlockProps}
+                position={selectedBlockPosition}
+              />
             )}
           </div>
         </main>
