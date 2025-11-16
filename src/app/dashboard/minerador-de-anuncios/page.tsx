@@ -33,10 +33,8 @@ export default function MineradorDeAnunciosPage() {
       if (isNewSearch) {
         params.append('search_terms', searchTerm);
       } else if (nextPageUrl) {
-        // Para paginação, usamos a proxyUrl para passar a URL completa para a nossa API.
         params.append('proxyUrl', nextPageUrl);
       } else {
-        // Não faz nada se não for uma nova busca e não houver próxima página.
         setIsLoading(false);
         return;
       }
@@ -47,7 +45,6 @@ export default function MineradorDeAnunciosPage() {
       const data = await response.json();
       
       if (!response.ok) {
-        // Agora o erro da API será exibido corretamente
         throw new Error(data.error?.message || 'Ocorreu um erro ao buscar os anúncios.');
       }
 

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// O token de acesso está seguro aqui no servidor e não será exposto no navegador.
 const ACCESS_TOKEN = 'EAAQZBL4qStBIBPZCcRbRypj1OIpeTLfZCkB0j48JEV73a5u8OS3NqrU98rGFULZB3LbCDTi8H54eL3anZCkJmamomOXAXi6Ngmoi9ZBE1HC870C35ZCIzAEjR0lZB90cdCsJ83IEFpt4bcYCtZAueyk1WZBSfDEZCmIlg7rG3UFOYAGoUJyYnMOKr2oaKJVnhlnMCEGtDAjY9p7TbnQsAcs0fP4R7pv3fncwyIwikZChzf6uwm2MA7rU';
 const FB_GRAPH_VERSION = 'v19.0';
 
@@ -31,7 +30,7 @@ export async function GET(req: NextRequest) {
     const params = new URLSearchParams({
       search_terms: searchTerm,
       ad_type: 'ALL',
-      ad_reached_countries: "['BR']", // Parâmetro obrigatório adicionado
+      ad_reached_countries: "['BR']",
       fields: fields,
       access_token: ACCESS_TOKEN,
       limit: searchParams.get('limit') || '25',
@@ -49,13 +48,11 @@ export async function GET(req: NextRequest) {
 
     const data = await response.json();
     
-    // Se a resposta da API da Meta não for OK, repassamos o erro detalhado.
     if (!response.ok) {
       console.error('Erro da API da Meta:', data);
       return NextResponse.json({ error: data.error || { message: 'Um erro desconhecido ocorreu na API da Meta.' } }, { status: response.status });
     }
     
-    // Retorna os dados com sucesso.
     return NextResponse.json(data);
 
   } catch (error: any) {
