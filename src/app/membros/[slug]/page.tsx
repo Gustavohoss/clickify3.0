@@ -52,9 +52,10 @@ export default function MemberAreaPublicPage() {
     }
   }, [memberAreas]);
 
-  const handleModuleClick = (moduleId: string) => {
-    if (!area) return;
-    router.push(`/membros/${area.slug}/modulos/${moduleId}`);
+  const handleModuleClick = (module: Module) => {
+    if (!area || !module.lessons || module.lessons.length === 0) return;
+    const firstLessonId = module.lessons[0].id;
+    router.push(`/membros/${area.slug}/${firstLessonId}`);
   };
 
 
@@ -98,7 +99,7 @@ export default function MemberAreaPublicPage() {
             <h2 className="text-xl font-bold mb-4">Meus cursos</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
             {area.modules?.map(module => (
-                 <div key={module.id} className="group cursor-pointer" onClick={() => handleModuleClick(module.id)}>
+                 <div key={module.id} className="group cursor-pointer" onClick={() => handleModuleClick(module)}>
                     <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-gray-800 transition-transform group-hover:scale-105">
                         {module.coverImageUrl ? (
                         <Image
