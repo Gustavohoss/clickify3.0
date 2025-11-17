@@ -67,7 +67,7 @@ export const DepoimentosSettings = ({
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <div className="grid grid-cols-[auto_1fr] items-center gap-3 pt-8">
+                <div className="grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-2 pt-8">
                   <UILabel htmlFor={`name-${item.id}`} className="text-xs">
                     Nome
                   </UILabel>
@@ -170,7 +170,7 @@ export const DepoimentosSettings = ({
               type="color"
               id="card-border-color"
               className="h-8 w-full p-1"
-              value={component.props.cardBorderColor || '#DDDDDD'}
+              value={component.props.cardBorderColor || '#000000'}
               onChange={(e) => onUpdate({ ...component.props, cardBorderColor: e.target.value })}
             />
           </div>
