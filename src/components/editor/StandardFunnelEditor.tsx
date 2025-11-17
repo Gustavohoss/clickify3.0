@@ -272,6 +272,18 @@ export function StandardFunnelEditor({
       };
     }
 
+    if (component.name === 'Termos') {
+      defaultProps = {
+        mainText: 'Ao clicar em alguma das opções, você concorda com os',
+        links: [
+          { id: Date.now(), text: 'Termos de utilização e serviço', url: '#' },
+          { id: Date.now() + 1, text: 'Política de privacidade', url: '#' },
+          { id: Date.now() + 2, text: 'Política de subscrição', url: '#' },
+          { id: Date.now() + 3, text: 'Política de cookies', url: '#' },
+        ],
+      };
+    }
+
 
     const newComponent: CanvasComponentData = {
       ...component,
