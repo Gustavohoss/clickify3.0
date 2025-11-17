@@ -285,9 +285,6 @@ export default function MemberAreaEditorPage() {
                                     <AccordionTrigger className="w-full flex justify-center hover:no-underline p-0 [&>svg]:text-gray-400">
                                     </AccordionTrigger>
                                 </div>
-                                <button className="absolute left-4 bottom-4 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700">
-                                    <PlusCircle size={16} />
-                                </button>
                             </div>
                             <AccordionContent className="p-4 pt-0">
                                 <div className="ml-10 border-l-2 border-dashed border-gray-700 pl-8 py-4 space-y-4">
