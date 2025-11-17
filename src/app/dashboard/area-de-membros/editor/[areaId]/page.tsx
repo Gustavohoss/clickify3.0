@@ -279,7 +279,7 @@ export default function MemberAreaEditorPage() {
                                         </DropdownMenu>
                                     </div>
                                 </div>
-                                <div className="border-t border-gray-700 py-2 relative">
+                                <div className="border-t border-gray-900 py-2 relative">
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <button className="absolute left-4 top-0 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700 z-10">
@@ -289,7 +289,7 @@ export default function MemberAreaEditorPage() {
                                         <PopoverContent side="right" align="start" className="bg-[#2D3748] border-gray-700 text-white w-auto p-2">
                                             <Button variant="ghost" className="w-full justify-start gap-2">
                                                 <Video size={16}/>
-                                                Novo conteúdo
+                                                Video Aula
                                             </Button>
                                             <Button variant="ghost" className="w-full justify-start gap-2">
                                                 <ShoppingBag size={16}/>
