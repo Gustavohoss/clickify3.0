@@ -287,7 +287,7 @@ export default function MemberAreaEditorPage() {
                                             </button>
                                         </PopoverTrigger>
                                         <PopoverContent side="right" align="start" className="bg-[#2D3748] border-gray-700 text-white w-auto p-2">
-                                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                            <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => router.push(`/dashboard/area-de-membros/editor/${areaId}/novo-conteudo?moduleId=${module.id}`)}>
                                                 <Video size={16}/>
                                                 Video Aula
                                             </Button>
