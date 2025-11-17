@@ -277,19 +277,19 @@ export default function MemberAreaEditorPage() {
                                     </DropdownMenu>
                                 </div>
                             </div>
-                             <div className="px-4 pb-2 flex items-center gap-4">
-                               <div className="h-px flex-1 bg-gray-700"></div>
-                               <AccordionTrigger className="hover:no-underline p-0 [&>svg]:text-gray-400">
-                               </AccordionTrigger>
-                                <div className="h-px flex-1 bg-gray-700"></div>
-                             </div>
+                            <div className="relative px-4 pb-2">
+                                <button className="absolute -left-1 bottom-0 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700">
+                                    <PlusCircle size={16} />
+                                </button>
+                                <div className="flex items-center gap-4">
+                                    <div className="h-px flex-1 bg-gray-700"></div>
+                                    <AccordionTrigger className="hover:no-underline p-0 [&>svg]:text-gray-400">
+                                    </AccordionTrigger>
+                                    <div className="h-px flex-1 bg-gray-700"></div>
+                                </div>
+                            </div>
                             <AccordionContent className="p-4 pt-0">
                                 <div className="ml-10 border-l-2 border-dashed border-gray-700 pl-8 py-4 space-y-4">
-                                    <div className="relative">
-                                     <button className="absolute -left-[45px] top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700">
-                                        <PlusCircle size={16} />
-                                     </button>
-                                    </div>
                                     <p className="text-gray-500">Nenhum conteúdo adicionado ainda.</p>
                                 </div>
                             </AccordionContent>
