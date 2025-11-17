@@ -23,6 +23,7 @@ import {
   ExternalLink,
   Trash2,
   Share2,
+  DollarSign,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -500,13 +501,26 @@ export default function MemberAreaEditorPage() {
                 )}
                  
                  <div className="flex items-center justify-center gap-4">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button className="gap-2 bg-green-600 text-white hover:bg-green-700">
+                          <PlusCircle size={16} />
+                          Adicionar Conteúdo
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="bg-gray-700 border-gray-600 text-white">
+                        <DropdownMenuItem className="focus:bg-gray-600 gap-2" onClick={() => setIsAddModuleOpen(true)}>
+                          <Folder size={16} />
+                          Módulo
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="focus:bg-gray-600 gap-2" disabled>
+                          <DollarSign size={16} />
+                          Upsell
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
                     <Dialog open={isAddModuleOpen} onOpenChange={(open) => { if (!open) closeAndResetDialog(); else setIsAddModuleOpen(true);}}>
-                        <DialogTrigger asChild>
-                             <Button className="gap-2 bg-green-600 text-white hover:bg-green-700">
-                                <PlusCircle size={16} />
-                                Adicionar Módulo
-                            </Button>
-                        </DialogTrigger>
                         <DialogContent className="bg-[#2D3748] border-gray-700 text-white max-w-3xl p-0">
                             <DialogHeader className="p-6">
                                 <div className="flex items-start gap-4">
