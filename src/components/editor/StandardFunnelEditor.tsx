@@ -165,6 +165,23 @@ export function StandardFunnelEditor({
       };
     }
 
+    if (component.name === 'FAQ') {
+      defaultProps = {
+        faqItems: [
+          {
+            id: Date.now(),
+            question: 'Primeira Pergunta?',
+            answer: 'Esta é a resposta para a primeira pergunta.',
+          },
+          {
+            id: Date.now() + 1,
+            question: 'Segunda Pergunta?',
+            answer: 'Esta é a resposta para a segunda pergunta.',
+          },
+        ],
+      };
+    }
+
 
     const newComponent: CanvasComponentData = {
       ...component,
