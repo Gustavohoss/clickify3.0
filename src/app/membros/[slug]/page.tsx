@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -22,6 +23,7 @@ type Module = {
 type MemberArea = {
   id: string;
   name: string;
+  slug: string;
   headerImageUrl?: string;
   modules?: Module[];
 };
@@ -54,7 +56,7 @@ export default function MemberAreaPublicPage() {
     const module = area.modules?.find(m => m.id === moduleId);
     const firstLessonId = module?.lessons?.[0]?.id;
     if (firstLessonId) {
-      router.push(`/membros/${slug}/${firstLessonId}`);
+      router.push(`/membros/${area.slug}/${firstLessonId}`);
     } else {
       // Opcional: lidar com módulos sem aulas
       console.log("Este módulo não tem aulas.");
