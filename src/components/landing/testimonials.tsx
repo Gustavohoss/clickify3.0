@@ -14,7 +14,7 @@ const testimonials = [
   {
     name: "Ana Silva",
     role: "Criadora de Conteúdo",
-    result: "Criei meu primeiro e-book em 1 hora com o LaunchMe!",
+    result: "Criei meu primeiro e-book em 1 hora com o Clickify!",
     quote: "A ferramenta é incrivelmente intuitiva. Em menos de uma hora, eu tinha um produto digital pronto para vender. A IA me ajudou com a estrutura e até com a copy!",
     avatarId: "testimonial-avatar-1",
   },
@@ -22,14 +22,14 @@ const testimonials = [
     name: "Bruno Costa",
     role: "Afiliado Digital",
     result: "Lancei 3 funis de alta conversão em uma semana.",
-    quote: "O que eu levaria semanas para fazer, o LaunchMe fez em dias. A automação de funis é um divisor de águas para quem trabalha com lançamentos rápidos.",
+    quote: "O que eu levaria semanas para fazer, o Clickify fez em dias. A automação de funis é um divisor de águas para quem trabalha com lançamentos rápidos.",
     avatarId: "testimonial-avatar-2",
   },
   {
     name: "Carla Martins",
     role: "Empreendedora",
     result: "Monetizei meu conhecimento sem saber nada de marketing.",
-    quote: "Eu tinha o conhecimento, mas não sabia como transformá-lo em um negócio. O LaunchMe me guiou do zero, desde a ideia até as primeiras vendas.",
+    quote: "Eu tinha o conhecimento, mas não sabia como transformá-lo em um negócio. O Clickify me guiou do zero, desde a ideia até as primeiras vendas.",
     avatarId: "testimonial-avatar-3",
   },
 ];

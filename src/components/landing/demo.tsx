@@ -23,7 +23,7 @@ export function Demo() {
       <div className="container mx-auto px-4">
         <div className="text-center">
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">
-            Veja o LaunchMe em Ação
+            Veja o Clickify em Ação
           </h2>
           <p className="mt-4 max-w-2xl mx-auto text-muted-foreground md:text-xl">
             Navegue pelas telas e descubra como é fácil criar e lançar com IA.

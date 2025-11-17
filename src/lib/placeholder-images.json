@@ -2,13 +2,13 @@
   "placeholderImages": [
     {
       "id": "hero-mockup",
-      "description": "Mockup of LaunchMe app on desktop and mobile devices.",
+      "description": "Mockup of Clickify app on desktop and mobile devices.",
       "imageUrl": "https://images.unsplash.com/photo-1722317125979-63599bbb9491?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZGV2aWNlJTIwbW9ja3VwfGVufDB8fHx8MTc2MjkyNjI2OXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "device mockup"
     },
     {
       "id": "demo-screen-1",
-      "description": "Screenshot of the LaunchMe dashboard.",
+      "description": "Screenshot of the Clickify dashboard.",
       "imageUrl": "https://images.unsplash.com/photo-1758411898021-ef0dadaaa295?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxkYXNoYm9hcmQlMjBpbnRlcmZhY2V8ZW58MHx8fHwxNzYyODYxNzIzfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "dashboard interface"
     },

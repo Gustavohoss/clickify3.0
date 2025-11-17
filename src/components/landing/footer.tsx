@@ -60,7 +60,7 @@ export function Footer() {
                     </Link>
                 ))}
              </div>
-             <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} LaunchMe. Todos os direitos reservados.</p>
+             <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} Clickify. Todos os direitos reservados.</p>
            </div>
         </div>
 

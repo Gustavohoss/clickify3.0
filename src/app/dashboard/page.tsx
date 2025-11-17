@@ -58,7 +58,7 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">
-          Seu progresso no LaunchMe 🚀
+          Seu progresso no Clickify 🚀
         </h1>
         <p className="mt-2 text-muted-foreground">
           Continue avançando — cada clique te aproxima do seu lançamento!

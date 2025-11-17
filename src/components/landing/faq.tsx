@@ -8,7 +8,7 @@ import {
 const faqs = [
   {
     question: "Preciso ter experiência com marketing digital?",
-    answer: "Não, o LaunchMe foi desenhado para guiar você do zero absoluto. Nossos templates e a assistência da IA cuidam do trabalho pesado para que você possa focar em sua ideia.",
+    answer: "Não, o Clickify foi desenhado para guiar você do zero absoluto. Nossos templates e a assistência da IA cuidam do trabalho pesado para que você possa focar em sua ideia.",
   },
   {
     question: "O app realmente cria o produto por mim?",
@@ -16,7 +16,7 @@ const faqs = [
   },
   {
     question: "Posso usar no celular?",
-    answer: "Sim, a plataforma LaunchMe é 100% responsiva. Você pode criar e gerenciar seus produtos e funis de qualquer dispositivo, seja desktop ou mobile.",
+    answer: "Sim, a plataforma Clickify é 100% responsiva. Você pode criar e gerenciar seus produtos e funis de qualquer dispositivo, seja desktop ou mobile.",
   },
   {
     question: "Quais integrações estão disponíveis?",
