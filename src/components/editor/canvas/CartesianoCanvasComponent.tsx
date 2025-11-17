@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -96,8 +95,8 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
                 style={{
                   fill: '#000000',
                   backgroundColor: '#ffffff',
-                  padding: '2px 6px',
-                  borderRadius: 'var(--radius)',
+                  padding: '2px 8px',
+                  borderRadius: '1rem',
                   fontSize: 12,
                   border: '1px solid #e5e7eb',
                 }}
