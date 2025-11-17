@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Video, Youtube, Upload, Info, Link as LinkIcon, FileImage } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ export default function NewLessonPage() {
   const { areaId } = useParams() as { areaId: string };
   const searchParams = useSearchParams();
   const moduleId = searchParams.get('moduleId');
+  const lessonId = searchParams.get('lessonId');
   const firestore = useFirestore();
   const { toast } = useToast();
 
@@ -29,12 +30,27 @@ export default function NewLessonPage() {
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
+  const isEditing = !!lessonId;
+
   const areaRef = useMemoFirebase(
     () => (firestore && areaId ? doc(firestore, 'memberAreas', areaId) : null),
     [firestore, areaId]
   );
 
   const { data: areaData } = useDoc(areaRef);
+
+  useEffect(() => {
+    if (isEditing && areaData && moduleId) {
+      const module = areaData.modules?.find((m: any) => m.id === moduleId);
+      const lesson = module?.lessons?.find((l: any) => l.id === lessonId);
+      if (lesson) {
+        setTitle(lesson.title);
+        setRelease(lesson.release || 'immediately');
+        setVideoUrl(lesson.videoUrl || '');
+        setThumbnailUrl(lesson.thumbnailUrl || '');
+      }
+    }
+  }, [isEditing, areaData, moduleId, lessonId]);
 
   const handleSaveLesson = async () => {
     if (!title || !videoUrl || !moduleId) {
@@ -52,35 +68,45 @@ export default function NewLessonPage() {
     }
 
     setIsSaving(true);
-
-    const newLesson = {
-      id: new Date().toISOString(),
-      title,
-      release,
-      videoUrl,
-      thumbnailUrl,
-    };
     
-    const updatedModules = areaData.modules.map((module: any) => {
-        if(module.id === moduleId) {
-            return { ...module, lessons: arrayUnion(newLesson) }
-        }
-        return module;
-    });
-
     try {
-      await updateDoc(areaRef, {
-        modules: areaData.modules.map((module: any) => 
+      let updatedModules;
+
+      if(isEditing) {
+        updatedModules = areaData.modules.map((module: any) => {
+          if (module.id === moduleId) {
+            const updatedLessons = module.lessons.map((lesson: any) => 
+              lesson.id === lessonId 
+              ? { ...lesson, title, release, videoUrl, thumbnailUrl }
+              : lesson
+            );
+            return { ...module, lessons: updatedLessons };
+          }
+          return module;
+        });
+      } else {
+         const newLesson = {
+          id: new Date().toISOString(),
+          title,
+          release,
+          videoUrl,
+          thumbnailUrl,
+        };
+        updatedModules = areaData.modules.map((module: any) => 
             module.id === moduleId 
             ? { ...module, lessons: [...(module.lessons || []), newLesson]}
             : module
-        ),
+        );
+      }
+
+      await updateDoc(areaRef, {
+        modules: updatedModules,
       });
       
-      toast({ title: 'Sucesso!', description: 'Aula adicionada.' });
+      toast({ title: 'Sucesso!', description: isEditing ? 'Aula atualizada.' : 'Aula adicionada.' });
       router.push(`/dashboard/area-de-membros/editor/${areaId}`);
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível adicionar a aula.' });
+      toast({ variant: 'destructive', title: 'Erro', description: isEditing ? 'Não foi possível atualizar a aula.' : 'Não foi possível adicionar a aula.' });
       console.error(error);
     } finally {
       setIsSaving(false);
@@ -97,7 +123,7 @@ export default function NewLessonPage() {
           </Button>
           <div className="flex items-center gap-2">
             <Video size={16} />
-            <h1 className="text-lg font-semibold">Nova Aula</h1>
+            <h1 className="text-lg font-semibold">{isEditing ? 'Editar Aula' : 'Nova Aula'}</h1>
           </div>
         </div>
         <Button onClick={handleSaveLesson} disabled={isSaving}>

@@ -168,6 +168,27 @@ export default function MemberAreaEditorPage() {
     }
   };
 
+  const handleDeleteLesson = async (moduleId: string, lessonId: string) => {
+    if (!areaRef || !areaData) return;
+
+    const updatedModules = areaData.modules?.map(m => {
+      if (m.id === moduleId) {
+        return {
+          ...m,
+          lessons: m.lessons.filter(l => l.id !== lessonId),
+        };
+      }
+      return m;
+    });
+
+    try {
+      await updateDoc(areaRef, { modules: updatedModules });
+      toast({ title: 'Sucesso!', description: 'Aula excluída.' });
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível excluir a aula.' });
+    }
+  };
+
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-gray-900 text-gray-200">
@@ -321,12 +342,30 @@ export default function MemberAreaEditorPage() {
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white">
                                                     <ExternalLink size={16} />
                                                 </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white">
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white" onClick={() => router.push(`/dashboard/area-de-membros/editor/${areaId}/novo-conteudo?moduleId=${module.id}&lessonId=${lesson.id}`)}>
                                                     <Pencil size={16} />
                                                 </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500/80 hover:text-red-400">
-                                                    <Trash2 size={16} />
-                                                </Button>
+                                                <Dialog>
+                                                  <DialogTrigger asChild>
+                                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500/80 hover:text-red-400">
+                                                          <Trash2 size={16} />
+                                                      </Button>
+                                                  </DialogTrigger>
+                                                  <DialogContent className="bg-[#2D3748] border-gray-700 text-white">
+                                                    <DialogHeader>
+                                                      <DialogTitle>Confirmar exclusão</DialogTitle>
+                                                      <DialogDescription className="text-gray-400">
+                                                        Tem certeza que deseja excluir a aula "{lesson.title}"? Essa ação não pode ser desfeita.
+                                                      </DialogDescription>
+                                                    </DialogHeader>
+                                                    <DialogFooter>
+                                                      <DialogClose asChild>
+                                                        <Button variant="ghost">Cancelar</Button>
+                                                      </DialogClose>
+                                                      <Button variant="destructive" onClick={() => handleDeleteLesson(module.id, lesson.id)}>Excluir</Button>
+                                                    </DialogFooter>
+                                                  </DialogContent>
+                                                </Dialog>
                                             </div>
                                         ))
                                     ) : (
