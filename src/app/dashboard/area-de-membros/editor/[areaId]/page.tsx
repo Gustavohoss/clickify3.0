@@ -20,6 +20,8 @@ import {
   MoreVertical,
   ChevronDown,
   ShoppingBag,
+  ExternalLink,
+  Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,11 +47,17 @@ import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 
+type Lesson = {
+    id: string;
+    title: string;
+    // add other lesson properties here
+};
+
 type Module = {
   id: string;
   name: string;
   coverImageUrl?: string;
-  lessons: any[];
+  lessons: Lesson[];
 };
 
 type MemberArea = {
@@ -260,50 +268,70 @@ export default function MemberAreaEditorPage() {
                     <Accordion type="multiple" className="w-full space-y-2">
                         {areaData.modules.map((module) => (
                         <AccordionItem key={module.id} value={`module-${module.id}`} className="rounded-lg bg-gray-800/50 border border-gray-700 overflow-hidden">
-                            <div className="relative">
-                                <div className="p-4">
-                                    <div className="flex items-center gap-4">
-                                        <GripVertical className="cursor-grab text-gray-500" />
-                                        <span className="font-semibold flex-1">{module.name}</span>
-                                        <Badge className="bg-blue-900/50 text-blue-300 border-blue-800">{module.lessons?.length || 0} Conteúdo</Badge>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400">
-                                                    <MoreVertical size={16} />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent className="bg-gray-700 border-gray-600 text-white">
-                                                <DropdownMenuItem className="focus:bg-gray-600" onClick={() => handleOpenEditDialog(module)}>Editar</DropdownMenuItem>
-                                                <DropdownMenuItem className="text-red-400 focus:bg-red-900/50 focus:text-red-300">Excluir</DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </div>
+                           <div className="flex justify-between items-center p-4">
+                                <div className="flex items-center gap-4 flex-1">
+                                    <GripVertical className="cursor-grab text-gray-500" />
+                                    <span className="font-semibold">{module.name}</span>
                                 </div>
-                                <div className="border-t border-gray-900 py-2 relative">
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <button className="absolute left-4 top-0 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700 z-10">
-                                                <PlusCircle size={16} />
-                                            </button>
-                                        </PopoverTrigger>
-                                        <PopoverContent side="right" align="start" className="bg-[#2D3748] border-gray-700 text-white w-auto p-2">
-                                            <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => router.push(`/dashboard/area-de-membros/editor/${areaId}/novo-conteudo?moduleId=${module.id}`)}>
-                                                <Video size={16}/>
-                                                Video Aula
+                                <div className="flex items-center gap-4">
+                                    <Badge className="bg-blue-900/50 text-blue-300 border-blue-800">{module.lessons?.length || 0} Conteúdo</Badge>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400">
+                                                <MoreVertical size={16} />
                                             </Button>
-                                            <Button variant="ghost" className="w-full justify-start gap-2">
-                                                <ShoppingBag size={16}/>
-                                                Produto
-                                            </Button>
-                                        </PopoverContent>
-                                    </Popover>
-                                    <AccordionTrigger className="w-full flex justify-center hover:no-underline p-0 [&>svg]:text-gray-400">
-                                    </AccordionTrigger>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent className="bg-gray-700 border-gray-600 text-white">
+                                            <DropdownMenuItem className="focus:bg-gray-600" onClick={() => handleOpenEditDialog(module)}>Editar</DropdownMenuItem>
+                                            <DropdownMenuItem className="text-red-400 focus:bg-red-900/50 focus:text-red-300">Excluir</DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </div>
+                            </div>
+                            <div className="border-t border-gray-900 py-2 relative">
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <button className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700 z-10">
+                                            <PlusCircle size={16} />
+                                        </button>
+                                    </PopoverTrigger>
+                                    <PopoverContent side="right" align="start" className="bg-[#2D3748] border-gray-700 text-white w-auto p-2">
+                                        <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => router.push(`/dashboard/area-de-membros/editor/${areaId}/novo-conteudo?moduleId=${module.id}`)}>
+                                            <Video size={16}/>
+                                            Video Aula
+                                        </Button>
+                                        <Button variant="ghost" className="w-full justify-start gap-2">
+                                            <ShoppingBag size={16}/>
+                                            Produto
+                                        </Button>
+                                    </PopoverContent>
+                                </Popover>
+                                <AccordionTrigger className="w-full flex justify-center hover:no-underline p-0 [&>svg]:text-gray-400">
+                                </AccordionTrigger>
                             </div>
                             <AccordionContent className="p-4 pt-0">
                                 <div className="ml-10 border-l-2 border-dashed border-gray-700 pl-8 py-4 space-y-4">
-                                    <p className="text-gray-500">Nenhum conteúdo adicionado ainda.</p>
+                                   {module.lessons && module.lessons.length > 0 ? (
+                                        module.lessons.map(lesson => (
+                                            <div key={lesson.id} className="flex items-center gap-4 bg-gray-800/50 p-3 rounded-md">
+                                                <GripVertical className="cursor-grab text-gray-500" />
+                                                <Video size={16} className="text-gray-400" />
+                                                <span className="flex-1 text-sm font-medium">{lesson.title}</span>
+                                                <Badge className="bg-green-900/50 text-green-300 border-green-800 text-xs">Publicado</Badge>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white">
+                                                    <ExternalLink size={16} />
+                                                </Button>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white">
+                                                    <Pencil size={16} />
+                                                </Button>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500/80 hover:text-red-400">
+                                                    <Trash2 size={16} />
+                                                </Button>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-gray-500">Nenhum conteúdo adicionado ainda.</p>
+                                    )}
                                 </div>
                             </AccordionContent>
                         </AccordionItem>
