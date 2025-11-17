@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useCallback, useEffect } from 'react';
@@ -117,11 +118,22 @@ export function StandardFunnelEditor({
           {
             id: Date.now(),
             icon: '👋',
-            title: '',
             description: '<h4><b>Argumento</b></h4><p>Lorem ipsum dolor sit amet.</p>',
           },
         ],
       };
+    }
+    
+    if (component.name === 'Carrosel') {
+      defaultProps = {
+        slides: [
+          {
+            id: Date.now(),
+            imageUrl: `https://picsum.photos/seed/${Date.now()}/400/300`,
+            caption: 'Nova Legenda',
+          }
+        ]
+      }
     }
 
     const newComponent: CanvasComponentData = {
