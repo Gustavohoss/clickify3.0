@@ -74,6 +74,7 @@ type Upsell = {
   name: string;
   description: string;
   price: string;
+  compareAtPrice?: string;
   imageUrl?: string;
   url: string;
   showPrice?: boolean;
@@ -104,7 +105,7 @@ export default function MemberAreaEditorPage() {
 
   const [editingModule, setEditingModule] = useState<Module | null>(null);
 
-  const [newUpsell, setNewUpsell] = useState<Partial<Upsell>>({showPrice: true});
+  const [newUpsell, setNewUpsell] = useState<Partial<Upsell>>({showPrice: true, compareAtPrice: ''});
   const [editingUpsell, setEditingUpsell] = useState<Upsell | null>(null);
 
 
@@ -276,6 +277,7 @@ export default function MemberAreaEditorPage() {
       name: newUpsell.name,
       description: newUpsell.description || '',
       price: newUpsell.price,
+      compareAtPrice: newUpsell.compareAtPrice,
       url: newUpsell.url,
       imageUrl: newUpsell.imageUrl,
       showPrice: newUpsell.showPrice,
@@ -333,7 +335,7 @@ export default function MemberAreaEditorPage() {
   const closeAndResetUpsellDialog = () => {
     setIsAddUpsellOpen(false);
     setEditingUpsell(null);
-    setNewUpsell({showPrice: true});
+    setNewUpsell({showPrice: true, compareAtPrice: ''});
   };
 
   const handleOpenEditUpsellDialog = (upsell: Upsell) => {
@@ -342,10 +344,10 @@ export default function MemberAreaEditorPage() {
     setIsAddUpsellOpen(true);
   };
   
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'price' | 'compareAtPrice') => {
     const rawValue = e.target.value.replace(/\D/g, '');
     if (!rawValue) {
-        setNewUpsell({...newUpsell, price: ''});
+        setNewUpsell({...newUpsell, [field]: ''});
         return;
     }
     const numberValue = parseInt(rawValue, 10) / 100;
@@ -354,7 +356,7 @@ export default function MemberAreaEditorPage() {
       currency: 'BRL',
     }).format(numberValue);
 
-    setNewUpsell({...newUpsell, price: formattedValue});
+    setNewUpsell({...newUpsell, [field]: formattedValue});
   };
 
 
@@ -765,9 +767,15 @@ export default function MemberAreaEditorPage() {
                                     <Label htmlFor="upsell-desc">Descrição</Label>
                                     <Textarea id="upsell-desc" value={newUpsell.description || ''} onChange={(e) => setNewUpsell({...newUpsell, description: e.target.value})} />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="upsell-price">Preço</Label>
-                                    <Input id="upsell-price" placeholder="Ex: R$ 97,00" value={newUpsell.price || ''} onChange={handlePriceChange} />
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                      <Label htmlFor="upsell-compare-price">Preço De (opcional)</Label>
+                                      <Input id="upsell-compare-price" placeholder="Ex: R$ 197,00" value={newUpsell.compareAtPrice || ''} onChange={(e) => handlePriceChange(e, 'compareAtPrice')} />
+                                  </div>
+                                  <div className="space-y-2">
+                                      <Label htmlFor="upsell-price">Preço Por</Label>
+                                      <Input id="upsell-price" placeholder="Ex: R$ 97,00" value={newUpsell.price || ''} onChange={(e) => handlePriceChange(e, 'price')} />
+                                  </div>
                                 </div>
                                  <div className="space-y-2">
                                     <Label htmlFor="upsell-image-url">URL da Imagem (Opcional)</Label>
@@ -808,3 +816,5 @@ export default function MemberAreaEditorPage() {
     </div>
   );
 }
+
+    

@@ -31,6 +31,7 @@ type Upsell = {
   name: string;
   description: string;
   price: string;
+  compareAtPrice?: string;
   imageUrl?: string;
   url: string;
   showPrice?: boolean;
@@ -191,7 +192,12 @@ export default function MemberAreaPublicPage() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent p-4 flex flex-col justify-end">
                         <h3 className="font-bold text-lg">{upsell.name}</h3>
                         <p className="text-sm text-gray-300">{upsell.description}</p>
-                        {upsell.showPrice && <div className="mt-2 text-lg font-bold text-green-400">{upsell.price}</div>}
+                        {upsell.showPrice && (
+                          <div className="mt-2 flex items-baseline gap-2">
+                             {upsell.compareAtPrice && <s className="text-gray-400 text-md">{upsell.compareAtPrice}</s>}
+                             <p className="text-lg font-bold text-green-400">{upsell.price}</p>
+                          </div>
+                        )}
                       </div>
                     </div>
                  </a>
@@ -296,3 +302,5 @@ export default function MemberAreaPublicPage() {
     </div>
   );
 }
+
+    
