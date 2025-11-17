@@ -94,6 +94,12 @@ type MemberArea = {
   backgroundColor?: string;
 };
 
+const colorPalette = [
+    '#0EA5E9', '#8B5CF6', '#EC4899', '#22C55E', '#F59E0B', '#EF4444',
+    '#FFFFFF', '#E2E8F0', '#94A3B8', '#475569', '#1E293B', '#0F172A',
+];
+
+
 export default function MemberAreaEditorPage() {
   const router = useRouter();
   const { areaId } = useParams() as { areaId: string };
@@ -128,8 +134,8 @@ export default function MemberAreaEditorPage() {
 
   useEffect(() => {
     if (areaData) {
-      setPrimaryColor(areaData.primaryColor || '#0EA5FF');
-      setBackgroundColor(areaData.backgroundColor || '#0B0F13');
+      setPrimaryColor(areaData.primaryColor || '#0EA5E9');
+      setBackgroundColor(areaData.backgroundColor || '#0F172A');
     }
   }, [areaData]);
   
@@ -853,41 +859,83 @@ export default function MemberAreaEditorPage() {
             <TabsContent value="personalization">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                      <div className="space-y-6">
-                        <div className="space-y-2">
+                        <div className="space-y-4">
                             <Label>Cor Principal</Label>
-                            <div className="mt-2 flex items-center gap-2">
-                                <div
-                                className="h-10 w-10 rounded-md border"
-                                style={{ backgroundColor: primaryColor }}
-                                />
+                            <div className="flex items-center gap-2">
+                                <div className="relative">
+                                    <div className="h-10 w-10 rounded-md border" style={{ backgroundColor: primaryColor }} />
+                                    <Input 
+                                      type="color" 
+                                      value={primaryColor}
+                                      onChange={(e) => {
+                                        setPrimaryColor(e.target.value);
+                                        debouncedUpdate('primaryColor', e.target.value);
+                                      }}
+                                      className="absolute inset-0 opacity-0 cursor-pointer"
+                                    />
+                                </div>
                                 <Input
-                                value={primaryColor}
-                                onChange={(e) => {
-                                    setPrimaryColor(e.target.value)
-                                    debouncedUpdate('primaryColor', e.target.value)
-                                }}
-                                className="w-32 bg-gray-800 border-gray-700"
+                                    value={primaryColor}
+                                    onChange={(e) => {
+                                        setPrimaryColor(e.target.value)
+                                        debouncedUpdate('primaryColor', e.target.value)
+                                    }}
+                                    className="w-32 bg-gray-800 border-gray-700"
                                 />
+                            </div>
+                             <div className="flex flex-wrap gap-2">
+                                {colorPalette.map(color => (
+                                    <button
+                                        key={`primary-${color}`}
+                                        onClick={() => {
+                                            setPrimaryColor(color);
+                                            debouncedUpdate('primaryColor', color);
+                                        }}
+                                        className="h-8 w-8 rounded-full border-2"
+                                        style={{ backgroundColor: color, borderColor: primaryColor === color ? 'white' : 'transparent' }}
+                                    />
+                                ))}
                             </div>
                             <p className="mt-1 text-xs text-muted-foreground">
                                 Cor de botões, links e destaques
                             </p>
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-4">
                             <Label>Cor de Fundo</Label>
-                            <div className="mt-2 flex items-center gap-2">
-                                <div
-                                className="h-10 w-10 rounded-md border"
-                                style={{ backgroundColor: backgroundColor }}
-                                />
+                            <div className="flex items-center gap-2">
+                                 <div className="relative">
+                                    <div className="h-10 w-10 rounded-md border" style={{ backgroundColor: backgroundColor }} />
+                                    <Input 
+                                      type="color" 
+                                      value={backgroundColor}
+                                      onChange={(e) => {
+                                        setBackgroundColor(e.target.value);
+                                        debouncedUpdate('backgroundColor', e.target.value);
+                                      }}
+                                      className="absolute inset-0 opacity-0 cursor-pointer"
+                                    />
+                                </div>
                                 <Input
-                                value={backgroundColor}
-                                onChange={(e) => {
-                                    setBackgroundColor(e.target.value)
-                                    debouncedUpdate('backgroundColor', e.target.value)
-                                }}
-                                className="w-32 bg-gray-800 border-gray-700"
+                                    value={backgroundColor}
+                                    onChange={(e) => {
+                                        setBackgroundColor(e.target.value)
+                                        debouncedUpdate('backgroundColor', e.target.value)
+                                    }}
+                                    className="w-32 bg-gray-800 border-gray-700"
                                 />
+                            </div>
+                             <div className="flex flex-wrap gap-2">
+                                {colorPalette.map(color => (
+                                    <button
+                                        key={`bg-${color}`}
+                                        onClick={() => {
+                                            setBackgroundColor(color);
+                                            debouncedUpdate('backgroundColor', color);
+                                        }}
+                                        className="h-8 w-8 rounded-full border-2"
+                                        style={{ backgroundColor: color, borderColor: backgroundColor === color ? 'white' : 'transparent' }}
+                                    />
+                                ))}
                             </div>
                             <p className="mt-1 text-xs text-muted-foreground">
                                 Cor de fundo da área de membros
@@ -909,5 +957,3 @@ export default function MemberAreaEditorPage() {
     </div>
   );
 }
-
-    
