@@ -526,7 +526,7 @@ export default function MemberAreaEditorPage() {
                                                     <Image src={newModuleCoverUrl} layout="fill" objectFit="cover" alt="Capa do módulo" />
                                                 ) : (
                                                     <div className="flex flex-col h-full items-center justify-center text-gray-500">
-                                                        A imagem do link aparecera aqui
+                                                        Foto, Banner modulo
                                                     </div>
                                                 )}
                                                 <Badge className="absolute top-2 right-2 bg-green-600 text-white">0 Aulas</Badge>
@@ -563,7 +563,7 @@ export default function MemberAreaEditorPage() {
                                                     <Image src={newModuleCoverUrl} layout="fill" objectFit="cover" alt="Capa do módulo" />
                                                 ) : (
                                                     <div className="flex flex-col h-full items-center justify-center text-gray-500">
-                                                        A imagem do link aparecera aqui
+                                                        Foto, Banner modulo
                                                     </div>
                                                 )}
                                                 <Badge className="absolute top-2 right-2 bg-green-600 text-white">0 Aulas</Badge>
