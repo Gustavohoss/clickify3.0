@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
@@ -14,12 +14,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { PlusCircle, BookUser, MoreVertical, Trash2 } from 'lucide-react';
+import { PlusCircle, BookUser, MoreVertical, Trash2, Play } from 'lucide-react';
 import Link from 'next/link';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where, doc, deleteDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 
 export default function AreaDeMembrosPage() {
@@ -94,10 +95,10 @@ export default function AreaDeMembrosPage() {
       {!isLoading && memberAreas && memberAreas.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {memberAreas.map((area) => (
-             <Card key={area.id} className="group relative flex flex-col transition-all hover:shadow-lg hover:-translate-y-1">
+             <Card key={area.id} className="group relative flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100">
+                        <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 z-10 bg-black/20 hover:bg-black/50">
                             <MoreVertical className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
@@ -118,17 +119,28 @@ export default function AreaDeMembrosPage() {
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-              <Link href={`/dashboard/area-de-membros/editor/${area.id}`} className="flex-grow">
-                <CardHeader>
-                  <CardTitle>{area.name}</CardTitle>
-                  <CardDescription>{area.type === 'netflix' ? 'Estilo Netflix' : 'Comum'}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Módulos: {area.modules?.length || 0}
-                  </p>
+                <div className="relative aspect-video w-full">
+                  {area.headerImageUrl ? (
+                    <Image src={area.headerImageUrl} alt={area.name} layout="fill" objectFit="cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-muted">
+                      <BookUser className="h-10 w-10 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+
+                <CardContent className="flex-grow p-4">
+                   <h3 className="font-semibold text-lg">{area.name}</h3>
                 </CardContent>
-              </Link>
+                
+                <CardFooter className="p-4 pt-0">
+                  <Button asChild className="w-full" onClick={() => router.push(`/dashboard/area-de-membros/editor/${area.id}`)}>
+                     <Link href={`/dashboard/area-de-membros/editor/${area.id}`}>
+                        Começar
+                        <Play className="ml-2 h-4 w-4 fill-current" />
+                     </Link>
+                  </Button>
+                </CardFooter>
             </Card>
           ))}
         </div>
