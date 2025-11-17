@@ -33,6 +33,7 @@ type Upsell = {
   price: string;
   imageUrl?: string;
   url: string;
+  showPrice?: boolean;
 };
 
 type Module = {
@@ -190,7 +191,7 @@ export default function MemberAreaPublicPage() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent p-4 flex flex-col justify-end">
                         <h3 className="font-bold text-lg">{upsell.name}</h3>
                         <p className="text-sm text-gray-300">{upsell.description}</p>
-                        <div className="mt-2 text-lg font-bold text-green-400">{upsell.price}</div>
+                        {upsell.showPrice && <div className="mt-2 text-lg font-bold text-green-400">{upsell.price}</div>}
                       </div>
                     </div>
                  </a>
@@ -250,7 +251,7 @@ export default function MemberAreaPublicPage() {
                 </div>
                 <aside className='flex-[1] border-l border-gray-700 bg-[#1A202C]'>
                     <ScrollArea className="h-full">
-                        <div className="p-4 space-y-2">
+                        <div className="p-4 space-y-4">
                              {selectedModule.lessons && selectedModule.lessons.length > 0 && (
                                 <div className="space-y-2">
                                     <h4 className="text-sm font-semibold text-gray-400 px-3">Vídeo Aulas</h4>
@@ -270,8 +271,8 @@ export default function MemberAreaPublicPage() {
                             )}
 
                             {selectedModule.products && selectedModule.products.length > 0 && (
-                                <div className="space-y-2 pt-4">
-                                     <h4 className="text-sm font-semibold text-gray-400 px-3">Produtos</h4>
+                                <div className="space-y-2">
+                                     <h4 className="text-sm font-semibold text-gray-400 px-3 pt-4">Produtos</h4>
                                     {selectedModule.products.map((product) => (
                                         <a key={product.id} href={product.url} target="_blank" rel="noopener noreferrer" className="w-full text-left p-3 rounded-md flex items-center gap-3 transition-colors hover:bg-white/5">
                                             <ShoppingBag className="h-5 w-5 text-gray-500" />

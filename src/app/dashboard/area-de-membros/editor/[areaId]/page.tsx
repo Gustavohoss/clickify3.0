@@ -22,6 +22,7 @@ import {
   Trash2,
   Share2,
   DollarSign,
+  EyeOff,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,6 +46,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { useToast } from '@/hooks/use-toast';
 import { MemberAreaPreview } from '@/components/dashboard/area-de-membros/MemberAreaPreview';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 
 
 type Lesson = {
@@ -74,6 +76,7 @@ type Upsell = {
   price: string;
   imageUrl?: string;
   url: string;
+  showPrice?: boolean;
 };
 
 
@@ -101,7 +104,7 @@ export default function MemberAreaEditorPage() {
 
   const [editingModule, setEditingModule] = useState<Module | null>(null);
 
-  const [newUpsell, setNewUpsell] = useState<Partial<Upsell>>({});
+  const [newUpsell, setNewUpsell] = useState<Partial<Upsell>>({showPrice: true});
   const [editingUpsell, setEditingUpsell] = useState<Upsell | null>(null);
 
 
@@ -265,7 +268,7 @@ export default function MemberAreaEditorPage() {
 
   const handleAddUpsell = async () => {
     if (!areaRef || !newUpsell.name || !newUpsell.url || !newUpsell.price || !areaData) {
-      toast({ variant: 'destructive', title: 'Erro', description: 'Todos os campos do upsell são obrigatórios.' });
+      toast({ variant: 'destructive', title: 'Erro', description: 'Nome, URL e preço do upsell são obrigatórios.' });
       return;
     }
     const upsellToAdd: Upsell = {
@@ -275,6 +278,7 @@ export default function MemberAreaEditorPage() {
       price: newUpsell.price,
       url: newUpsell.url,
       imageUrl: newUpsell.imageUrl,
+      showPrice: newUpsell.showPrice,
     };
 
     try {
@@ -290,12 +294,12 @@ export default function MemberAreaEditorPage() {
 
   const handleUpdateUpsell = async () => {
     if (!areaRef || !editingUpsell || !newUpsell.name || !newUpsell.url || !newUpsell.price || !areaData) {
-      toast({ variant: 'destructive', title: 'Erro', description: 'Todos os campos do upsell são obrigatórios.' });
+      toast({ variant: 'destructive', title: 'Erro', description: 'Nome, URL e preço do upsell são obrigatórios.' });
       return;
     }
 
     const updatedUpsells = areaData.upsells?.map(u => 
-      u.id === editingUpsell.id ? { ...u, ...newUpsell } : u
+      u.id === editingUpsell.id ? { ...editingUpsell, ...newUpsell } : u
     );
 
     try {
@@ -329,13 +333,28 @@ export default function MemberAreaEditorPage() {
   const closeAndResetUpsellDialog = () => {
     setIsAddUpsellOpen(false);
     setEditingUpsell(null);
-    setNewUpsell({});
+    setNewUpsell({showPrice: true});
   };
 
   const handleOpenEditUpsellDialog = (upsell: Upsell) => {
     setEditingUpsell(upsell);
-    setNewUpsell(upsell);
+    setNewUpsell({...upsell, showPrice: upsell.showPrice ?? true });
     setIsAddUpsellOpen(true);
+  };
+  
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, '');
+    if (!rawValue) {
+        setNewUpsell({...newUpsell, price: ''});
+        return;
+    }
+    const numberValue = parseInt(rawValue, 10) / 100;
+    const formattedValue = new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(numberValue);
+
+    setNewUpsell({...newUpsell, price: formattedValue});
   };
 
 
@@ -598,7 +617,11 @@ export default function MemberAreaEditorPage() {
                               </div>
                            </div>
                            <div className="flex items-center gap-2">
-                               <Badge className="bg-yellow-900/50 text-yellow-300 border-yellow-800">{upsell.price}</Badge>
+                               {upsell.showPrice ? (
+                                <Badge className="bg-yellow-900/50 text-yellow-300 border-yellow-800">{upsell.price}</Badge>
+                               ) : (
+                                <Badge variant="outline" className="gap-1 border-gray-600 text-gray-400"><EyeOff size={12}/> Oculto</Badge>
+                               )}
                                <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400">
@@ -744,7 +767,7 @@ export default function MemberAreaEditorPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="upsell-price">Preço</Label>
-                                    <Input id="upsell-price" placeholder="Ex: R$ 97,00" value={newUpsell.price || ''} onChange={(e) => setNewUpsell({...newUpsell, price: e.target.value})} />
+                                    <Input id="upsell-price" placeholder="Ex: R$ 97,00" value={newUpsell.price || ''} onChange={handlePriceChange} />
                                 </div>
                                  <div className="space-y-2">
                                     <Label htmlFor="upsell-image-url">URL da Imagem (Opcional)</Label>
@@ -753,6 +776,14 @@ export default function MemberAreaEditorPage() {
                                 <div className="space-y-2">
                                     <Label htmlFor="upsell-url">URL de Destino</Label>
                                     <Input id="upsell-url" placeholder="https://seu-checkout.com" value={newUpsell.url || ''} onChange={(e) => setNewUpsell({...newUpsell, url: e.target.value})} />
+                                </div>
+                                <div className="flex items-center space-x-2 pt-2">
+                                    <Switch
+                                        id="show-price"
+                                        checked={newUpsell.showPrice}
+                                        onCheckedChange={(checked) => setNewUpsell({ ...newUpsell, showPrice: checked })}
+                                    />
+                                    <Label htmlFor="show-price">Mostrar preço na oferta</Label>
                                 </div>
                             </div>
                             <DialogFooter>
