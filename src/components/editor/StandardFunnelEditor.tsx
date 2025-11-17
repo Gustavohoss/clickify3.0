@@ -31,7 +31,7 @@ import { StepSettings } from './settings/StepSettings';
 import { ComponentSettings } from './settings/ComponentSettings';
 import { DesignSettings } from './settings/DesignSettings';
 import { CanvasComponent } from './canvas/CanvasComponent';
-import { components, type ComponentType, type Funnel, type Step, type EditorView, type CanvasComponentData, type ComponentProps } from './types.tsx';
+import { components, type ComponentType, type Funnel, type Step, type EditorView, type CanvasComponentData, type ComponentProps, modelColors, modelIcons } from './types.tsx';
 
 export function StandardFunnelEditor({
   funnel,
@@ -99,10 +99,22 @@ export function StandardFunnelEditor({
   const addComponentToCanvas = (component: ComponentType) => {
     if (!activeStepId) return;
 
+    let defaultProps: ComponentProps = {};
+    if (component.name === 'Alerta') {
+        const model = 'success';
+        defaultProps = {
+            model,
+            ...modelColors[model],
+            icon: modelIcons[model],
+            title: 'Título do Alerta',
+            description: 'Esta é a descrição do alerta.'
+        };
+    }
+
     const newComponent: CanvasComponentData = {
       ...component,
       id: Date.now(),
-      props: {},
+      props: defaultProps,
     };
 
     updateFunnel((prev) => ({
