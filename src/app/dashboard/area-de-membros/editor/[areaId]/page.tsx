@@ -259,34 +259,35 @@ export default function MemberAreaEditorPage() {
                     <Accordion type="multiple" className="w-full space-y-2">
                         {areaData.modules.map((module) => (
                         <AccordionItem key={module.id} value={`module-${module.id}`} className="rounded-lg bg-gray-800/50 border border-gray-700 overflow-hidden">
-                            <div className="flex items-center p-4">
-                                <GripVertical className="cursor-grab text-gray-500 mr-4" />
-                                <div className="flex-1 rounded-md bg-gray-800 p-3 flex items-center">
-                                    <span className="font-semibold flex-1">{module.name}</span>
-                                    <Badge className="bg-blue-900/50 text-blue-300 border-blue-800">{module.lessons?.length || 0} Conteúdo</Badge>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 ml-2">
-                                                <MoreVertical size={16} />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent className="bg-gray-700 border-gray-600 text-white">
-                                            <DropdownMenuItem className="focus:bg-gray-600" onClick={() => handleOpenEditDialog(module)}>Editar</DropdownMenuItem>
-                                            <DropdownMenuItem className="text-red-400 focus:bg-red-900/50 focus:text-red-300">Excluir</DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
+                            <div className="relative">
+                                <div className="p-4">
+                                    <div className="flex items-center gap-4">
+                                        <GripVertical className="cursor-grab text-gray-500" />
+                                        <span className="font-semibold flex-1">{module.name}</span>
+                                        <Badge className="bg-blue-900/50 text-blue-300 border-blue-800">{module.lessons?.length || 0} Conteúdo</Badge>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400">
+                                                    <MoreVertical size={16} />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent className="bg-gray-700 border-gray-600 text-white">
+                                                <DropdownMenuItem className="focus:bg-gray-600" onClick={() => handleOpenEditDialog(module)}>Editar</DropdownMenuItem>
+                                                <DropdownMenuItem className="text-red-400 focus:bg-red-900/50 focus:text-red-300">Excluir</DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="relative px-4 pb-2">
-                                <button className="absolute -left-1 bottom-0 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700">
+                                <div className="border-t border-gray-700 py-6 relative">
+                                     <button className="absolute -left-4 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700">
+                                        <PlusCircle size={16} />
+                                    </button>
+                                    <AccordionTrigger className="w-full flex justify-center hover:no-underline p-0 [&>svg]:text-gray-400">
+                                    </AccordionTrigger>
+                                </div>
+                                <button className="absolute left-4 bottom-4 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700">
                                     <PlusCircle size={16} />
                                 </button>
-                                <div className="flex items-center gap-4">
-                                    <div className="h-px flex-1 bg-gray-700"></div>
-                                    <AccordionTrigger className="hover:no-underline p-0 [&>svg]:text-gray-400">
-                                    </AccordionTrigger>
-                                    <div className="h-px flex-1 bg-gray-700"></div>
-                                </div>
                             </div>
                             <AccordionContent className="p-4 pt-0">
                                 <div className="ml-10 border-l-2 border-dashed border-gray-700 pl-8 py-4 space-y-4">
@@ -308,22 +309,12 @@ export default function MemberAreaEditorPage() {
                         Expandir
                     </Button>
                     <Dialog open={isAddModuleOpen} onOpenChange={closeAndResetDialog}>
-                        <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button className="gap-2 bg-green-600 text-white hover:bg-green-700">
-                            <PlusCircle size={16} />
-                            Adicionar
+                        <DialogTrigger asChild>
+                             <Button className="gap-2 bg-green-600 text-white hover:bg-green-700" onClick={() => setIsAddModuleOpen(true)}>
+                                <PlusCircle size={16} />
+                                Adicionar Módulo
                             </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-gray-800 border-gray-700 text-white">
-                            <DialogTrigger asChild>
-                                <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-gray-700">
-                                <Folder size={16} />
-                                <span>Adicionar Módulo</span>
-                                </DropdownMenuItem>
-                            </DialogTrigger>
-                        </DropdownMenuContent>
-                        </DropdownMenu>
+                        </DialogTrigger>
                         <DialogContent className="bg-[#2D3748] border-gray-700 text-white max-w-3xl p-0">
                             <DialogHeader className="p-6">
                                 <div className="flex items-start gap-4">
