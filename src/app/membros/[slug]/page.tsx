@@ -51,6 +51,7 @@ type MemberArea = {
   slug: string;
   headerImageUrl?: string;
   modules?: Module[];
+  upsellsTitle?: string;
   upsells?: Upsell[];
 };
 
@@ -177,7 +178,7 @@ export default function MemberAreaPublicPage() {
         
         {area.upsells && area.upsells.length > 0 && (
           <div className="mt-12">
-            <h2 className="text-xl font-bold mb-4">Ofertas Especiais</h2>
+            <h2 className="text-xl font-bold mb-4">{area.upsellsTitle || 'Ofertas Especiais'}</h2>
              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
               {area.upsells.map(upsell => (
                  <a key={upsell.id} href={upsell.url} target="_blank" rel="noopener noreferrer" className="group cursor-pointer">
@@ -302,5 +303,3 @@ export default function MemberAreaPublicPage() {
     </div>
   );
 }
-
-    

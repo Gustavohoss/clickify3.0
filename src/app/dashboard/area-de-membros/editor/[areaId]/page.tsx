@@ -31,7 +31,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouter, useParams } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
-import { useState }from 'react';
+import { useState, useTransition } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
@@ -47,6 +47,7 @@ import { useToast } from '@/hooks/use-toast';
 import { MemberAreaPreview } from '@/components/dashboard/area-de-membros/MemberAreaPreview';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { useDebouncedCallback } from 'use-debounce';
 
 
 type Lesson = {
@@ -86,6 +87,7 @@ type MemberArea = {
   slug: string;
   headerImageUrl?: string;
   modules?: Module[];
+  upsellsTitle?: string;
   upsells?: Upsell[];
 };
 
@@ -95,6 +97,8 @@ export default function MemberAreaEditorPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
   
+  const [isPending, startTransition] = useTransition();
+
   const [headerUrl, setHeaderUrl] = useState('');
   const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
   const [isAddUpsellOpen, setIsAddUpsellOpen] = useState(false);
@@ -115,6 +119,19 @@ export default function MemberAreaEditorPage() {
   );
 
   const { data: areaData, isLoading } = useDoc<MemberArea>(areaRef);
+  
+  const debouncedUpdate = useDebouncedCallback((field: string, value: any) => {
+    if (areaRef) {
+      startTransition(async () => {
+        try {
+          await updateDoc(areaRef, { [field]: value });
+          toast({ title: 'Sucesso!', description: 'Título atualizado.' });
+        } catch (error) {
+          toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível atualizar o título.'})
+        }
+      });
+    }
+  }, 500);
 
   const handleShare = () => {
     if (!areaData) return;
@@ -606,10 +623,22 @@ export default function MemberAreaEditorPage() {
                   </div>
                 )}
                 
-                {areaData?.upsells && areaData.upsells.length > 0 && (
-                  <div className="w-full space-y-4">
-                     <h3 className="text-lg font-semibold">Upsells</h3>
-                     {areaData.upsells.map(upsell => (
+                <div className="w-full space-y-4">
+                  <div className='flex items-end gap-4'>
+                    <div className="flex-1">
+                      <Label htmlFor="upsells-title" className="text-sm font-medium text-gray-400">Título da Seção de Upsells</Label>
+                      <Input
+                        id="upsells-title"
+                        defaultValue={areaData?.upsellsTitle || ''}
+                        onChange={(e) => debouncedUpdate('upsellsTitle', e.target.value)}
+                        placeholder="Ofertas Especiais"
+                        className="mt-2 border-gray-700 bg-gray-800 text-lg"
+                        disabled={isPending}
+                      />
+                    </div>
+                  </div>
+                  {areaData?.upsells && areaData.upsells.length > 0 && (
+                     areaData.upsells.map(upsell => (
                         <div key={upsell.id} className="rounded-lg bg-gray-800/50 border border-gray-700 p-4 flex justify-between items-center">
                            <div className="flex items-center gap-4">
                               <DollarSign className="text-green-500"/>
@@ -637,9 +666,10 @@ export default function MemberAreaEditorPage() {
                                 </DropdownMenu>
                            </div>
                         </div>
-                     ))}
-                  </div>
-                )}
+                     ))
+                  )}
+                </div>
+
 
                  <div className="flex items-center justify-center gap-4">
                     <DropdownMenu>
@@ -816,5 +846,3 @@ export default function MemberAreaEditorPage() {
     </div>
   );
 }
-
-    
