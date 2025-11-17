@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import React, { useState, useRef, useEffect } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { RichTextToolbar } from './RichTextToolbar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const ArgumentEditor = ({
   item,
@@ -76,6 +77,7 @@ const ArgumentEditor = ({
                 contentEditable
                 suppressContentEditableWarning
                 onBlur={handleContentChange}
+                onInput={handleContentChange}
                 dangerouslySetInnerHTML={{ __html: item.description }}
             >
             </div>
@@ -114,7 +116,6 @@ export const ArgumentosSettings = ({
     const newItem: ArgumentItem = {
       id: Date.now(),
       icon: '💬',
-      title: '', // Title is now part of description
       description: '<h4><b>Argumento</b></h4><p>Lorem ipsum dolor sit amet.</p>',
     };
     onUpdate({ ...component.props, items: [...items, newItem] });
@@ -127,6 +128,51 @@ export const ArgumentosSettings = ({
 
   return (
     <div className="space-y-4">
+      <Card className="border-border/50 bg-card p-4">
+        <h3 className="mb-4 text-sm font-medium text-muted-foreground">Layout</h3>
+        <div className="space-y-3">
+          <div>
+            <UILabel htmlFor="layout" className="text-xs">
+              Layout
+            </UILabel>
+            <Select
+              value={component.props.layout || 'list'}
+              onValueChange={(value: 'list' | '2-cols' | '3-cols' | '4-cols') =>
+                onUpdate({ ...component.props, layout: value })
+              }
+            >
+              <SelectTrigger id="layout" className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="list">Em Lista</SelectItem>
+                <SelectItem value="2-cols">2 Colunas</SelectItem>
+                <SelectItem value="3-cols">3 Colunas</SelectItem>
+                <SelectItem value="4-cols">4 Colunas</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <UILabel htmlFor="disposition" className="text-xs">
+              Disposição
+            </UILabel>
+            <Select
+              value={component.props.disposition || 'icon-top'}
+              onValueChange={(value: 'icon-top' | 'icon-side') =>
+                onUpdate({ ...component.props, disposition: value })
+              }
+            >
+              <SelectTrigger id="disposition" className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="icon-top">Ícone no Topo</SelectItem>
+                <SelectItem value="icon-side">Ícone ao Lado</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </Card>
       <div className="space-y-3">
         {items.map((item: ArgumentItem) => (
            <ArgumentEditor 
