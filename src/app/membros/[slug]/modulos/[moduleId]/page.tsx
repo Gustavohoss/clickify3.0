@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where, limit } from 'firebase/firestore';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { ArrowLeft, BookOpen, CheckCircle, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -36,8 +36,8 @@ type MemberArea = {
   modules?: Module[];
 };
 
-export default function ModulePage({ params }: { params: { slug: string; moduleId: string }}) {
-  const { slug, moduleId } = params;
+export default function ModulePage() {
+  const { slug, moduleId } = useParams() as { slug: string; moduleId: string };
   const router = useRouter();
   const firestore = useFirestore();
 

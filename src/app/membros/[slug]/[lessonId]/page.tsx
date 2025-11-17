@@ -4,7 +4,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, where, limit } from 'firebase/firestore';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -38,8 +38,8 @@ type MemberArea = {
   modules?: Module[];
 };
 
-export default function LessonPage({ params }: { params: { slug: string; lessonId: string } }) {
-  const { slug, lessonId } = params;
+export default function LessonPage() {
+  const { slug, lessonId } = useParams() as { slug: string; lessonId: string };
   const firestore = useFirestore();
   const router = useRouter();
   const { user } = useUser();
