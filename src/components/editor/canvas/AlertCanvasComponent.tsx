@@ -18,14 +18,18 @@ export const AlertCanvasComponent = ({ component }: { component: CanvasComponent
 
   return (
     <Alert style={style}>
-      {React.isValidElement(IconComponent) ? React.cloneElement(IconComponent as React.ReactElement, {
-        className: 'h-5 w-5',
-        style: { color: textColor },
-      }) : null}
-      <AlertTitle>{title || 'Título do Alerta'}</AlertTitle>
-      <AlertDescription>
-        {description || 'Esta é a descrição do alerta.'}
-      </AlertDescription>
+        <div className="flex items-start gap-3">
+            {React.isValidElement(IconComponent) ? React.cloneElement(IconComponent as React.ReactElement, {
+                className: 'h-5 w-5',
+                style: { color: textColor },
+            }) : null}
+            <div>
+                <AlertTitle>{title || 'Título do Alerta'}</AlertTitle>
+                <AlertDescription>
+                    {description || 'Esta é a descrição do alerta.'}
+                </AlertDescription>
+            </div>
+        </div>
     </Alert>
   );
 };
