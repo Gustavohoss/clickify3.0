@@ -17,10 +17,10 @@ export const AlertCanvasComponent = ({ component }: { component: CanvasComponent
         borderColor: borderColor,
       }}
     >
-      {React.cloneElement(IconComponent as React.ReactElement, {
+      {React.isValidElement(IconComponent) ? React.cloneElement(IconComponent as React.ReactElement, {
         className: 'h-5 w-5',
         style: { color: textColor },
-      })}
+      }) : null}
       <AlertTitle style={{ color: textColor }}>{title || 'Título do Alerta'}</AlertTitle>
       <AlertDescription style={{ color: textColor }}>
         {description || 'Esta é a descrição do alerta.'}
