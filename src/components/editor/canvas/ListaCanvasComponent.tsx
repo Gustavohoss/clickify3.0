@@ -21,7 +21,7 @@ export const ListaCanvasComponent = ({ component }: { component: CanvasComponent
   return (
     <div className="mx-auto w-full max-w-md space-y-3">
       {items.map((item) => (
-        <div key={item.id} className="rounded-lg border border-black bg-white p-3">
+        <div key={item.id} className="rounded-lg bg-white p-3 shadow-md">
           <div className="flex items-center gap-4">
             <div
               className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg"
