@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { CanvasComponentData, ComponentProps, Step } from '../types';
