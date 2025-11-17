@@ -30,12 +30,9 @@ export const ArgumentoCanvasComponent = ({ component }: { component: CanvasCompo
   return (
     <div className={layoutClasses[layout]}>
       {items.map((item: ArgumentItem) => (
-        <div key={item.id} className="flex items-start gap-4 text-black">
-          <div className="text-2xl mt-1">{item.icon}</div>
-          <div>
-            <h4 className="font-bold">{item.title}</h4>
-            <div className="text-sm text-gray-600" dangerouslySetInnerHTML={{ __html: item.description }} />
-          </div>
+        <div key={item.id} className="flex flex-col items-center gap-2 text-black text-center p-4 rounded-lg bg-white border border-gray-200">
+          <div className="text-3xl">{item.icon}</div>
+          <div dangerouslySetInnerHTML={{ __html: item.description }} />
         </div>
       ))}
     </div>
