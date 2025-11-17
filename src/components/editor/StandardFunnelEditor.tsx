@@ -137,6 +137,16 @@ export function StandardFunnelEditor({
       }
     }
 
+    if (component.name === 'Cartesiano') {
+      defaultProps = {
+        chartData: [
+          { id: 1, name: 'A', value: 20, indicatorLabel: 'Você' },
+          { id: 2, name: 'B', value: 50, indicatorLabel: '' },
+          { id: 3, name: 'C', value: 80, indicatorLabel: 'Objetivo' },
+        ],
+      };
+    }
+
     const newComponent: CanvasComponentData = {
       ...component,
       id: Date.now(),
