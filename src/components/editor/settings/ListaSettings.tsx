@@ -8,6 +8,12 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Plus, Trash2, Grip } from 'lucide-react';
 import type { CanvasComponentData, ComponentProps, ListItem } from '../types';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+
+const emojis = [
+  '✅', '🚀', '💡', '🔥', '⭐', '❤️', '👍', '🎉', '💰', '📈', '🎯', '🤔'
+];
+
 
 export const ListaSettings = ({
   component,
@@ -87,15 +93,30 @@ export const ListaSettings = ({
                     className="h-8"
                   />
                   
-                  <UILabel htmlFor={`icon-${item.id}`} className="text-xs">
+                  <UILabel className="text-xs">
                     Ícone
                   </UILabel>
-                   <Input
-                    id={`icon-${item.id}`}
-                    value={item.icon}
-                    onChange={(e) => handleUpdateItem(item.id, 'icon', e.target.value)}
-                    className="h-8"
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="h-8 w-16 justify-start">
+                        {item.icon}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-2">
+                       <div className="grid grid-cols-4 gap-2">
+                          {emojis.map((emoji) => (
+                            <Button
+                              key={emoji}
+                              variant="ghost"
+                              className="text-lg"
+                              onClick={() => handleUpdateItem(item.id, 'icon', emoji)}
+                            >
+                              {emoji}
+                            </Button>
+                          ))}
+                        </div>
+                    </PopoverContent>
+                  </Popover>
 
                   <UILabel htmlFor={`iconBgColor-${item.id}`} className="text-xs">
                     Cor
