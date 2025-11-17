@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "User": {
@@ -232,6 +233,21 @@
         "modules": {
           "type": "array",
           "items": { "type": "object" }
+        },
+        "upsells": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "price": { "type": "string" },
+              "imageUrl": { "type": "string", "format": "uri" },
+              "url": { "type": "string", "format": "uri" }
+            },
+            "required": ["id", "name", "price", "url"]
+          }
         }
       },
       "required": ["id", "name", "slug", "type", "userId", "createdAt"]

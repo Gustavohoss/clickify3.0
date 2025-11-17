@@ -7,7 +7,7 @@ import { collection, query, where, limit } from 'firebase/firestore';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Progress } from '@/components/ui/progress';
-import { Play, PlayCircle, ChevronLeft, ChevronRight, CheckCircle, ExternalLink, ShoppingBag } from 'lucide-react';
+import { Play, PlayCircle, ChevronLeft, ChevronRight, CheckCircle, ExternalLink, ShoppingBag, DollarSign } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import ReactPlayer from 'react-player/lazy';
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,15 @@ type Product = {
     url: string;
 }
 
+type Upsell = {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  imageUrl?: string;
+  url: string;
+};
+
 type Module = {
   id: string;
   name: string;
@@ -40,6 +49,7 @@ type MemberArea = {
   slug: string;
   headerImageUrl?: string;
   modules?: Module[];
+  upsells?: Upsell[];
 };
 
 export default function MemberAreaPublicPage() {
@@ -162,6 +172,32 @@ export default function MemberAreaPublicPage() {
             ))}
           </div>
         </div>
+        
+        {area.upsells && area.upsells.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-xl font-bold mb-4">Ofertas Especiais</h2>
+             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+              {area.upsells.map(upsell => (
+                 <a key={upsell.id} href={upsell.url} target="_blank" rel="noopener noreferrer" className="group cursor-pointer">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-gray-800 transition-transform group-hover:scale-105">
+                      {upsell.imageUrl ? (
+                        <Image src={upsell.imageUrl} alt={upsell.name} layout="fill" objectFit="cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-gray-500 p-4 text-center">
+                          <span>{upsell.name}</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent p-4 flex flex-col justify-end">
+                        <h3 className="font-bold text-lg">{upsell.name}</h3>
+                        <p className="text-sm text-gray-300">{upsell.description}</p>
+                        <div className="mt-2 text-lg font-bold text-green-400">{upsell.price}</div>
+                      </div>
+                    </div>
+                 </a>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       
       <Dialog open={isModalOpen} onOpenChange={(isOpen) => !isOpen && closeModal()}>
@@ -215,28 +251,39 @@ export default function MemberAreaPublicPage() {
                 <aside className='flex-[1] border-l border-gray-700 bg-[#1A202C]'>
                     <ScrollArea className="h-full">
                         <div className="p-4 space-y-2">
-                            {selectedModule.lessons?.map((lesson, index) => (
-                                <button key={lesson.id} onClick={() => handleLessonSelect(lesson)} className={cn(
-                                    "w-full text-left p-3 rounded-md flex items-center gap-3 transition-colors",
-                                    activeLesson?.id === lesson.id ? "bg-white/10" : "hover:bg-white/5"
-                                )}>
-                                    <PlayCircle className={cn("h-5 w-5", activeLesson?.id === lesson.id ? "text-green-400" : "text-gray-500")} />
-                                    <div className='flex-1'>
-                                        <p className="text-sm font-medium">{lesson.title}</p>
-                                        <p className="text-xs text-gray-400">Aula {index + 1}</p>
-                                    </div>
-                                </button>
-                            ))}
-                            {selectedModule.products?.map((product) => (
-                                 <a key={product.id} href={product.url} target="_blank" rel="noopener noreferrer" className="w-full text-left p-3 rounded-md flex items-center gap-3 transition-colors hover:bg-white/5">
-                                    <ShoppingBag className="h-5 w-5 text-gray-500" />
-                                    <div className='flex-1'>
-                                        <p className="text-sm font-medium">{product.title}</p>
-                                        <p className="text-xs text-gray-400">Produto</p>
-                                    </div>
-                                    <ExternalLink className="h-4 w-4 text-gray-500" />
-                                </a>
-                            ))}
+                             {selectedModule.lessons && selectedModule.lessons.length > 0 && (
+                                <div className="space-y-2">
+                                    <h4 className="text-sm font-semibold text-gray-400 px-3">Vídeo Aulas</h4>
+                                    {selectedModule.lessons.map((lesson, index) => (
+                                        <button key={lesson.id} onClick={() => handleLessonSelect(lesson)} className={cn(
+                                            "w-full text-left p-3 rounded-md flex items-center gap-3 transition-colors",
+                                            activeLesson?.id === lesson.id ? "bg-white/10" : "hover:bg-white/5"
+                                        )}>
+                                            <PlayCircle className={cn("h-5 w-5", activeLesson?.id === lesson.id ? "text-green-400" : "text-gray-500")} />
+                                            <div className='flex-1'>
+                                                <p className="text-sm font-medium">{lesson.title}</p>
+                                                <p className="text-xs text-gray-400">Aula {index + 1}</p>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            {selectedModule.products && selectedModule.products.length > 0 && (
+                                <div className="space-y-2 pt-4">
+                                     <h4 className="text-sm font-semibold text-gray-400 px-3">Produtos</h4>
+                                    {selectedModule.products.map((product) => (
+                                        <a key={product.id} href={product.url} target="_blank" rel="noopener noreferrer" className="w-full text-left p-3 rounded-md flex items-center gap-3 transition-colors hover:bg-white/5">
+                                            <ShoppingBag className="h-5 w-5 text-gray-500" />
+                                            <div className='flex-1'>
+                                                <p className="text-sm font-medium">{product.title}</p>
+                                                <p className="text-xs text-gray-400">Produto</p>
+                                            </div>
+                                            <ExternalLink className="h-4 w-4 text-gray-500" />
+                                        </a>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </ScrollArea>
                 </aside>

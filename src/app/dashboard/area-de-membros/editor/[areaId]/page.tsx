@@ -8,7 +8,6 @@ import {
   Users,
   Pencil,
   Video,
-  Expand,
   PlusCircle,
   Eye,
   Info,
@@ -18,7 +17,6 @@ import {
   ImageIcon,
   GripVertical,
   MoreVertical,
-  ChevronDown,
   ShoppingBag,
   ExternalLink,
   Trash2,
@@ -45,9 +43,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { MemberAreaPreview } from '@/components/dashboard/area-de-membros/MemberAreaPreview';
+import { Textarea } from '@/components/ui/textarea';
 
 
 type Lesson = {
@@ -70,11 +67,22 @@ type Module = {
   products?: Product[];
 };
 
+type Upsell = {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  imageUrl?: string;
+  url: string;
+};
+
+
 type MemberArea = {
   name: string;
   slug: string;
   headerImageUrl?: string;
   modules?: Module[];
+  upsells?: Upsell[];
 };
 
 export default function MemberAreaEditorPage() {
@@ -85,12 +93,16 @@ export default function MemberAreaEditorPage() {
   
   const [headerUrl, setHeaderUrl] = useState('');
   const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
+  const [isAddUpsellOpen, setIsAddUpsellOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   
   const [newModuleName, setNewModuleName] = useState('');
   const [newModuleCoverUrl, setNewModuleCoverUrl] = useState('');
 
   const [editingModule, setEditingModule] = useState<Module | null>(null);
+
+  const [newUpsell, setNewUpsell] = useState<Partial<Upsell>>({});
+  const [editingUpsell, setEditingUpsell] = useState<Upsell | null>(null);
 
 
   const areaRef = useMemoFirebase(
@@ -148,7 +160,6 @@ export default function MemberAreaEditorPage() {
     };
   
     try {
-      // If modules field doesn't exist, create it. Otherwise, use arrayUnion.
       const updatedModules = areaData.modules ? arrayUnion(newModule) : [newModule];
       
       await updateDoc(areaRef, {
@@ -156,9 +167,7 @@ export default function MemberAreaEditorPage() {
       });
       
       toast({ title: 'Sucesso!', description: 'Módulo adicionado.' });
-      setNewModuleName('');
-      setNewModuleCoverUrl('');
-      setIsAddModuleOpen(false);
+      closeAndResetModuleDialog();
     } catch (error) {
       console.error(error);
       toast({
@@ -169,7 +178,7 @@ export default function MemberAreaEditorPage() {
     }
   };
 
-  const handleOpenEditDialog = (module: Module) => {
+  const handleOpenEditModuleDialog = (module: Module) => {
     setEditingModule(module);
     setNewModuleName(module.name);
     setNewModuleCoverUrl(module.coverImageUrl || '');
@@ -191,20 +200,20 @@ export default function MemberAreaEditorPage() {
     try {
       await updateDoc(areaRef, { modules: updatedModules });
       toast({ title: 'Sucesso!', description: 'Módulo atualizado.' });
-      closeAndResetDialog();
+      closeAndResetModuleDialog();
     } catch (error) {
       toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível atualizar o módulo.' });
     }
   };
 
-  const closeAndResetDialog = () => {
+  const closeAndResetModuleDialog = () => {
     setIsAddModuleOpen(false);
     setEditingModule(null);
     setNewModuleName('');
     setNewModuleCoverUrl('');
   };
 
-  const handleDialogSave = () => {
+  const handleModuleDialogSave = () => {
     if (editingModule) {
       handleUpdateModule();
     } else {
@@ -252,6 +261,81 @@ export default function MemberAreaEditorPage() {
     } catch (error) {
       toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível excluir o produto.' });
     }
+  };
+
+  const handleAddUpsell = async () => {
+    if (!areaRef || !newUpsell.name || !newUpsell.url || !newUpsell.price || !areaData) {
+      toast({ variant: 'destructive', title: 'Erro', description: 'Todos os campos do upsell são obrigatórios.' });
+      return;
+    }
+    const upsellToAdd: Upsell = {
+      id: new Date().toISOString(),
+      name: newUpsell.name,
+      description: newUpsell.description || '',
+      price: newUpsell.price,
+      url: newUpsell.url,
+      imageUrl: newUpsell.imageUrl,
+    };
+
+    try {
+      const updatedUpsells = areaData.upsells ? arrayUnion(upsellToAdd) : [upsellToAdd];
+      await updateDoc(areaRef, { upsells: updatedUpsells });
+      toast({ title: 'Sucesso!', description: 'Upsell adicionado.' });
+      closeAndResetUpsellDialog();
+    } catch (error) {
+      console.error(error);
+      toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível adicionar o upsell.' });
+    }
+  };
+
+  const handleUpdateUpsell = async () => {
+    if (!areaRef || !editingUpsell || !newUpsell.name || !newUpsell.url || !newUpsell.price || !areaData) {
+      toast({ variant: 'destructive', title: 'Erro', description: 'Todos os campos do upsell são obrigatórios.' });
+      return;
+    }
+
+    const updatedUpsells = areaData.upsells?.map(u => 
+      u.id === editingUpsell.id ? { ...u, ...newUpsell } : u
+    );
+
+    try {
+      await updateDoc(areaRef, { upsells: updatedUpsells });
+      toast({ title: 'Sucesso!', description: 'Upsell atualizado.' });
+      closeAndResetUpsellDialog();
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível atualizar o upsell.' });
+    }
+  };
+
+  const handleDeleteUpsell = async (upsellId: string) => {
+    if (!areaRef || !areaData) return;
+    const updatedUpsells = areaData.upsells?.filter(u => u.id !== upsellId);
+    try {
+      await updateDoc(areaRef, { upsells: updatedUpsells });
+      toast({ title: 'Sucesso!', description: 'Upsell excluído.' });
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível excluir o upsell.' });
+    }
+  };
+
+  const handleUpsellDialogSave = () => {
+    if (editingUpsell) {
+      handleUpdateUpsell();
+    } else {
+      handleAddUpsell();
+    }
+  };
+
+  const closeAndResetUpsellDialog = () => {
+    setIsAddUpsellOpen(false);
+    setEditingUpsell(null);
+    setNewUpsell({});
+  };
+
+  const handleOpenEditUpsellDialog = (upsell: Upsell) => {
+    setEditingUpsell(upsell);
+    setNewUpsell(upsell);
+    setIsAddUpsellOpen(true);
   };
 
 
@@ -369,6 +453,7 @@ export default function MemberAreaEditorPage() {
               <div className="space-y-4">
                 {areaData?.modules && areaData.modules.length > 0 ? (
                   <div className="w-full space-y-4">
+                    <h3 className="text-lg font-semibold">Módulos</h3>
                     {areaData.modules.map((module) => (
                       <div key={module.id} className="rounded-lg bg-gray-800/50 border border-gray-700 overflow-hidden">
                         <div className="flex justify-between items-center p-4">
@@ -385,7 +470,7 @@ export default function MemberAreaEditorPage() {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent className="bg-gray-700 border-gray-600 text-white">
-                                        <DropdownMenuItem className="focus:bg-gray-600" onClick={() => handleOpenEditDialog(module)}>Editar</DropdownMenuItem>
+                                        <DropdownMenuItem className="focus:bg-gray-600" onClick={() => handleOpenEditModuleDialog(module)}>Editar</DropdownMenuItem>
                                         <DropdownMenuItem className="text-red-400 focus:bg-red-900/50 focus:text-red-300">Excluir</DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
@@ -499,7 +584,38 @@ export default function MemberAreaEditorPage() {
                      <p className="text-gray-400">Você ainda não adicionou nenhum módulo.</p>
                   </div>
                 )}
-                 
+                
+                {areaData?.upsells && areaData.upsells.length > 0 && (
+                  <div className="w-full space-y-4">
+                     <h3 className="text-lg font-semibold">Upsells</h3>
+                     {areaData.upsells.map(upsell => (
+                        <div key={upsell.id} className="rounded-lg bg-gray-800/50 border border-gray-700 p-4 flex justify-between items-center">
+                           <div className="flex items-center gap-4">
+                              <DollarSign className="text-green-500"/>
+                              <div>
+                                 <p className="font-semibold">{upsell.name}</p>
+                                 <p className="text-sm text-gray-400">{upsell.description}</p>
+                              </div>
+                           </div>
+                           <div className="flex items-center gap-2">
+                               <Badge className="bg-yellow-900/50 text-yellow-300 border-yellow-800">{upsell.price}</Badge>
+                               <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400">
+                                            <MoreVertical size={16} />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="bg-gray-700 border-gray-600 text-white">
+                                        <DropdownMenuItem className="focus:bg-gray-600" onClick={() => handleOpenEditUpsellDialog(upsell)}>Editar</DropdownMenuItem>
+                                        <DropdownMenuItem className="text-red-400 focus:bg-red-900/50 focus:text-red-300" onClick={() => handleDeleteUpsell(upsell.id)}>Excluir</DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                           </div>
+                        </div>
+                     ))}
+                  </div>
+                )}
+
                  <div className="flex items-center justify-center gap-4">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -513,14 +629,14 @@ export default function MemberAreaEditorPage() {
                           <Folder size={16} />
                           Módulo
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="focus:bg-gray-600 gap-2" disabled>
+                        <DropdownMenuItem className="focus:bg-gray-600 gap-2" onClick={() => setIsAddUpsellOpen(true)}>
                           <DollarSign size={16} />
                           Upsell
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
 
-                    <Dialog open={isAddModuleOpen} onOpenChange={(open) => { if (!open) closeAndResetDialog(); else setIsAddModuleOpen(true);}}>
+                    <Dialog open={isAddModuleOpen} onOpenChange={(open) => { if (!open) closeAndResetModuleDialog(); else setIsAddModuleOpen(true);}}>
                         <DialogContent className="bg-[#2D3748] border-gray-700 text-white max-w-3xl p-0">
                             <DialogHeader className="p-6">
                                 <div className="flex items-start gap-4">
@@ -605,8 +721,43 @@ export default function MemberAreaEditorPage() {
                                 </div>
                             </Tabs>
                             <DialogFooter className="px-6 py-4 bg-gray-800/50 border-t border-gray-700">
-                                <Button variant="ghost" onClick={closeAndResetDialog}>Cancelar</Button>
-                                <Button className="bg-green-600 hover:bg-green-700" onClick={handleDialogSave}>Salvar</Button>
+                                <Button variant="ghost" onClick={closeAndResetModuleDialog}>Cancelar</Button>
+                                <Button className="bg-green-600 hover:bg-green-700" onClick={handleModuleDialogSave}>Salvar</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+
+                    <Dialog open={isAddUpsellOpen} onOpenChange={(open) => { if (!open) closeAndResetUpsellDialog(); else setIsAddUpsellOpen(true);}}>
+                        <DialogContent className="bg-[#2D3748] border-gray-700 text-white max-w-lg">
+                            <DialogHeader>
+                                <DialogTitle>{editingUpsell ? 'Editar Upsell' : 'Adicionar Upsell'}</DialogTitle>
+                                <DialogDescription>Crie uma oferta especial para seus membros.</DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 py-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="upsell-name">Nome da Oferta</Label>
+                                    <Input id="upsell-name" value={newUpsell.name || ''} onChange={(e) => setNewUpsell({...newUpsell, name: e.target.value})} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="upsell-desc">Descrição</Label>
+                                    <Textarea id="upsell-desc" value={newUpsell.description || ''} onChange={(e) => setNewUpsell({...newUpsell, description: e.target.value})} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="upsell-price">Preço</Label>
+                                    <Input id="upsell-price" placeholder="Ex: R$ 97,00" value={newUpsell.price || ''} onChange={(e) => setNewUpsell({...newUpsell, price: e.target.value})} />
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="upsell-image-url">URL da Imagem (Opcional)</Label>
+                                    <Input id="upsell-image-url" placeholder="https://..." value={newUpsell.imageUrl || ''} onChange={(e) => setNewUpsell({...newUpsell, imageUrl: e.target.value})} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="upsell-url">URL de Destino</Label>
+                                    <Input id="upsell-url" placeholder="https://seu-checkout.com" value={newUpsell.url || ''} onChange={(e) => setNewUpsell({...newUpsell, url: e.target.value})} />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button variant="ghost" onClick={closeAndResetUpsellDialog}>Cancelar</Button>
+                                <Button className="bg-green-600 hover:bg-green-700" onClick={handleUpsellDialogSave}>Salvar</Button>
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
@@ -626,7 +777,3 @@ export default function MemberAreaEditorPage() {
     </div>
   );
 }
-
-    
-
-    
