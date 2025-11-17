@@ -145,6 +145,8 @@ export function StandardFunnelEditor({
           { id: 2, name: 'B', value: 40, indicatorLabel: 'Você' },
           { id: 3, name: 'C', value: 75, indicatorLabel: 'Objetivo' },
         ],
+        gradientStartColor: '#16A34A',
+        gradientEndColor: '#EF4444',
       };
     }
 
