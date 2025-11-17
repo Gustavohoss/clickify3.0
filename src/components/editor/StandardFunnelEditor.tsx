@@ -6419,8 +6419,7 @@ export function StandardFunnelEditor(
               <div className="flex h-14 items-center border-b border-border px-4">
                 <h2 className="font-semibold">Componentes</h2>
               </div>
-              <div className="flex-1">
-                <ScrollArea className="h-full">
+              <ScrollArea className="flex-1">
                   <div className="grid grid-cols-1 gap-2 p-2">
                     {components.map((component) => (
                       <Card
@@ -6438,8 +6437,7 @@ export function StandardFunnelEditor(
                       </Card>
                     ))}
                   </div>
-                </ScrollArea>
-              </div>
+              </ScrollArea>
             </div>
           </aside>
   
