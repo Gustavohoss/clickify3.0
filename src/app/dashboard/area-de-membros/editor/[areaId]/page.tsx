@@ -340,8 +340,11 @@ export default function MemberAreaEditorPage() {
                             </div>
                             <AccordionContent className="p-4 pt-0">
                                 <div className="ml-10 border-l-2 border-dashed border-gray-700 pl-8 py-4 space-y-4">
-                                   {module.lessons && module.lessons.length > 0 ? (
-                                        module.lessons.map(lesson => (
+                                   {(!module.lessons || module.lessons.length === 0) && (!module.products || module.products.length === 0) ? (
+                                        <p className="text-gray-500">Nenhum conteúdo adicionado ainda.</p>
+                                    ) : (
+                                      <>
+                                        {module.lessons?.map(lesson => (
                                             <div key={lesson.id} className="flex items-center gap-4 bg-gray-800/50 p-3 rounded-md">
                                                 <GripVertical className="cursor-grab text-gray-500" />
                                                 <Video size={16} className="text-gray-400" />
@@ -375,9 +378,45 @@ export default function MemberAreaEditorPage() {
                                                   </DialogContent>
                                                 </Dialog>
                                             </div>
-                                        ))
-                                    ) : (
-                                        <p className="text-gray-500">Nenhum conteúdo adicionado ainda.</p>
+                                        ))}
+                                        {module.products?.map(product => (
+                                            <div key={product.id} className="flex items-center gap-4 bg-gray-800/50 p-3 rounded-md">
+                                                <GripVertical className="cursor-grab text-gray-500" />
+                                                <ShoppingBag size={16} className="text-gray-400" />
+                                                <span className="flex-1 text-sm font-medium">{product.title}</span>
+                                                <Badge className="bg-green-900/50 text-green-300 border-green-800 text-xs">Publicado</Badge>
+                                                <a href={product.url} target="_blank" rel="noopener noreferrer">
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white">
+                                                        <ExternalLink size={16} />
+                                                    </Button>
+                                                </a>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white" onClick={() => { /* TODO: edit product */ }}>
+                                                    <Pencil size={16} />
+                                                </Button>
+                                                <Dialog>
+                                                  <DialogTrigger asChild>
+                                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500/80 hover:text-red-400">
+                                                          <Trash2 size={16} />
+                                                      </Button>
+                                                  </DialogTrigger>
+                                                  <DialogContent className="bg-[#2D3748] border-gray-700 text-white">
+                                                    <DialogHeader>
+                                                      <DialogTitle>Confirmar exclusão</DialogTitle>
+                                                      <DialogDescription className="text-gray-400">
+                                                        Tem certeza que deseja excluir o produto "{product.title}"? Essa ação não pode ser desfeita.
+                                                      </DialogDescription>
+                                                    </DialogHeader>
+                                                    <DialogFooter>
+                                                      <DialogClose asChild>
+                                                        <Button variant="ghost">Cancelar</Button>
+                                                      </DialogClose>
+                                                      <Button variant="destructive" onClick={() => { /* TODO: delete product */ }}>Excluir</Button>
+                                                    </DialogFooter>
+                                                  </DialogContent>
+                                                </Dialog>
+                                            </div>
+                                        ))}
+                                      </>
                                     )}
                                 </div>
                             </AccordionContent>
