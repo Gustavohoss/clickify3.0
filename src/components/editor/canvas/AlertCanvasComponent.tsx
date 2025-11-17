@@ -10,19 +10,20 @@ export const AlertCanvasComponent = ({ component }: { component: CanvasComponent
     component.props;
   const IconComponent = icon || <CheckCircle className="h-4 w-4" />;
 
+  const style = {
+      '--alert-bg': backgroundColor,
+      '--alert-border': borderColor,
+      '--alert-text': textColor,
+  } as React.CSSProperties;
+
   return (
-    <Alert
-      style={{
-        backgroundColor: backgroundColor,
-        borderColor: borderColor,
-      }}
-    >
+    <Alert style={style}>
       {React.isValidElement(IconComponent) ? React.cloneElement(IconComponent as React.ReactElement, {
         className: 'h-5 w-5',
         style: { color: textColor },
       }) : null}
-      <AlertTitle style={{ color: textColor }}>{title || 'Título do Alerta'}</AlertTitle>
-      <AlertDescription style={{ color: textColor }}>
+      <AlertTitle>{title || 'Título do Alerta'}</AlertTitle>
+      <AlertDescription>
         {description || 'Esta é a descrição do alerta.'}
       </AlertDescription>
     </Alert>
