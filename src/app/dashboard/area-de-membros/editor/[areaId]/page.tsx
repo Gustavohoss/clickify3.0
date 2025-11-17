@@ -53,11 +53,18 @@ type Lesson = {
     // add other lesson properties here
 };
 
+type Product = {
+    id: string;
+    title: string;
+    url: string;
+}
+
 type Module = {
   id: string;
   name: string;
   coverImageUrl?: string;
   lessons: Lesson[];
+  products?: Product[];
 };
 
 type MemberArea = {
@@ -110,6 +117,7 @@ export default function MemberAreaEditorPage() {
       name: newModuleName,
       coverImageUrl: newModuleCoverUrl,
       lessons: [],
+      products: [],
     };
 
     try {
@@ -321,7 +329,7 @@ export default function MemberAreaEditorPage() {
                                             <Video size={16}/>
                                             Video Aula
                                         </Button>
-                                        <Button variant="ghost" className="w-full justify-start gap-2">
+                                        <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => router.push(`/dashboard/area-de-membros/editor/${areaId}/novo-produto?moduleId=${module.id}`)}>
                                             <ShoppingBag size={16}/>
                                             Produto
                                         </Button>
