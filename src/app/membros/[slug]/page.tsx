@@ -1,16 +1,18 @@
+
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where, limit } from 'firebase/firestore';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Progress } from '@/components/ui/progress';
-import { Play } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Play, PlayCircle, ChevronLeft, ChevronRight, CheckCircle, ExternalLink, ShoppingBag } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import ReactPlayer from 'react-player/lazy';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Star } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 type Lesson = {
   id: string;
@@ -18,11 +20,18 @@ type Lesson = {
   videoUrl?: string;
 };
 
+type Product = {
+    id: string;
+    title: string;
+    url: string;
+}
+
 type Module = {
   id: string;
   name: string;
   coverImageUrl?: string;
   lessons?: Lesson[];
+  products?: Product[];
 };
 
 type MemberArea = {
@@ -35,11 +44,11 @@ type MemberArea = {
 
 export default function MemberAreaPublicPage() {
   const { slug } = useParams() as { slug: string };
-  const router = useRouter();
   const firestore = useFirestore();
 
   const [area, setArea] = useState<MemberArea | null>(null);
-  const [selectedLesson, setSelectedLesson] = useState<{ lesson: Lesson; module: Module } | null>(null);
+  const [selectedModule, setSelectedModule] = useState<Module | null>(null);
+  const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
 
   const areasQuery = useMemoFirebase(
     () => (firestore && slug ? query(collection(firestore, 'memberAreas'), where('slug', '==', slug), limit(1)) : null),
@@ -55,10 +64,32 @@ export default function MemberAreaPublicPage() {
   }, [memberAreas]);
 
   const handleModuleClick = (module: Module) => {
-    if (!area || !module.lessons || module.lessons.length === 0) return;
-    const firstLesson = module.lessons[0];
-    setSelectedLesson({ lesson: firstLesson, module });
+    if (module.lessons && module.lessons.length > 0) {
+      setSelectedModule(module);
+      setActiveLesson(module.lessons[0]);
+    }
   };
+
+  const handleLessonSelect = (lesson: Lesson) => {
+    setActiveLesson(lesson);
+  };
+  
+  const handleNavigation = (direction: 'next' | 'prev') => {
+    if (!selectedModule || !activeLesson || !selectedModule.lessons) return;
+    const currentIndex = selectedModule.lessons.findIndex(l => l.id === activeLesson.id);
+    const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+
+    if (newIndex >= 0 && newIndex < selectedModule.lessons.length) {
+      setActiveLesson(selectedModule.lessons[newIndex]);
+    }
+  };
+
+
+  const isModalOpen = !!selectedModule && !!activeLesson;
+  const closeModal = () => {
+    setSelectedModule(null);
+    setActiveLesson(null);
+  }
 
   if (isLoading) {
     return <div className="flex min-h-screen items-center justify-center bg-gray-900 text-white">Carregando área de membros...</div>;
@@ -110,7 +141,7 @@ export default function MemberAreaPublicPage() {
                       objectFit="cover"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-gray-500">
+                    <div className="flex h-full w-full items-center justify-center text-gray-500 text-center p-4">
                       <span>{module.name}</span>
                     </div>
                   )}
@@ -118,7 +149,7 @@ export default function MemberAreaPublicPage() {
                     <Play className="h-12 w-12 text-white" />
                   </div>
                   <div className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
-                    {module.lessons?.length || 0} Aula{module.lessons?.length !== 1 ? 's' : ''}
+                    {(module.lessons?.length || 0) + (module.products?.length || 0)} Conteúdo(s)
                   </div>
                 </div>
               </div>
@@ -127,52 +158,85 @@ export default function MemberAreaPublicPage() {
         </div>
       </div>
       
-      <Dialog open={!!selectedLesson} onOpenChange={(isOpen) => !isOpen && setSelectedLesson(null)}>
-        <DialogContent className="max-w-4xl w-full p-0 bg-[#1A202C] border-gray-700 shadow-2xl text-white flex flex-col h-[80vh]">
-           {selectedLesson && (
+      <Dialog open={isModalOpen} onOpenChange={(isOpen) => !isOpen && closeModal()}>
+        <DialogContent className="max-w-6xl w-full p-0 bg-[#171923] border-gray-700 shadow-2xl text-white flex flex-col h-[90vh] overflow-hidden">
+           {selectedModule && activeLesson && (
             <>
-              <DialogHeader className='p-4 border-b border-gray-700'>
-                <DialogTitle>{selectedLesson.lesson.title}</DialogTitle>
-                <DialogDescription className='text-gray-400'>{selectedLesson.module.name}</DialogDescription>
+              <DialogHeader className='p-4 border-b border-gray-700 shrink-0'>
+                <DialogTitle>{selectedModule.name}</DialogTitle>
+                <DialogClose className="text-white/50" />
               </DialogHeader>
-              <div className="flex-1 relative bg-black">
-                {selectedLesson.lesson.videoUrl ? (
-                  <ReactPlayer
-                    url={selectedLesson.lesson.videoUrl}
-                    width="100%"
-                    height="100%"
-                    controls
-                    playing
-                    key={selectedLesson.lesson.id}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <p>Vídeo não disponível.</p>
-                  </div>
-                )}
-              </div>
-              <footer className="bg-[#2D3748] p-4 flex justify-between items-center border-t border-gray-700">
-                  <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10">
-                           <AvatarImage src={''} />
-                           <AvatarFallback>U</AvatarFallback>
-                      </Avatar>
-                      <div>
-                          <p className="text-xs text-gray-400">Modulo {selectedLesson.module.name}</p>
-                          <h3 className="font-semibold">{selectedLesson.lesson.title}</h3>
+              <div className="flex-1 flex overflow-hidden">
+                <div className="flex-[3] flex flex-col">
+                  <div className="flex-1 relative bg-black">
+                    {activeLesson.videoUrl ? (
+                      <ReactPlayer
+                        url={activeLesson.videoUrl}
+                        width="100%"
+                        height="100%"
+                        controls
+                        playing
+                        key={activeLesson.id}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white/50">
+                        <p>Vídeo não disponível.</p>
                       </div>
+                    )}
                   </div>
-                  <div className="flex items-center gap-2">
-                      {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-5 w-5 text-gray-500 fill-current" />
-                      ))}
-                  </div>
-              </footer>
+                   <footer className="bg-[#2D3748] p-4 flex justify-between items-center border-t border-gray-700 shrink-0">
+                        <div>
+                            <h3 className="font-semibold">{activeLesson.title}</h3>
+                            <p className="text-xs text-gray-400">
+                                Aula {selectedModule.lessons!.findIndex(l => l.id === activeLesson.id) + 1} de {selectedModule.lessons!.length}
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                             <Button variant="outline" className="text-white border-gray-500 hover:bg-gray-600 gap-2">
+                                <CheckCircle size={16} /> Marcar como concluída
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleNavigation('prev')}>
+                                <ChevronLeft />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleNavigation('next')}>
+                                <ChevronRight />
+                            </Button>
+                        </div>
+                   </footer>
+                </div>
+                <aside className='flex-[1] border-l border-gray-700 bg-[#1A202C]'>
+                    <ScrollArea className="h-full">
+                        <div className="p-4 space-y-2">
+                            {selectedModule.lessons?.map((lesson, index) => (
+                                <button key={lesson.id} onClick={() => handleLessonSelect(lesson)} className={cn(
+                                    "w-full text-left p-3 rounded-md flex items-center gap-3 transition-colors",
+                                    activeLesson.id === lesson.id ? "bg-white/10" : "hover:bg-white/5"
+                                )}>
+                                    <PlayCircle className={cn("h-5 w-5", activeLesson.id === lesson.id ? "text-green-400" : "text-gray-500")} />
+                                    <div className='flex-1'>
+                                        <p className="text-sm font-medium">{lesson.title}</p>
+                                        <p className="text-xs text-gray-400">Aula {index + 1}</p>
+                                    </div>
+                                </button>
+                            ))}
+                            {selectedModule.products?.map((product) => (
+                                 <a key={product.id} href={product.url} target="_blank" rel="noopener noreferrer" className="w-full text-left p-3 rounded-md flex items-center gap-3 transition-colors hover:bg-white/5">
+                                    <ShoppingBag className="h-5 w-5 text-gray-500" />
+                                    <div className='flex-1'>
+                                        <p className="text-sm font-medium">{product.title}</p>
+                                        <p className="text-xs text-gray-400">Produto</p>
+                                    </div>
+                                    <ExternalLink className="h-4 w-4 text-gray-500" />
+                                </a>
+                            ))}
+                        </div>
+                    </ScrollArea>
+                </aside>
+              </div>
             </>
            )}
         </DialogContent>
       </Dialog>
-
     </div>
   );
 }
