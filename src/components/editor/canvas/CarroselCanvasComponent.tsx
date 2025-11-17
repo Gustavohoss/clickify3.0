@@ -33,33 +33,39 @@ export const CarroselCanvasComponent = ({ component }: { component: CanvasCompon
       </div>
     );
   }
+  
+  const renderSlides = () => {
+    return slides.map((slide, index) => (
+      <CarouselItem key={`${slide.id}-${index}`}>
+        <div className="p-1">
+          <div className="border-0 bg-transparent shadow-none">
+            <div className="relative flex aspect-video items-center justify-center bg-gray-100 p-0">
+              {slide.imageUrl ? (
+                <Image
+                  src={slide.imageUrl}
+                  alt={slide.caption || 'Slide image'}
+                  layout="fill"
+                  objectFit="contain"
+                />
+              ) : (
+                <ImageIcon className="h-12 w-12 text-gray-400" />
+              )}
+            </div>
+          </div>
+          {slide.caption && (
+            <p className="mt-2 text-center text-sm text-black">{slide.caption}</p>
+          )}
+        </div>
+      </CarouselItem>
+    ));
+  };
+
 
   return (
     <Carousel className="w-full" opts={carouselOptions}>
       <CarouselContent>
-        {slides.map((slide) => (
-          <CarouselItem key={slide.id}>
-            <div className="p-1">
-              <div className="border-0 bg-transparent shadow-none">
-                <div className="relative flex aspect-video items-center justify-center bg-gray-100 p-0">
-                  {slide.imageUrl ? (
-                    <Image
-                      src={slide.imageUrl}
-                      alt={slide.caption || 'Slide image'}
-                      layout="fill"
-                      objectFit="contain"
-                    />
-                  ) : (
-                    <ImageIcon className="h-12 w-12 text-gray-400" />
-                  )}
-                </div>
-              </div>
-              {slide.caption && (
-                <p className="mt-2 text-center text-sm text-black">{slide.caption}</p>
-              )}
-            </div>
-          </CarouselItem>
-        ))}
+        {renderSlides()}
+        {loop && renderSlides()}
       </CarouselContent>
       <CarouselPrevious className="absolute left-[-50px] top-1/2 -translate-y-1/2" />
       <CarouselNext className="absolute right-[-50px] top-1/2 -translate-y-1/2" />
