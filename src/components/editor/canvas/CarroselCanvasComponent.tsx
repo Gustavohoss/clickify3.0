@@ -11,9 +11,16 @@ import {
 } from '@/components/ui/carousel';
 import type { CanvasComponentData } from '../types';
 import { WavingHandIcon } from './WavingHandIcon';
+import * as React from 'react';
 
 export const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
   const slides = component.props.slides || [];
+  const loop = component.props.loop ?? false;
+
+  const carouselOptions = React.useMemo(() => ({
+    loop,
+  }), [loop]);
+
 
   if (slides.length === 0) {
     return (
@@ -28,7 +35,7 @@ export const CarroselCanvasComponent = ({ component }: { component: CanvasCompon
   }
 
   return (
-    <Carousel className="w-full" opts={{ loop: component.props.loop }}>
+    <Carousel className="w-full" opts={carouselOptions}>
       <CarouselContent>
         {slides.map((slide) => (
           <CarouselItem key={slide.id}>
