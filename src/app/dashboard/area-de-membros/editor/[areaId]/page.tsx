@@ -19,6 +19,7 @@ import {
   GripVertical,
   MoreVertical,
   ChevronDown,
+  ShoppingBag,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -289,6 +290,10 @@ export default function MemberAreaEditorPage() {
                                             <Button variant="ghost" className="w-full justify-start gap-2">
                                                 <Video size={16}/>
                                                 Novo conteúdo
+                                            </Button>
+                                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                                <ShoppingBag size={16}/>
+                                                Produto
                                             </Button>
                                         </PopoverContent>
                                     </Popover>
