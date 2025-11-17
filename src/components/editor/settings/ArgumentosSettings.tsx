@@ -22,25 +22,13 @@ const ArgumentEditor = ({
   onDelete: (id: number) => void;
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  
-  const [content, setContent] = useState(item.description);
-  const [title, setTitle] = useState(item.title);
-
 
   useEffect(() => {
     const editor = editorRef.current;
-    if (editor && editor.innerHTML !== content) {
-      editor.innerHTML = content;
+    if (editor && editor.innerHTML !== item.description) {
+      editor.innerHTML = item.description;
     }
-  }, [content]);
-
-  useEffect(() => {
-    const titleEl = titleRef.current;
-    if (titleEl && titleEl.innerText !== title) {
-      titleEl.innerText = title;
-    }
-  }, [title]);
+  }, [item.description]);
 
   const handleContentChange = () => {
     if (editorRef.current) {
@@ -52,10 +40,6 @@ const ArgumentEditor = ({
     document.execCommand(command, false, value);
     editorRef.current?.focus();
     handleContentChange();
-  };
-  
-  const handleTitleChange = (e: React.FocusEvent<HTMLHeadingElement>) => {
-    onUpdate(item.id, { title: e.currentTarget.innerText });
   };
 
   return (
@@ -86,15 +70,6 @@ const ArgumentEditor = ({
         </div>
         
         <div className='bg-white/5 rounded-md p-2'>
-            <h4
-                ref={titleRef}
-                contentEditable
-                suppressContentEditableWarning
-                onBlur={handleTitleChange}
-                className="text-lg font-bold text-white mb-2 px-2 focus:outline-none focus:bg-white/10 rounded-md"
-            >
-                {item.title}
-            </h4>
             <RichTextToolbar onFormat={handleFormat} />
             <div className="p-2 text-white focus:outline-none min-h-[80px]"
                 ref={editorRef}
@@ -139,8 +114,8 @@ export const ArgumentosSettings = ({
     const newItem: ArgumentItem = {
       id: Date.now(),
       icon: '💬',
-      title: 'Argumento',
-      description: 'Lorem ipsum dolor sit amet.',
+      title: '', // Title is now part of description
+      description: '<h4><b>Argumento</b></h4><p>Lorem ipsum dolor sit amet.</p>',
     };
     onUpdate({ ...component.props, items: [...items, newItem] });
   };

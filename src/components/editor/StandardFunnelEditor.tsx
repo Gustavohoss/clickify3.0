@@ -117,8 +117,8 @@ export function StandardFunnelEditor({
           {
             id: Date.now(),
             icon: '👋',
-            title: 'Argumento',
-            description: 'Lorem ipsum dolor sit amet',
+            title: '',
+            description: '<h4><b>Argumento</b></h4><p>Lorem ipsum dolor sit amet.</p>',
           },
         ],
       };
