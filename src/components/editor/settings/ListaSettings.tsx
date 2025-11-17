@@ -49,7 +49,7 @@ export const ListaSettings = ({
     <div className="space-y-6">
       <Card className="border-border/50 bg-card p-4">
         <h3 className="mb-4 text-sm font-medium text-muted-foreground">Itens da Lista</h3>
-        <ScrollArea className="h-[40rem]">
+        <ScrollArea className="h-[35rem]">
           <div className="space-y-4 pr-4">
             {listItems.map((item) => (
               <Card key={item.id} className="relative bg-card p-3 space-y-3">
@@ -117,7 +117,23 @@ export const ListaSettings = ({
           Adicionar Item
         </Button>
       </Card>
+      <Card className="border-border/50 bg-card p-4">
+        <h3 className="mb-4 text-sm font-medium text-muted-foreground">Personalização</h3>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="space-y-1">
+            <UILabel htmlFor="card-bg-color" className="text-xs">Cor</UILabel>
+            <Input type="color" id="card-bg-color" className="h-8 w-full p-1" value={component.props.cardBackgroundColor || '#FFFFFF'} onChange={(e) => onUpdate({ ...component.props, cardBackgroundColor: e.target.value })} />
+          </div>
+          <div className="space-y-1">
+            <UILabel htmlFor="card-text-color" className="text-xs">Texto</UILabel>
+            <Input type="color" id="card-text-color" className="h-8 w-full p-1" value={component.props.cardTextColor || '#000000'} onChange={(e) => onUpdate({ ...component.props, cardTextColor: e.target.value })} />
+          </div>
+          <div className="space-y-1">
+            <UILabel htmlFor="card-border-color" className="text-xs">Borda</UILabel>
+            <Input type="color" id="card-border-color" className="h-8 w-full p-1" value={component.props.cardBorderColor || '#E5E7EB'} onChange={(e) => onUpdate({ ...component.props, cardBorderColor: e.target.value })} />
+          </div>
+        </div>
+      </Card>
     </div>
   );
 };
-

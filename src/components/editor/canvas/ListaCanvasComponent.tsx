@@ -5,6 +5,7 @@ import { WavingHandIcon } from './WavingHandIcon';
 
 export const ListaCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
   const items = component.props.listItems || [];
+  const { cardBackgroundColor, cardTextColor, cardBorderColor } = component.props;
 
   if (items.length === 0) {
     return (
@@ -21,7 +22,15 @@ export const ListaCanvasComponent = ({ component }: { component: CanvasComponent
   return (
     <div className="mx-auto w-full max-w-md space-y-3">
       {items.map((item) => (
-        <div key={item.id} className="rounded-lg bg-white p-3 shadow-md">
+        <div 
+          key={item.id} 
+          className="rounded-lg bg-white p-3 shadow-md"
+          style={{
+            backgroundColor: cardBackgroundColor,
+            borderColor: cardBorderColor,
+            borderWidth: cardBorderColor ? '1px' : '0',
+          }}
+        >
           <div className="flex items-center gap-4">
             <div
               className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg"
@@ -30,8 +39,18 @@ export const ListaCanvasComponent = ({ component }: { component: CanvasComponent
               <span className="text-xl text-white">{item.icon}</span>
             </div>
             <div>
-              <p className="font-semibold text-black">{item.title}</p>
-              <p className="text-sm text-gray-500">{item.subtitle}</p>
+              <p 
+                className="font-semibold text-black"
+                style={{ color: cardTextColor }}
+              >
+                {item.title}
+              </p>
+              <p 
+                className="text-sm text-gray-500"
+                style={{ color: cardTextColor ? `${cardTextColor}B3` : '' }}
+              >
+                {item.subtitle}
+              </p>
             </div>
           </div>
         </div>
