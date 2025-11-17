@@ -199,6 +199,41 @@ export function StandardFunnelEditor({
       };
     }
 
+    if (component.name === 'Lista') {
+      defaultProps = {
+        listItems: [
+          {
+            id: Date.now(),
+            icon: '✅',
+            iconBgColor: '#10B981',
+            title: 'Item 1',
+            subtitle: 'Descrição do item 1',
+          },
+          {
+            id: Date.now() + 1,
+            icon: '✅',
+            iconBgColor: '#10B981',
+            title: 'Item 2',
+            subtitle: 'Descrição do item 2',
+          },
+          {
+            id: Date.now() + 2,
+            icon: '✅',
+            iconBgColor: '#10B981',
+            title: 'Item 3',
+            subtitle: 'Descrição do item 3',
+          },
+          {
+            id: Date.now() + 3,
+            icon: '✅',
+            iconBgColor: '#10B981',
+            title: 'Item 4',
+            subtitle: 'Descrição do item 4',
+          },
+        ],
+      };
+    }
+
     if (component.name === 'Marquise') {
       defaultProps = {
         marquiseItems: [
@@ -214,7 +249,7 @@ export function StandardFunnelEditor({
             name: 'Outro Usuário',
             handle: '@outro.usuario',
             avatarUrl: `https://picsum.photos/seed/${Date.now() + 1}/40/40`,
-            text: 'LaunchMe é incrível! Facilitou muito a criação do meu primeiro produto digital. Recomendo!',
+            text: 'Clickify é incrível! Facilitou muito a criação do meu primeiro produto digital. Recomendo!',
           },
         ],
       };
