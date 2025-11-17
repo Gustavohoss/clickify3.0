@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import ReactPlayer from 'react-player/lazy';
 
 export default function NewLessonPage() {
   const router = useRouter();
@@ -164,6 +165,16 @@ export default function NewLessonPage() {
                             />
                         </div>
                     </div>
+                    {videoUrl && (
+                      <div className="mt-4 aspect-video w-full overflow-hidden rounded-lg bg-gray-950">
+                        <ReactPlayer
+                          url={videoUrl}
+                          width="100%"
+                          height="100%"
+                          controls
+                        />
+                      </div>
+                    )}
                      <div className="flex items-center gap-4">
                        <Button variant="outline" className="w-full gap-2 border-gray-600 bg-transparent text-gray-300 hover:bg-gray-700">
                           <Youtube size={16} className="text-red-500" /> Usar vídeo do YouTube
