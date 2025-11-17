@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -6,7 +7,7 @@ import { collection, query, where, limit } from 'firebase/firestore';
 import { useParams, useRouter } from 'next/navigation';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CheckCircle, ChevronDown } from 'lucide-react';
+import { CheckCircle, ChevronDown, ShoppingBag, Video } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Accordion,
@@ -21,10 +22,17 @@ type Lesson = {
   videoUrl?: string;
 };
 
+type Product = {
+    id: string;
+    title: string;
+    url: string;
+};
+
 type Module = {
   id: string;
   name: string;
   lessons?: Lesson[];
+  products?: Product[];
 };
 
 type MemberArea = {
@@ -125,19 +133,31 @@ function MemberAreaSidebar() {
                                             <button onClick={() => router.push(`/membros/${slug}/${lesson.id}`)} className={cn("w-full text-left flex items-center gap-3 p-2 rounded-md transition-colors text-sm", 
                                                 lesson.id === lessonId ? 'bg-purple-500/20 text-purple-300' : 'text-gray-400 hover:bg-gray-700/50'
                                             )}>
-                                                <div className={cn("h-5 w-5 rounded-full border-2 flex items-center justify-center flex-shrink-0", lesson.id === lessonId ? "border-purple-400" : "border-gray-500")}>
-                                                    {lesson.id === lessonId && <CheckCircle className="h-4 w-4 text-purple-400" />}
+                                                <div className="h-5 w-5 flex items-center justify-center flex-shrink-0 text-gray-400">
+                                                    <Video size={16} />
                                                 </div>
                                                 <span className="flex-1">{lesson.title}</span>
                                             </button>
                                         </li>
                                     ))}
-                                    <li >
-                                        <div className="flex items-center gap-3 p-2 text-sm text-gray-500">
-                                        <div className="h-5 w-5 rounded-full border-2 border-gray-600 flex-shrink-0" />
-                                        <span className="flex-1">Conclusão</span>
-                                        </div>
-                                    </li>
+                                    {module.products?.map(product => (
+                                        <li key={product.id}>
+                                            <a href={product.url} target="_blank" rel="noopener noreferrer" className="w-full text-left flex items-center gap-3 p-2 rounded-md transition-colors text-sm text-gray-400 hover:bg-gray-700/50">
+                                                <div className="h-5 w-5 flex items-center justify-center flex-shrink-0 text-gray-400">
+                                                    <ShoppingBag size={16} />
+                                                </div>
+                                                <span className="flex-1">{product.title}</span>
+                                            </a>
+                                        </li>
+                                    ))}
+                                    {(!module.lessons || module.lessons.length === 0) && (!module.products || module.products.length === 0) && (
+                                        <li >
+                                            <div className="flex items-center gap-3 p-2 text-sm text-gray-500">
+                                            <div className="h-5 w-5 rounded-full border-2 border-gray-600 flex-shrink-0" />
+                                            <span className="flex-1">Nenhum conteúdo</span>
+                                            </div>
+                                        </li>
+                                    )}
                                 </ul>
                             </AccordionContent>
                         </AccordionItem>
