@@ -48,7 +48,7 @@ const emojis = [
   '⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🪀', '🏓', '🏸', '🏒', '🏑', '🥍',
   '🏏', '🥅', '⛳', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛷', '⛸️', '🥌', '🎿', '⛷️',
   '🏂', '🪂', '🏋️', '🤼', '🤸', '🤺', '🤾', '🏌️', '🏇', '🧘', '🧗', '🏄', '🏊', '🤽', '🚣', '🚴',
-  '🚵', '🎪', 'nT', '🎭', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🪕', '🎻',
+  '🚵', '🧗', '🎪', 'nT', '🎭', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🪕', '🎻',
   '🎲', '♟️', '🎯', '🎳', '🎮', '🎰',
 
   // Travel & Places
@@ -186,9 +186,9 @@ export const ListaSettings = ({
                     <PopoverContent className="w-auto p-2">
                        <ScrollArea className="h-72">
                          <div className="grid grid-cols-8 gap-1">
-                            {emojis.map((emoji) => (
+                            {emojis.map((emoji, index) => (
                               <Button
-                                key={emoji}
+                                key={`${emoji}-${index}`}
                                 variant="ghost"
                                 className="text-lg p-1 h-8 w-8"
                                 onClick={() => handleUpdateItem(item.id, 'icon', emoji)}
