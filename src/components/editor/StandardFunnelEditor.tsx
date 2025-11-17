@@ -111,6 +111,19 @@ export function StandardFunnelEditor({
         };
     }
 
+    if (component.name === 'Argumentos') {
+      defaultProps = {
+        items: [
+          {
+            id: Date.now(),
+            icon: '👋',
+            title: 'Argumento',
+            description: 'Lorem ipsum dolor sit amet',
+          },
+        ],
+      };
+    }
+
     const newComponent: CanvasComponentData = {
       ...component,
       id: Date.now(),
@@ -284,10 +297,10 @@ export function StandardFunnelEditor({
                 {components.map((component) => (
                   <Card
                     key={component.name}
-                    className="group flex cursor-pointer items-center justify-start gap-3 p-2 text-left transition-colors hover:bg-primary/10 hover:text-primary"
+                    className="group flex cursor-pointer items-center justify-start gap-3 p-2 text-left transition-colors bg-gray-800 text-white hover:bg-gray-700"
                     onClick={() => addComponentToCanvas(component)}
                   >
-                    <div className="relative flex-shrink-0 text-primary">{component.icon}</div>
+                    <div className="relative flex-shrink-0">{component.icon}</div>
                     <div className="flex flex-col">
                       <span className="flex-grow text-xs font-medium">{component.name}</span>
                       {component.isNew && <Badge className="mt-1 w-fit scale-90">Novo</Badge>}
