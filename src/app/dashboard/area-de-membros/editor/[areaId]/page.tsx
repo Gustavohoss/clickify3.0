@@ -109,11 +109,15 @@ export default function MemberAreaEditorPage() {
   };
   
   const handleAddModule = async () => {
-    if (!areaRef || !newModuleName.trim()) {
-       toast({ variant: 'destructive', title: 'Erro', description: 'O nome do módulo é obrigatório.'})
+    if (!areaRef || !newModuleName.trim() || !areaData) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: !newModuleName.trim() ? 'O nome do módulo é obrigatório.' : 'Dados da área não carregados.',
+      });
       return;
     }
-
+  
     const newModule: Module = {
       id: new Date().toISOString(),
       name: newModuleName,
@@ -121,17 +125,26 @@ export default function MemberAreaEditorPage() {
       lessons: [],
       products: [],
     };
-
+  
     try {
+      // If modules field doesn't exist, create it. Otherwise, use arrayUnion.
+      const updatedModules = areaData.modules ? arrayUnion(newModule) : [newModule];
+      
       await updateDoc(areaRef, {
-        modules: arrayUnion(newModule),
+        modules: updatedModules,
       });
+      
       toast({ title: 'Sucesso!', description: 'Módulo adicionado.' });
       setNewModuleName('');
       setNewModuleCoverUrl('');
       setIsAddModuleOpen(false);
     } catch (error) {
-       toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível adicionar o módulo.'})
+      console.error(error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Não foi possível adicionar o módulo.',
+      });
     }
   };
 
