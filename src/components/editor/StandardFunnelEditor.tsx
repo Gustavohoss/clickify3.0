@@ -276,12 +276,18 @@ export function StandardFunnelEditor({
       defaultProps = {
         mainText: 'Ao clicar em alguma das opções, você concorda com os',
         links: [
-          { id: Date.now(), text: 'Termos de utilização e serviço', url: '#' },
-          { id: Date.now() + 1, text: 'Política de privacidade', url: '#' },
-          { id: Date.now() + 2, text: 'Política de subscrição', url: '#' },
-          { id: Date.now() + 3, text: 'Política de cookies', url: '#' },
+          { id: Date.now(), text: 'Termos de utilização e serviço', url: '#', enabled: false },
+          { id: Date.now() + 1, text: 'Política de privacidade', url: '#', enabled: false },
+          { id: Date.now() + 2, text: 'Política de subscrição', url: '#', enabled: false },
+          { id: Date.now() + 3, text: 'Política de cookies', url: '#', enabled: false },
         ],
       };
+    }
+
+    if (component.name === 'Texto') {
+        defaultProps = {
+            content: '<h3><b>Título</b></h3><p>Preencha o texto.</p>',
+        };
     }
 
 
