@@ -199,6 +199,27 @@ export function StandardFunnelEditor({
       };
     }
 
+    if (component.name === 'Marquise') {
+      defaultProps = {
+        marquiseItems: [
+          {
+            id: Date.now(),
+            name: 'Nome do Usuário',
+            handle: '@usuario',
+            avatarUrl: `https://picsum.photos/seed/${Date.now()}/40/40`,
+            text: 'Este é um depoimento de exemplo que se move na tela. Você pode editar o texto, imagem e informações do usuário.',
+          },
+          {
+            id: Date.now() + 1,
+            name: 'Outro Usuário',
+            handle: '@outro.usuario',
+            avatarUrl: `https://picsum.photos/seed/${Date.now() + 1}/40/40`,
+            text: 'LaunchMe é incrível! Facilitou muito a criação do meu primeiro produto digital. Recomendo!',
+          },
+        ],
+      };
+    }
+
 
     const newComponent: CanvasComponentData = {
       ...component,
