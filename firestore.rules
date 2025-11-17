@@ -9,11 +9,6 @@
  * - Pricing plans are stored in the `/plans/{planId}` collection and are publicly readable.
  * - AI models are stored in the `/ai_models/{aiModelId}` collection and are publicly readable.
  * - AI templates are stored under `/ai_models/{aiModelId}/ai_templates/{aiTemplateId}` and are publicly readable.
- *
- * Key Security Decisions:
- * - User data is strictly controlled via path-based ownership.
- * - Listing of all users is disallowed.
- * - Pricing plans, AI models, and AI templates are publicly readable to facilitate easy access to application resources.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -63,8 +58,8 @@ service cloud.firestore {
     }
     
     match /memberAreas/{memberAreaId} {
-      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow list: if isSignedIn(); // client-side query must enforce userId == request.auth.uid
+      allow get: if true;
+      allow list: if true;
       allow create: if isSignedIn() && isOwner(request.resource.data.userId);
       allow update: if isSignedIn() && isOwner(resource.data.userId);
       allow delete: if isSignedIn() && isOwner(resource.data.userId);
