@@ -487,6 +487,10 @@ export function StandardFunnelEditor({
       e.currentTarget.style.cursor = 'default';
     }
   };
+  
+  const currentIndex = funnel.type === 'quiz' && activeStepId ? (funnel.steps as Step[]).findIndex(step => step.id === activeStepId) : -1;
+  const progressValue = funnel.type === 'quiz' && activeStepId && (funnel.steps as Step[]).length > 0 ? ((currentIndex + 1) / (funnel.steps as Step[]).length) * 100 : 0;
+
 
   const editorViews: { id: EditorView; label: string; icon: React.ReactNode }[] = [
     { id: 'construtor', label: 'Construtor', icon: <Wand2 /> },
@@ -680,6 +684,14 @@ export function StandardFunnelEditor({
             style={{ backgroundColor: backgroundColor }}
             onClick={() => setSelectedComponentId(null)}
           >
+            {funnel.type === 'quiz' && (
+              <div className="mx-auto w-full max-w-sm mb-8">
+                <header className="flex flex-col items-center p-4 rounded-t-lg bg-gray-100 dark:bg-gray-800">
+                  <Image src="https://picsum.photos/seed/logo/40/40" alt="Logo" width={40} height={40} className="rounded-md" />
+                  <Progress value={progressValue} className="w-full mt-4 h-2" />
+                </header>
+              </div>
+            )}
             <div className="mx-auto w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
               {activeStepComponents.length === 0 ? (
                 <div className="flex flex-1 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-transparent p-4 text-center min-h-[400px]">
