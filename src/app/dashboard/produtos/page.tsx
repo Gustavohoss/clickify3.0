@@ -40,6 +40,15 @@ const staticProducts: Product[] = [
     price: 'de R$ 19,90 a R$ 99,90',
     commission: 'de R$ 13,93 à R$ 69,93',
     affiliateLink: 'https://app.cakto.com.br/affiliate/invite/530e985b-9cef-4fc0-98e8-b8270db222fe'
+  },
+  {
+    id: 'static-3',
+    name: 'EnemUp',
+    description: 'Prepare-se para o ENEM com a melhor plataforma de estudos. Aulas, simulados e acompanhamento personalizado para garantir sua aprovação.',
+    imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/x6dsg8g9f5lvz77xobhk9p73?v=1763469556980',
+    price: 'de R$ 19,90 a R$ 99,90',
+    commission: 'de R$ 13,93 à R$ 69,93',
+    affiliateLink: '#'
   }
 ];
 
@@ -71,6 +80,14 @@ export default function ProdutosPage() {
   }, [dynamicProducts]);
 
   const handleCopyLink = (link: string) => {
+    if (link === '#') {
+      toast({
+        variant: 'destructive',
+        title: 'Link de Afiliado Indisponível',
+        description: 'Este produto ainda não possui um link de afiliado configurado.',
+      });
+      return;
+    }
     navigator.clipboard.writeText(link).then(() => {
       toast({
         title: 'Link de afiliado copiado',
@@ -130,12 +147,13 @@ export default function ProdutosPage() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {allProducts.map((product) => (
             <Card key={product.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
-              <div className="relative aspect-video w-full">
+              <div className="relative w-full h-48">
                 <Image
                   src={product.imageUrl}
                   alt={product.name}
                   layout="fill"
-                  objectFit="cover"
+                  objectFit="contain"
+                  className="p-4"
                 />
               </div>
               <CardHeader>
@@ -177,8 +195,8 @@ export default function ProdutosPage() {
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
-                      <div className="relative aspect-video w-full rounded-md overflow-hidden">
-                        <Image src={product.imageUrl} alt={product.name} layout="fill" objectFit="cover" />
+                      <div className="relative w-full h-48 rounded-md overflow-hidden">
+                        <Image src={product.imageUrl} alt={product.name} layout="fill" objectFit="contain" />
                       </div>
                        <div className="flex justify-between items-center text-sm">
                           <span className="text-muted-foreground">Preço do Produto</span>
