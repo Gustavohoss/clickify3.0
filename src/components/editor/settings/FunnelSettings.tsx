@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Globe, Bot, Pencil, Share2 } from 'lucide-react';
+import { Globe, Bot, Pencil, Share2, UploadCloud } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Funnel } from '../types.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
@@ -113,7 +114,28 @@ const SeoSettings = () => (
     <div>
         <h2 className="text-xl font-bold text-white mb-4">SEO</h2>
         <Card className="bg-gray-800/50 border-gray-700 p-6 text-white">
-            <p className="text-gray-400">Configurações de SEO em breve.</p>
+            <div className="space-y-6">
+                <div>
+                    <label htmlFor="seo-title" className="text-sm font-medium text-gray-400">Título do Site</label>
+                    <Input id="seo-title" placeholder="Digite aqui..." className="mt-1 bg-gray-900 border-gray-600"/>
+                </div>
+                <div>
+                    <label htmlFor="seo-description" className="text-sm font-medium text-gray-400">Descrição</label>
+                    <Textarea id="seo-description" placeholder="Digite aqui..." className="mt-1 bg-gray-900 border-gray-600 min-h-[100px]" />
+                </div>
+                <div>
+                    <label className="text-sm font-medium text-gray-400">Favicon</label>
+                    <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-600 px-6 py-10 bg-gray-900/50">
+                        <div className="text-center">
+                            <UploadCloud size={32} className="mx-auto text-gray-500" />
+                            <p className="mt-4 text-sm text-gray-400">
+                                <span className="font-semibold text-primary">Enviar Arquivo</span>
+                            </p>
+                             <p className="text-xs text-gray-500">Arraste e solte ou clique aqui para enviar seu arquivo.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </Card>
     </div>
 )
