@@ -10,6 +10,7 @@
 
 
 
+
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -31,6 +32,7 @@ import {
   ImageIcon,
   ArrowRight,
   ClipboardCopy,
+  EyeOff,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -632,8 +634,8 @@ export function StandardFunnelEditor({
                   Copiar Link
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handlePublishToggle(false)}>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Tornar Rascunho
+                  <EyeOff className="mr-2 h-4 w-4" />
+                  Deixar Offline
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
