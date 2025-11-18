@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -1425,8 +1424,8 @@ export function TypebotEditor({
     if (!canvasRef.current) return;
     const canvasRect = canvasRef.current.getBoundingClientRect();
     const basePosition = {
-      x: canvasRect.width / 2 / zoom - panOffset.x / zoom - 150,
-      y: canvasRect.height / 2 / zoom - panOffset.y / zoom - 50,
+      x: (canvasRect.width / 2 - panOffset.x) / zoom - 150,
+      y: (canvasRect.height / 2 - panOffset.y) / zoom - 50,
     };
 
     if (type === 'group') {
@@ -1727,12 +1726,12 @@ export function TypebotEditor({
     if (!canvasRef.current) return;
     const canvasRect = canvasRef.current.getBoundingClientRect();
     const mousePos = {
-        x: (e.clientX - canvasRect.left) / zoom,
-        y: (e.clientY - canvasRect.top) / zoom,
+        x: (e.clientX - canvasRect.left),
+        y: (e.clientY - canvasRect.top),
     };
 
     if (drawingConnection) {
-        setDrawingConnection((prev: any) => ({ ...prev, to: { x: mousePos.x - panOffset.x/zoom, y: mousePos.y - panOffset.y/zoom } }));
+        setDrawingConnection((prev: any) => ({ ...prev, to: { x: (mousePos.x - panOffset.x) / zoom, y: (mousePos.y - panOffset.y) / zoom } }));
         return;
     }
     
@@ -1905,8 +1904,8 @@ export function TypebotEditor({
         if (startNode) {
             const rect = startNode.getBoundingClientRect();
             startPos = {
-                x: (rect.right - canvasRect.left) / zoom - panOffset.x / zoom,
-                y: (rect.top + rect.height / 2 - canvasRect.top) / zoom - panOffset.y / zoom,
+                x: (rect.right - canvasRect.left - panOffset.x) / zoom,
+                y: (rect.top + rect.height / 2 - canvasRect.top - panOffset.y) / zoom,
             };
         }
     } else {
@@ -1916,8 +1915,8 @@ export function TypebotEditor({
             if (blockEl) {
                 const rect = blockEl.getBoundingClientRect();
                  startPos = {
-                    x: (rect.right - canvasRect.left) / zoom - panOffset.x / zoom,
-                    y: (rect.top + rect.height / 2 - canvasRect.top) / zoom - panOffset.y / zoom,
+                    x: (rect.right - canvasRect.left - panOffset.x) / zoom,
+                    y: (rect.top + rect.height / 2 - canvasRect.top - panOffset.y) / zoom,
                 };
             }
         }
@@ -2241,141 +2240,127 @@ export function TypebotEditor({
           </div>
           <div
             className="relative h-full w-full"
-            style={{
-              transform: `scale(${zoom})`,
-              transformOrigin: 'top left',
-            }}
+            style={{ transform: `scale(${zoom})`, transformOrigin: '0 0' }}
           >
-             <svg
-              className="absolute w-full h-full pointer-events-none"
-              style={{
-                width: `calc(100% / ${zoom})`,
-                height: `calc(100% / ${zoom})`,
-                transform: `translate(${panOffset.x/zoom}px, ${panOffset.y/zoom}px)`,
-              }}
-            >
-              <defs>
-                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
-                  <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
-                </marker>
-              </defs>
-              {connections.map((conn, index) => {
-                let startPos: {x:number, y:number} | undefined;
-                let endPos: {x:number, y:number} | undefined;
-
-                const toBlock = findBlock(conn.to);
-
-                if (conn.from === 'start') {
-                  const startNode = document.getElementById('start-node');
-                  if (startNode) {
-                    const rect = startNode.getBoundingClientRect();
-                    const canvasRect = canvasRef.current!.getBoundingClientRect();
-                    startPos = {
-                      x: (rect.right - canvasRect.left) / zoom - (panOffset.x / zoom),
-                      y: (rect.top + rect.height / 2 - canvasRect.top) / zoom - (panOffset.y / zoom),
-                    };
-                  }
-                } else {
-                  const fromBlock = findBlock(conn.from as number);
-                  if (fromBlock && fromBlock.type === 'group') {
-                    const blockEl = document.getElementById(`block-${conn.from}`);
-                    if (blockEl) {
-                      const rect = blockEl.getBoundingClientRect();
-                      const canvasRect = canvasRef.current!.getBoundingClientRect();
-                      startPos = {
-                          x: (rect.right - canvasRect.left) / zoom - panOffset.x / zoom,
-                          y: (rect.top + rect.height / 2 - canvasRect.top) / zoom - panOffset.y / zoom,
-                      };
-                    }
-                  }
-                }
-
-                if (toBlock && toBlock.type === 'group') {
-                    const blockEl = document.getElementById(`block-${conn.to}`);
-                     if (blockEl) {
-                      const rect = blockEl.getBoundingClientRect();
-                      const canvasRect = canvasRef.current!.getBoundingClientRect();
-                       endPos = {
-                        x: (rect.left - canvasRect.left) / zoom - panOffset.x / zoom,
-                        y: (rect.top + rect.height / 2 - canvasRect.top) / zoom - panOffset.y / zoom,
-                      };
-                    }
-                }
-
-                if (startPos && endPos) {
-                  return (
-                    <path
-                      key={index}
-                      d={getSmoothStepPath(startPos.x, startPos.y, endPos.x, endPos.y)}
-                      stroke="#f97316"
-                      strokeWidth="2"
-                      fill="none"
-                      markerEnd="url(#arrowhead)"
-                    />
-                  );
-                }
-                return null;
-              })}
-
-            {drawingConnection && (
-                <path
-                    d={getSmoothStepPath(
-                        drawingConnection.from.x,
-                        drawingConnection.from.y,
-                        drawingConnection.to.x,
-                        drawingConnection.to.y
-                    )}
-                    stroke="#f97316"
-                    strokeWidth="2"
-                    fill="none"
-                    markerEnd="url(#arrowhead)"
-                />
-            )}
-            </svg>
             <div className="absolute" style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px)` }}>
+                <svg
+                    className="absolute w-full h-full pointer-events-none"
+                    style={{
+                        width: `calc(100vw * 10)`, 
+                        height: `calc(100vh * 10)`,
+                        transform: `translate(-50%, -50%)`, 
+                    }}
+                    >
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
+                        </marker>
+                    </defs>
+                    {connections.map((conn, index) => {
+                        let startPos: {x:number, y:number} | undefined;
+                        let endPos: {x:number, y:number} | undefined;
+
+                        const toBlock = findBlock(conn.to);
+
+                        if (conn.from === 'start') {
+                            const startNode = document.getElementById('start-node');
+                            if (startNode) {
+                                const rect = startNode.getBoundingClientRect();
+                                startPos = {
+                                    x: (rect.right - rect.left/2 + 35),
+                                    y: (rect.top - rect.top/2 + 25),
+                                };
+                            }
+                        } else {
+                        const fromBlock = findBlock(conn.from as number);
+                            if (fromBlock && fromBlock.type === 'group') {
+                                startPos = {
+                                    x: fromBlock.position.x + 288, // width of group block
+                                    y: fromBlock.position.y + 50, // approx middle
+                                };
+                            }
+                        }
+
+                        if (toBlock && toBlock.type === 'group') {
+                            endPos = {
+                                x: toBlock.position.x,
+                                y: toBlock.position.y + 50, // approx middle
+                            };
+                        }
+
+                        if (startPos && endPos) {
+                        return (
+                            <path
+                            key={index}
+                            d={getSmoothStepPath(startPos.x, startPos.y, endPos.x, endPos.y)}
+                            stroke="#f97316"
+                            strokeWidth="2"
+                            fill="none"
+                            markerEnd="url(#arrowhead)"
+                            />
+                        );
+                        }
+                        return null;
+                    })}
+
+                    {drawingConnection && (
+                        <path
+                            d={getSmoothStepPath(
+                                drawingConnection.from.x,
+                                drawingConnection.from.y,
+                                drawingConnection.to.x,
+                                drawingConnection.to.y
+                            )}
+                            stroke="#f97316"
+                            strokeWidth="2"
+                            fill="none"
+                            markerEnd="url(#arrowhead)"
+                        />
+                    )}
+                </svg>
                 <div
-                id="start-node"
-                className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2 w-52"
-                style={{
-                    transform: `translate(50px, 50px)`,
-                }}
-                >
-                <PlaySquare size={16} className="text-white/60" />
-                <span className="text-sm font-medium">Início</span>
-                <div className="flex-grow" />
-                <ConnectionHandle onMouseDown={(e) => handleConnectionStart(e, 'start', 'output')} />
+                    id="start-node"
+                    className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2 w-52"
+                    style={{
+                        transform: `translate(50px, 50px)`,
+                    }}
+                    >
+                    <PlaySquare size={16} className="text-white/60" />
+                    <span className="text-sm font-medium">Início</span>
+                    <div className="flex-grow" />
+                    <ConnectionHandle onMouseDown={(e) => handleConnectionStart(e, 'start', 'output')} />
                 </div>
                 {canvasBlocks
-                .filter((b) => !b.parentId)
-                .map((block, index) => {
-                    const BlockComponent = block.type === 'group' ? CanvasGroupBlock : CanvasTextBlock;
-                    const groupIndex = canvasBlocks.filter((b) => b.type === 'group' && !b.parentId).findIndex((g) => g.id === block.id);
-                    return (
-                    <BlockComponent
-                        key={block.id}
-                        block={block}
-                        groupIndex={groupIndex}
-                        onBlockMouseDown={handleBlockMouseDown}
-                        onDuplicate={(e: React.MouseEvent) => {
-                        e.stopPropagation();
-                        duplicateBlock(block.id);
-                        }}
-                        onDelete={(e: React.MouseEvent) => {
-                        e.stopPropagation();
-                        deleteBlock(block.id);
-                        }}
-                        onContextMenu={handleContextMenu}
-                        isSelected={selectedBlockId === block.id}
-                        setSelectedBlockId={setSelectedBlockId}
-                        dropIndicator={dropIndicator}
-                        allBlocks={canvasBlocks}
-                        deleteBlock={deleteBlock}
-                        selectedBlockId={selectedBlockId}
-                        updateBlockProps={updateBlockProps}
-                        variables={variables}
-                        onConnectionStart={handleConnectionStart}
-                    />
-                    );
+                    .filter((b) => !b.parentId)
+                    .map((block, index) => {
+                        const BlockComponent = block.type === 'group' ? CanvasGroupBlock : CanvasTextBlock;
+                        const groupIndex = canvasBlocks.filter((b) => b.type === 'group' && !b.parentId).findIndex((g) => g.id === block.id);
+                        return (
+                        <BlockComponent
+                            key={block.id}
+                            block={block}
+                            groupIndex={groupIndex}
+                            onBlockMouseDown={handleBlockMouseDown}
+                            onDuplicate={(e: React.MouseEvent) => {
+                            e.stopPropagation();
+                            duplicateBlock(block.id);
+                            }}
+                            onDelete={(e: React.MouseEvent) => {
+                            e.stopPropagation();
+                            deleteBlock(block.id);
+                            }}
+                            onContextMenu={handleContextMenu}
+                            isSelected={selectedBlockId === block.id}
+                            setSelectedBlockId={setSelectedBlockId}
+                            dropIndicator={dropIndicator}
+                            allBlocks={canvasBlocks}
+                            deleteBlock={deleteBlock}
+                            selectedBlockId={selectedBlockId}
+                            updateBlockProps={updateBlockProps}
+                            variables={variables}
+                            onConnectionStart={handleConnectionStart}
+                        />
+                        );
                 })}
             </div>
             {contextMenu.visible && (
