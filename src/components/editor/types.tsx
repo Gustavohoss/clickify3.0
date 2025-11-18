@@ -163,6 +163,7 @@ export type ComponentProps = {
   limit?: number;
   showTitle?: boolean;
   showProgress?: boolean;
+  autoSkip?: boolean;
   titleColor?: string;
   descriptionColor?: string;
   slides?: CarouselItemData[];

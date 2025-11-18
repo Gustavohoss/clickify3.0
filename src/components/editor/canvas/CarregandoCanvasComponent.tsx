@@ -23,6 +23,7 @@ export const CarregandoCanvasComponent = ({
     limit = 100,
     showTitle = true,
     showProgress = true,
+    autoSkip = false,
   } = component.props;
 
   const [animatedProgress, setAnimatedProgress] = useState(0);
@@ -44,7 +45,9 @@ export const CarregandoCanvasComponent = ({
         const nextProgress = prev + increment;
         if (nextProgress >= limit) {
           clearInterval(timer);
-          onNextStep?.();
+          if (autoSkip) {
+            onNextStep?.();
+          }
           return limit;
         }
         return nextProgress;
@@ -52,7 +55,7 @@ export const CarregandoCanvasComponent = ({
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [duration, limit, showProgress, onNextStep]);
+  }, [duration, limit, showProgress, autoSkip, onNextStep]);
 
   const displayProgress = Math.floor(animatedProgress);
 

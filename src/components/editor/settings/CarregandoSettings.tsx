@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Input } from '@/components/ui/input';
@@ -89,6 +88,23 @@ export const CarregandoSettings = ({
               onCheckedChange={(checked) => onUpdate({ ...component.props, showProgress: checked })}
             />
           </div>
+        </div>
+      </Card>
+      
+      <Card className="border-border/50 bg-card p-4">
+        <h3 className="mb-4 text-sm font-medium text-muted-foreground">Avanço Automático</h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <UILabel htmlFor="autoSkip">Pular Automaticamente</UILabel>
+            <Switch
+              id="autoSkip"
+              checked={component.props.autoSkip}
+              onCheckedChange={(checked) => onUpdate({ ...component.props, autoSkip: checked })}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Se ativado, o funil avançará para a próxima etapa assim que o carregamento for concluído.
+          </p>
         </div>
       </Card>
 
