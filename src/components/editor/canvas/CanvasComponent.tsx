@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -36,12 +37,14 @@ export const CanvasComponent = ({
   onClick,
   onDuplicate,
   onDelete,
+  onOptionClick,
 }: {
   component: CanvasComponentData;
   isSelected: boolean;
   onClick: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
+  onOptionClick?: () => void;
 }) => {
   const renderComponent = () => {
     switch (component.name) {
@@ -82,7 +85,7 @@ export const CanvasComponent = ({
       case 'Nível':
         return <NivelCanvasComponent component={component} />;
       case 'Opções':
-        return <OpcoesCanvasComponent component={component} />;
+        return <OpcoesCanvasComponent component={component} onOptionClick={onOptionClick} />;
       case 'Preço':
         return <PrecoCanvasComponent component={component} />;
       case 'Termos':

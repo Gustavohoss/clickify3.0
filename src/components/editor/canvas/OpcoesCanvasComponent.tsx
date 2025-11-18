@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -6,7 +7,7 @@ import { ArrowRight } from 'lucide-react';
 import type { CanvasComponentData } from '../types';
 import { WavingHandIcon } from './WavingHandIcon';
 
-export const OpcoesCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+export const OpcoesCanvasComponent = ({ component, onOptionClick }: { component: CanvasComponentData, onOptionClick?: () => void; }) => {
   const {
     opcoesItems = [],
     borderStyle = 'media',
@@ -40,6 +41,13 @@ export const OpcoesCanvasComponent = ({ component }: { component: CanvasComponen
     relevo: 'bg-gray-50 border-b-4 border-gray-200 active:border-b-2',
   };
 
+  const handleClick = (itemId: number) => {
+    setSelected(itemId);
+    if (onOptionClick) {
+      onOptionClick();
+    }
+  }
+
   if (opcoesItems.length === 0) {
     return (
       <div className="border-0 bg-transparent p-6 text-center shadow-none">
@@ -63,7 +71,7 @@ export const OpcoesCanvasComponent = ({ component }: { component: CanvasComponen
             shadowClasses[shadowStyle],
             styleClasses[styleType]
           )}
-          onClick={() => setSelected(item.id)}
+          onClick={() => handleClick(item.id)}
         >
           <span className="mr-3 text-2xl">{item.icon}</span>
           <span className="flex-grow font-medium text-black">{item.text}</span>

@@ -37,7 +37,7 @@ import { CanvasComponent } from './canvas/CanvasComponent';
 import { components, type ComponentType, type Funnel, type Step, type EditorView, type CanvasComponentData, type ComponentProps, modelColors, modelIcons } from './types.tsx';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog.tsx';
 
-function QuizPreview({ funnel, activeStepId }: { funnel: Funnel, activeStepId: number | null }) {
+function QuizPreview({ funnel, activeStepId, onNextStep }: { funnel: Funnel, activeStepId: number | null, onNextStep: () => void }) {
     const activeStep = funnel.steps.find(step => step.id === activeStepId) as Step | undefined;
 
     if (!activeStep) {
@@ -48,10 +48,14 @@ function QuizPreview({ funnel, activeStepId }: { funnel: Funnel, activeStepId: n
         )
     }
 
+    const handleOptionClick = () => {
+      onNextStep();
+    }
+
     return (
         <div className="w-[320px] h-[640px] bg-gray-900 rounded-3xl border-4 border-gray-700 shadow-2xl overflow-hidden flex flex-col">
             <div className="flex-1 p-4 overflow-y-auto">
-                <div className="flex flex-col gap-4 pointer-events-none">
+                <div className="flex flex-col gap-4">
                     {activeStep.components.map(comp => (
                         <CanvasComponent
                             key={comp.id}
@@ -60,6 +64,7 @@ function QuizPreview({ funnel, activeStepId }: { funnel: Funnel, activeStepId: n
                             onClick={() => {}}
                             onDuplicate={() => {}}
                             onDelete={() => {}}
+                            onOptionClick={comp.name === 'Opções' ? handleOptionClick : undefined}
                         />
                     ))}
                 </div>
@@ -359,6 +364,17 @@ export function StandardFunnelEditor({
   const activeStepComponents = activeStep?.components || [];
   const selectedComponent = activeStepComponents.find((c) => c.id === selectedComponentId) || null;
 
+  const handleNextStepPreview = () => {
+    const steps = funnel.steps as Step[];
+    const currentIndex = steps.findIndex(step => step.id === activeStepId);
+    if (currentIndex !== -1 && currentIndex < steps.length - 1) {
+      setActiveStepId(steps[currentIndex + 1].id);
+    } else {
+      // Optionally loop back to the start or close the preview
+      setActiveStepId(steps[0].id);
+    }
+  }
+
   const editorViews: { id: EditorView; label: string; icon: React.ReactNode }[] = [
     { id: 'construtor', label: 'Construtor', icon: <Wand2 /> },
     { id: 'fluxo', label: 'Fluxo', icon: <Combine /> },
@@ -405,7 +421,7 @@ export function StandardFunnelEditor({
                             Veja como seu quiz aparecerá em um dispositivo móvel.
                           </DialogDescription>
                         </DialogHeader>
-                        <QuizPreview funnel={funnel} activeStepId={activeStepId}/>
+                        <QuizPreview funnel={funnel} activeStepId={activeStepId} onNextStep={handleNextStepPreview}/>
                     </DialogContent>
                 </Dialog>
             )}
