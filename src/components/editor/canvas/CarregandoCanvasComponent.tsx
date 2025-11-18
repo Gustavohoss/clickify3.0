@@ -45,8 +45,9 @@ export const CarregandoCanvasComponent = ({
         const nextProgress = prev + increment;
         if (nextProgress >= limit) {
           clearInterval(timer);
-          if (autoSkip) {
-            onNextStep?.();
+          if (autoSkip && onNextStep) {
+            // Defer state update to avoid updating parent during child render
+            setTimeout(onNextStep, 0);
           }
           return limit;
         }
