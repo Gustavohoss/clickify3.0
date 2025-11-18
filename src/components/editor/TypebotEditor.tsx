@@ -1167,7 +1167,7 @@ const CanvasTextBlock = ({
   return (
     <div
       id={`block-${block.id}`}
-      className={cn('group w-full cursor-grab select-none', !isChild && 'absolute w-72')}
+      className={cn('group w-full cursor-grab select-none pointer-events-auto', !isChild && 'absolute w-72')}
       style={!isChild ? { transform: `translate(${block.position.x}px, ${block.position.y}px)` } : {}}
       onMouseDown={(e) => {
         if (e.button !== 0) return;
@@ -1256,7 +1256,7 @@ const CanvasGroupBlock = ({
 }) => (
   <div
     id={`block-${block.id}`}
-    className="group absolute w-72 cursor-grab select-none"
+    className="group absolute w-72 cursor-grab select-none pointer-events-auto"
     style={{
       transform: `translate(${block.position.x}px, ${block.position.y}px)`,
     }}
@@ -2241,11 +2241,11 @@ export function TypebotEditor({
             </div>
           </div>
           <div
-            className="relative h-full w-full"
+            className="relative h-full w-full pointer-events-none"
             style={{ transform: `scale(${zoom}) translate(${panOffset.x / zoom}px, ${panOffset.y / zoom}px)`, transformOrigin: '0 0' }}
           >
               <svg
-                  className="absolute w-full h-full pointer-events-none"
+                  className="absolute w-full h-full"
                   style={{
                       width: `calc(100vw * 10)`, 
                       height: `calc(100vh * 10)`,
@@ -2321,7 +2321,7 @@ export function TypebotEditor({
               </svg>
               <div
                   id="start-node"
-                  className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2 w-52"
+                  className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2 w-52 pointer-events-auto"
                   style={{
                       transform: `translate(50px, 50px)`,
                   }}
