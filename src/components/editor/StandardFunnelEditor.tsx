@@ -18,6 +18,7 @@ import {
   Brush,
   Users,
   Smartphone,
+  ImageIcon,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -61,6 +62,8 @@ import { PrecoCanvasComponent } from './canvas/PrecoCanvasComponent';
 import { TermosCanvasComponent } from './canvas/TermosCanvasComponent';
 import { TextoCanvasComponent } from './canvas/TextoCanvasComponent';
 import { VideoCanvasComponent } from './canvas/VideoCanvasComponent';
+import Image from 'next/image';
+import { Progress } from '../ui/progress.tsx';
 
 // Read-only version of CanvasComponent for the preview
 const PreviewCanvasComponent = ({
@@ -110,7 +113,8 @@ const PreviewCanvasComponent = ({
 
 
 function QuizPreview({ funnel, activeStepId, onNextStep, backgroundColor }: { funnel: Funnel, activeStepId: number | null, onNextStep: () => void, backgroundColor: string }) {
-    const activeStep = funnel.steps.find(step => step.id === activeStepId) as Step | undefined;
+    const steps = funnel.steps as Step[];
+    const activeStep = steps.find(step => step.id === activeStepId);
 
     if (!activeStep) {
         return (
@@ -120,11 +124,19 @@ function QuizPreview({ funnel, activeStepId, onNextStep, backgroundColor }: { fu
         )
     }
 
+    const currentIndex = steps.findIndex(step => step.id === activeStepId);
+    const progressValue = ((currentIndex + 1) / steps.length) * 100;
+
+
     return (
         <div 
           className="w-[320px] h-[640px] rounded-3xl border-4 border-gray-700 shadow-2xl overflow-hidden flex flex-col"
           style={{ backgroundColor }}
         >
+            <header className="flex flex-col items-center p-4">
+              <Image src="https://picsum.photos/seed/logo/40/40" alt="Logo" width={40} height={40} className="rounded-md" />
+              <Progress value={progressValue} className="w-full mt-4 h-2 bg-gray-300" />
+            </header>
             <div className="flex-1 p-4 overflow-y-auto">
                 <div className="flex flex-col gap-4">
                     {activeStep.components.map(comp => (
