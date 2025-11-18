@@ -131,13 +131,18 @@ export default function ProdutosPage() {
               </div>
               <CardHeader>
                 <CardTitle className="text-lg">{product.name}</CardTitle>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  <Badge className="bg-green-500/10 text-green-500 border-green-500/20 w-fit">
-                    Comissão: {product.commission}
+                <div className="flex flex-col items-start gap-2 mt-2">
+                   <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/20 w-fit">
+                    Ganhos de até R$ 41,93
                   </Badge>
-                  <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 w-fit">
-                    70% de comissão
-                  </Badge>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge className="bg-green-500/10 text-green-500 border-green-500/20 w-fit">
+                      Comissão: {product.commission}
+                    </Badge>
+                    <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 w-fit">
+                      70% de comissão
+                    </Badge>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="flex-grow">
