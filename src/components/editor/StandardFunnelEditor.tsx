@@ -17,6 +17,7 @@ import {
   Combine,
   Brush,
   Users,
+  Smartphone,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,38 @@ import { ComponentSettings } from './settings/ComponentSettings';
 import { DesignSettings } from './settings/DesignSettings';
 import { CanvasComponent } from './canvas/CanvasComponent';
 import { components, type ComponentType, type Funnel, type Step, type EditorView, type CanvasComponentData, type ComponentProps, modelColors, modelIcons } from './types.tsx';
+import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog.tsx';
+
+function QuizPreview({ funnel, activeStepId }: { funnel: Funnel, activeStepId: number | null }) {
+    const activeStep = funnel.steps.find(step => step.id === activeStepId) as Step | undefined;
+
+    if (!activeStep) {
+        return (
+             <div className="flex flex-col items-center justify-center h-full text-white">
+                <p>Nenhuma etapa selecionada</p>
+            </div>
+        )
+    }
+
+    return (
+        <div className="w-[320px] h-[640px] bg-gray-900 rounded-3xl border-4 border-gray-700 shadow-2xl overflow-hidden flex flex-col">
+            <div className="flex-1 p-4 overflow-y-auto">
+                <div className="flex flex-col gap-4">
+                    {activeStep.components.map(comp => (
+                        <CanvasComponent
+                            key={comp.id}
+                            component={comp}
+                            isSelected={false}
+                            onClick={() => {}}
+                            onDuplicate={() => {}}
+                            onDelete={() => {}}
+                        />
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export function StandardFunnelEditor({
   funnel,
@@ -276,7 +309,7 @@ export function StandardFunnelEditor({
       defaultProps = {
         mainText: 'Ao clicar em alguma das opções, você concorda com os',
         links: [
-          { id: Date.now(), text: 'Termos de utilização e serviço', url: '#', enabled: false },
+           { id: Date.now(), text: 'Termos de utilização e serviço', url: '#', enabled: false },
           { id: Date.now() + 1, text: 'Política de privacidade', url: '#', enabled: false },
           { id: Date.now() + 2, text: 'Política de subscrição', url: '#', enabled: false },
           { id: Date.now() + 3, text: 'Política de cookies', url: '#', enabled: false },
@@ -390,9 +423,21 @@ export function StandardFunnelEditor({
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon">
-            <Eye className="h-5 w-5" />
-          </Button>
+            {funnel.type === 'quiz' && (
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                            <Smartphone className="h-5 w-5" />
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="p-0 bg-transparent border-none max-w-fit shadow-none">
+                        <QuizPreview funnel={funnel} activeStepId={activeStepId}/>
+                    </DialogContent>
+                </Dialog>
+            )}
+            <Button variant="ghost" size="icon">
+                <Eye className="h-5 w-5" />
+            </Button>
           <Button variant="outline" size="sm" onClick={() => debouncedUpdateFunnel.flush()}>
             <Save className="mr-2 h-4 w-4" />
             Salvar
