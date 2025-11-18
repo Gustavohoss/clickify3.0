@@ -1415,7 +1415,7 @@ export function TypebotEditor({
     isReadyToDrag: false,
     dragStartMouse: { x: 0, y: 0 },
     dragStartOffset: { x: 0, y: 0 },
-    originalBlock: null
+    originalBlock: null,
   });
   const [dropIndicator, setDropIndicator] = useState<DropIndicator>(null);
 
@@ -2210,11 +2210,12 @@ export function TypebotEditor({
 
         <main
           ref={canvasRef}
-          className="relative flex-1 overflow-hidden bg-[#181818]"
-          style={{
-            backgroundImage: 'radial-gradient(circle at center, #2e2e2e 1px, transparent 1px)',
-            backgroundSize: '20px 20px',
-          }}
+          className="relative flex-1 overflow-hidden"
+           style={{
+             background: '#1d1d1d',
+             backgroundImage: 'radial-gradient(circle at center, rgba(128,128,128,0.3) 1px, transparent 1px)',
+             backgroundSize: '20px 20px',
+           }}
           onMouseDown={handleCanvasMouseDown}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
@@ -2243,7 +2244,7 @@ export function TypebotEditor({
             className="relative h-full w-full"
             style={{ transform: `scale(${zoom})`, transformOrigin: '0 0' }}
           >
-            <div className="absolute" style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px)` }}>
+            <div style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px)` }}>
                 <svg
                     className="absolute w-full h-full pointer-events-none"
                     style={{
