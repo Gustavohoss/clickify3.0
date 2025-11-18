@@ -19,6 +19,7 @@ import {
   Users,
   Smartphone,
   ImageIcon,
+  ArrowRight,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -520,6 +521,9 @@ export function StandardFunnelEditor({
     { id: 'leads', label: 'Leads', icon: <Users /> },
     { id: 'configuracoes', label: 'Configurações', icon: <Settings /> },
   ];
+  
+  const stepWidth = 256;
+  const stepGap = 64;
 
   return (
     <div className="flex h-screen w-full flex-col bg-background text-foreground">
@@ -673,12 +677,37 @@ export function StandardFunnelEditor({
             onWheel={handleWheel}
            >
               <div
-                className="absolute"
+                className="absolute pointer-events-none"
                 style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`, transformOrigin: 'top left' }}
               >
-                <div className="flex gap-8">
+                 <svg className="absolute overflow-visible pointer-events-none">
+                    <defs>
+                        <marker
+                        id="arrowhead"
+                        viewBox="0 0 10 10"
+                        refX="5"
+                        refY="5"
+                        markerWidth="6"
+                        markerHeight="6"
+                        orient="auto-start-reverse"
+                        >
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#6B7280" />
+                        </marker>
+                    </defs>
+                    {(funnel.steps as Step[]).slice(0, -1).map((_, index) => (
+                        <path
+                        key={index}
+                        d={`M ${(index * (stepWidth + stepGap)) + stepWidth} 100 H ${((index + 1) * (stepWidth + stepGap))}`}
+                        stroke="#6B7280"
+                        strokeWidth="2"
+                        fill="none"
+                        markerEnd="url(#arrowhead)"
+                        />
+                    ))}
+                 </svg>
+                <div className="flex gap-16 pointer-events-auto">
                   {(funnel.steps as Step[]).map((step, index) => (
-                    <div key={step.id} className="w-64 rounded-lg bg-gray-900 p-4 shadow-lg text-white">
+                    <div key={step.id} style={{ width: `${stepWidth}px` }} className="rounded-lg bg-gray-900 p-4 shadow-lg text-white">
                       <div className="flex items-center justify-between mb-4">
                          <h3 className="font-semibold">{step.name}</h3>
                          <div className="h-3 w-3 rounded-full border-2 border-gray-500"></div>
