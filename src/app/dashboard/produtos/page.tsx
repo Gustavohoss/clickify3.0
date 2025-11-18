@@ -131,9 +131,14 @@ export default function ProdutosPage() {
               </div>
               <CardHeader>
                 <CardTitle className="text-lg">{product.name}</CardTitle>
-                <Badge className="bg-green-500/10 text-green-500 border-green-500/20 w-fit">
-                  Comissão: {product.commission}
-                </Badge>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  <Badge className="bg-green-500/10 text-green-500 border-green-500/20 w-fit">
+                    Comissão: {product.commission}
+                  </Badge>
+                  <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 w-fit">
+                    70% de comissão
+                  </Badge>
+                </div>
               </CardHeader>
               <CardContent className="flex-grow">
                  {product.description && (
