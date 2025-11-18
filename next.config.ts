@@ -33,6 +33,18 @@ const nextConfig: NextConfig = {
         hostname: 's3.typebot.io',
         port: '',
         pathname: '/**',
+      },
+       {
+        protocol: 'https',
+        hostname: 'cdn.worldvectorlogo.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'perfectpay.com.br',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
