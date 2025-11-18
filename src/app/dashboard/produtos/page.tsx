@@ -39,7 +39,7 @@ const staticProducts: Product[] = [
     imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/djtlfvgpii2rpwwlodj3bqn9?v=1763468291681',
     price: 'de R$ 19,90 a R$ 99,90',
     commission: 'de R$ 13,93 à R$ 69,93',
-    affiliateLink: '#'
+    affiliateLink: 'https://app.cakto.com.br/affiliate/invite/530e985b-9cef-4fc0-98e8-b8270db222fe'
   }
 ];
 
