@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Webhook, PlusCircle } from 'lucide-react';
+import { Webhook, PlusCircle, Copy } from 'lucide-react';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
 
 type Gateway = {
+  id: string;
   name: string;
   webhookUrl: string;
 };
@@ -17,16 +19,29 @@ export default function ConfiguracoesPage() {
   const [gateways, setGateways] = useState<Gateway[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newGatewayName, setNewGatewayName] = useState('');
-  const [newWebhookUrl, setNewWebhookUrl] = useState('');
+  const { toast } = useToast();
 
   const handleAddGateway = () => {
-    if (newGatewayName.trim() && newWebhookUrl.trim()) {
-      setGateways([...gateways, { name: newGatewayName.trim(), webhookUrl: newWebhookUrl.trim() }]);
+    if (newGatewayName.trim()) {
+      const newId = new Date().toISOString();
+      const newWebhookUrl = `https://api.clickify.com/webhook/${newId}`; // Example URL
+      setGateways([...gateways, { id: newId, name: newGatewayName.trim(), webhookUrl: newWebhookUrl }]);
       setIsDialogOpen(false);
       setNewGatewayName('');
-      setNewWebhookUrl('');
+      toast({
+        title: "Webhook Criado!",
+        description: "Seu novo webhook está pronto para ser usado.",
+      });
     }
   };
+  
+  const handleCopy = (url: string) => {
+    navigator.clipboard.writeText(url);
+    toast({
+      title: "URL Copiada!",
+      description: "A URL do webhook foi copiada para sua área de transferência.",
+    });
+  }
 
   return (
     <div className="space-y-8">
@@ -60,9 +75,9 @@ export default function ConfiguracoesPage() {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Adicionar Novo Webhook</DialogTitle>
+                  <DialogTitle>Adicionar Novo Gateway</DialogTitle>
                   <DialogDescription>
-                    Insira o nome e a URL do webhook do seu gateway de pagamento.
+                    Insira o nome do seu gateway de pagamento (ex: Hotmart, Kiwify).
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
@@ -73,15 +88,6 @@ export default function ConfiguracoesPage() {
                       placeholder="Ex: Hotmart"
                       value={newGatewayName}
                       onChange={(e) => setNewGatewayName(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="webhook-url">URL do Webhook</Label>
-                    <Input
-                      id="webhook-url"
-                      placeholder="Cole a URL do seu webhook aqui"
-                      value={newWebhookUrl}
-                      onChange={(e) => setNewWebhookUrl(e.target.value)}
                     />
                   </div>
                 </div>
@@ -95,19 +101,24 @@ export default function ConfiguracoesPage() {
         </CardHeader>
         <CardContent className="grid gap-6 md:grid-cols-2">
           {gateways.length > 0 ? (
-            gateways.map((gateway, index) => (
-              <Card key={index} className="flex flex-col">
+            gateways.map((gateway) => (
+              <Card key={gateway.id} className="flex flex-col">
                 <CardHeader>
                   <CardTitle>{gateway.name}</CardTitle>
                 </CardHeader>
                 <CardContent className="flex-grow">
                   <div className="mt-4">
-                    <Label htmlFor={`${gateway.name}-webhook`} className="text-xs">URL do Webhook</Label>
-                    <Input id={`${gateway.name}-webhook`} value={gateway.webhookUrl} readOnly className="mt-1"/>
+                    <Label htmlFor={`${gateway.name}-webhook`} className="text-xs text-muted-foreground">URL do Webhook para colar no seu gateway</Label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Input id={`${gateway.name}-webhook`} value={gateway.webhookUrl} readOnly />
+                      <Button variant="ghost" size="icon" onClick={() => handleCopy(gateway.webhookUrl)}>
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="outline">Editar</Button>
+                  <Button variant="destructive" size="sm">Excluir</Button>
                 </CardFooter>
               </Card>
             ))
