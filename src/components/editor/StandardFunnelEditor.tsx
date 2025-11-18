@@ -2,6 +2,7 @@
 
 
 
+
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -72,7 +73,7 @@ import { Progress } from '../ui/progress.tsx';
 import { useToast } from '@/hooks/use-toast';
 
 // Read-only version of CanvasComponent for the preview
-const PreviewCanvasComponent = ({
+export const PreviewCanvasComponent = ({
   component,
   onNextStep,
 }: {
@@ -854,5 +855,3 @@ export function StandardFunnelEditor({
     </div>
   );
 }
-
-    

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
@@ -6,7 +7,7 @@ import { useParams } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { Funnel, Step } from '@/components/editor/types.tsx';
-import { CanvasComponent } from '@/components/editor/canvas/CanvasComponent';
+import { PreviewCanvasComponent } from '@/components/editor/StandardFunnelEditor';
 
 function FunnelPublicContent() {
   const { funnelId } = useParams() as { funnelId: string };
@@ -55,18 +56,16 @@ function FunnelPublicContent() {
     }
   };
 
+  const backgroundColor = funnelData.backgroundColor || '#FFFFFF';
+
   return (
-    <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-background">
+    <main className="flex-1 overflow-y-auto p-4 md:p-8" style={{ backgroundColor }}>
       <div className="mx-auto w-full max-w-sm space-y-4">
         {activeStep.components.map((comp) => (
-          <CanvasComponent
+          <PreviewCanvasComponent
             key={comp.id}
             component={comp}
-            isSelected={false}
-            onClick={() => {}}
-            onDuplicate={() => {}}
-            onDelete={() => {}}
-            onOptionClick={handleNextStep}
+            onNextStep={handleNextStep}
           />
         ))}
       </div>
@@ -81,5 +80,3 @@ export default function FunnelPublicPage() {
         </Suspense>
     )
 }
-
-    
