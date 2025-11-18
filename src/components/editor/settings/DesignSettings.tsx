@@ -134,7 +134,7 @@ export const DesignSettings: React.FC<DesignSettingsProps> = (props) => {
 
   return (
     <div className="w-full">
-       <Accordion type="single" collapsible className="w-full" defaultValue="HEADER">
+       <Accordion type="single" collapsible className="w-full">
          {settings.map((setting) => (
             <AccordionItem value={setting.title} key={setting.title}>
                 <AccordionTrigger className="py-4 px-2 text-sm font-semibold uppercase text-foreground hover:no-underline [&>svg]:hidden">
