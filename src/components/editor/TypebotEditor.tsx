@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -1932,6 +1933,25 @@ export function TypebotEditor({
     }
   };
 
+  const handleWheel = (e: React.WheelEvent<HTMLElement>) => {
+    e.preventDefault();
+    const zoomFactor = 1.1;
+    const newZoom = e.deltaY > 0 ? zoom / zoomFactor : zoom * zoomFactor;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const mousePointX = (mouseX - panOffset.x) / zoom;
+    const mousePointY = (mouseY - panOffset.y) / zoom;
+
+    const newPanX = mouseX - mousePointX * newZoom;
+    const newPanY = mouseY - mousePointY * newZoom;
+
+    setZoom(newZoom);
+    setPanOffset({ x: newPanX, y: newPanY });
+  };
+
 
   const findBlock = (id: number | null): CanvasBlock | undefined => {
     if (id === null) return undefined;
@@ -2199,6 +2219,7 @@ export function TypebotEditor({
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
+          onWheel={handleWheel}
           onContextMenu={(e) => e.preventDefault()}
         >
           <div
