@@ -698,7 +698,7 @@ export function StandardFunnelEditor({
               </div>
            </main>
         ) : activeView === 'configuracoes' ? (
-          <FunnelSettings />
+          <FunnelSettings funnel={funnel} />
         ) : (
           <main
             className={cn(

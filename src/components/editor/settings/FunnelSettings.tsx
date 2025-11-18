@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Globe, Bot, Pencil, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
+import type { Funnel } from '../types.tsx';
 
 type SettingsCategory = 'geral' | 'dominio' | 'scripts' | 'seo' | 'webhook';
 
@@ -18,14 +18,14 @@ const categories = [
   { id: 'webhook', label: 'WEBHOOK' },
 ];
 
-const GeneralSettings = () => (
+const GeneralSettings = ({ funnel }: { funnel: Funnel }) => (
     <div>
         <h2 className="text-xl font-bold text-white mb-4">Geral</h2>
          <Card className="bg-gray-800/50 border-gray-700 p-6 text-white">
             <div className="space-y-4">
                 <div>
                     <label htmlFor="funnel-name" className="text-sm font-medium text-gray-400">Nome do Funil</label>
-                    <Input id="funnel-name" defaultValue="Meu Funil" className="mt-1 bg-gray-900 border-gray-600"/>
+                    <Input id="funnel-name" defaultValue={funnel.name} className="mt-1 bg-gray-900 border-gray-600"/>
                 </div>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-green-400">
@@ -107,12 +107,12 @@ const WebhookSettings = () => (
 )
 
 
-export function FunnelSettings() {
+export function FunnelSettings({ funnel }: { funnel: Funnel }) {
     const [activeCategory, setActiveCategory] = useState<SettingsCategory>('geral');
 
     const renderContent = () => {
         switch(activeCategory) {
-            case 'geral': return <GeneralSettings />;
+            case 'geral': return <GeneralSettings funnel={funnel} />;
             case 'dominio': return <DomainSettings />;
             case 'scripts': return <ScriptsSettings />;
             case 'seo': return <SeoSettings />;
