@@ -31,6 +31,15 @@ const staticProducts: Product[] = [
     price: 'de R$ 19,90 a R$ 59,90',
     commission: 'de R$ 13,93 à R$ 41,93',
     affiliateLink: 'https://app.cakto.com.br/affiliate/invite/e588af5d-cccd-40f8-9b01-42111409ebc8'
+  },
+  {
+    id: 'static-2',
+    name: 'Aprenda Tudo Sobre Criptomoedas',
+    description: 'Um curso completo para você dominar o mercado de criptomoedas, do básico ao avançado. Perfeito para iniciantes!',
+    imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/djtlfvgpii2rpwwlodj3bqn9?v=1763468291681',
+    price: 'de R$ 19,90 a R$ 99,90',
+    commission: 'de R$ 13,93 à R$ 69,93',
+    affiliateLink: '#'
   }
 ];
 
@@ -133,7 +142,7 @@ export default function ProdutosPage() {
                 <CardTitle className="text-lg">{product.name}</CardTitle>
                 <div className="flex flex-col items-start gap-2 mt-2">
                    <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/20 w-fit">
-                    Ganhos de até R$ 41,93
+                    Ganhos de até {product.name === 'Dieta das Celebridades' ? 'R$ 41,93' : 'R$ 69,93'}
                   </Badge>
                   <div className="flex flex-wrap gap-2">
                     <Badge className="bg-green-500/10 text-green-500 border-green-500/20 w-fit">
