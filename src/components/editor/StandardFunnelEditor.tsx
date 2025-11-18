@@ -122,7 +122,7 @@ function QuizPreview({ funnel, activeStepId, onNextStep, backgroundColor }: { fu
 
     return (
         <div 
-          className="w-[320px] h-[640px] rounded-3xl border-4 border-gray-700 shadow-2xl overflow-hidden flex flex-col pointer-events-auto"
+          className="w-[320px] h-[640px] rounded-3xl border-4 border-gray-700 shadow-2xl overflow-hidden flex flex-col"
           style={{ backgroundColor }}
         >
             <div className="flex-1 p-4 overflow-y-auto">
@@ -634,10 +634,10 @@ export function StandardFunnelEditor({
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp} 
            >
-              <div 
+              <div
                 className="absolute"
                 style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px)` }}
-                >
+              >
                 <div className="flex gap-8">
                   {(funnel.steps as Step[]).map((step, index) => (
                     <div key={step.id} className="w-64 rounded-lg bg-gray-900 p-4 shadow-lg text-white">
@@ -662,9 +662,10 @@ export function StandardFunnelEditor({
         ) : (
           <main
             className={cn(
-              'flex-1 overflow-y-auto bg-white p-4 md:p-8',
+              'flex-1 overflow-y-auto p-4 md:p-8',
               activeView !== 'construtor' && 'hidden md:block'
             )}
+            style={{ backgroundColor: backgroundColor }}
             onClick={() => setSelectedComponentId(null)}
           >
             <div className="mx-auto w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
