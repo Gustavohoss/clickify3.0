@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   ArrowLeft,
   Settings,
@@ -148,6 +148,10 @@ export function StandardFunnelEditor({
   const [activeView, setActiveView] = useState<EditorView>('construtor');
   const [activeStepId, setActiveStepId] = useState<number | null>(() => (funnel.steps as Step[])[0]?.id || null);
   const [selectedComponentId, setSelectedComponentId] = useState<number | null>(null);
+
+  const [isPanning, setIsPanning] = useState(false);
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const startPanPosition = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!activeStepId && funnel.steps.length > 0) {
@@ -437,6 +441,30 @@ export function StandardFunnelEditor({
     }
   }
 
+  const handleCanvasMouseDown = (e: React.MouseEvent<HTMLElement>) => {
+    if (e.target === e.currentTarget && e.button === 0) {
+      setIsPanning(true);
+      startPanPosition.current = { x: e.clientX, y: e.clientY };
+      e.currentTarget.style.cursor = 'grabbing';
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    if (isPanning) {
+      const dx = e.clientX - startPanPosition.current.x;
+      const dy = e.clientY - startPanPosition.current.y;
+      setPanOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
+      startPanPosition.current = { x: e.clientX, y: e.clientY };
+    }
+  };
+
+  const handleMouseUp = (e: React.MouseEvent<HTMLElement>) => {
+    if (isPanning) {
+      setIsPanning(false);
+      e.currentTarget.style.cursor = 'default';
+    }
+  };
+
   const editorViews: { id: EditorView; label: string; icon: React.ReactNode }[] = [
     { id: 'construtor', label: 'Construtor', icon: <Wand2 /> },
     { id: 'fluxo', label: 'Fluxo', icon: <Combine /> },
@@ -579,8 +607,21 @@ export function StandardFunnelEditor({
         )}
 
         {activeView === 'fluxo' ? (
-           <main className="flex-1 bg-gray-800 p-4 md:p-8">
-              <div className="relative h-full w-full">
+           <main 
+            className="flex-1 bg-gray-800/50 p-4 md:p-8 overflow-hidden relative"
+            style={{
+              backgroundImage: 'radial-gradient(circle at center, rgba(128, 128, 128, 0.2) 1px, transparent 1px)',
+              backgroundSize: '20px 20px'
+            }}
+            onMouseDown={handleCanvasMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp} 
+           >
+              <div 
+                className="relative h-full w-full"
+                style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px)` }}
+                >
                 <div className="flex gap-8">
                   {(funnel.steps as Step[]).map((step, index) => (
                     <div key={step.id} className="w-64 rounded-lg bg-gray-900 p-4 shadow-lg text-white">
