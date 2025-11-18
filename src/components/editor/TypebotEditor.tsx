@@ -1608,23 +1608,24 @@ export function TypebotEditor({
     if (drawingConnection) {
         let toBlockId: number | undefined;
         let target = e.target as HTMLElement;
-        while (target && target !== canvasRef.current) {
-          if (target.dataset.handleId?.startsWith('input-')) {
-            toBlockId = parseInt(target.dataset.handleId.split('-')[1], 10);
-            break;
-          }
-          target = target.parentElement as HTMLElement;
-        }
 
-        if (toBlockId) {
-          const fromBlockId = drawingConnection.fromBlockId;
-          
-          if(fromBlockId !== toBlockId) {
-            setConnections((prev) => [
-              ...prev.filter((c) => c.from !== fromBlockId),
-              { from: fromBlockId, to: toBlockId },
-            ]);
-          }
+        while (target && target !== canvasRef.current) {
+            const handleId = target.dataset.handleId;
+            if (handleId && handleId.startsWith('input-')) {
+                toBlockId = parseInt(handleId.split('-')[1], 10);
+                break;
+            }
+            target = target.parentElement as HTMLElement;
+        }
+        
+        if (toBlockId !== undefined) {
+            const fromBlockId = drawingConnection.fromBlockId;
+            if(fromBlockId !== toBlockId) {
+                setConnections((prev) => [
+                  ...prev.filter((c) => c.from !== fromBlockId),
+                  { from: fromBlockId, to: toBlockId },
+                ]);
+            }
         }
         setDrawingConnection(null);
     }
@@ -1739,12 +1740,12 @@ export function TypebotEditor({
     if (!canvasRef.current) return;
     const canvasRect = canvasRef.current.getBoundingClientRect();
     const mousePos = {
-        x: (e.clientX - canvasRect.left),
-        y: (e.clientY - canvasRect.top),
+        x: (e.clientX - canvasRect.left - panOffset.x) / zoom,
+        y: (e.clientY - canvasRect.top - panOffset.y) / zoom,
     };
 
     if (drawingConnection) {
-        setDrawingConnection((prev: any) => ({ ...prev, to: { x: (mousePos.x - panOffset.x) / zoom, y: (mousePos.y - panOffset.y) / zoom } }));
+        setDrawingConnection((prev: any) => ({ ...prev, to: mousePos }));
         return;
     }
     
@@ -1910,26 +1911,36 @@ export function TypebotEditor({
     });
   };
 
-  const handleConnectionStart = (
+ const getHandlePosition = (handleId: string) => {
+    const handleElement = document.querySelector(`[data-handle-id="${handleId}"]`);
+    if (!handleElement || !canvasRef.current) return { x: 0, y: 0 };
+
+    const canvasRect = canvasRef.current.getBoundingClientRect();
+    const handleRect = handleElement.getBoundingClientRect();
+
+    const x = (handleRect.left + handleRect.width / 2 - canvasRect.left - panOffset.x) / zoom;
+    const y = (handleRect.top + handleRect.height / 2 - canvasRect.top - panOffset.y) / zoom;
+    
+    return { x, y };
+};
+
+const handleConnectionStart = (
     e: React.MouseEvent,
     fromBlockId: number | 'start',
     fromHandle: 'output'
   ) => {
     e.stopPropagation();
-    if (!canvasRef.current) return;
-    const canvasRect = canvasRef.current.getBoundingClientRect();
-    const startPos = {
-        x: (e.clientX - canvasRect.left - panOffset.x) / zoom,
-        y: (e.clientY - canvasRect.top - panOffset.y) / zoom,
-    };
-    
+    const handleId = `output-${fromBlockId}`;
+    const startPos = getHandlePosition(handleId);
+
     setDrawingConnection({
-        fromBlockId,
-        fromHandle,
-        from: startPos,
-        to: startPos,
+      fromBlockId,
+      fromHandle,
+      from: startPos,
+      to: startPos,
     });
   };
+
 
   const handleWheel = (e: React.WheelEvent<HTMLElement>) => {
     e.preventDefault();
@@ -2240,58 +2251,36 @@ export function TypebotEditor({
           </div>
           <div
             className="relative h-full w-full pointer-events-none"
-            style={{ transform: `scale(${zoom}) translate(${panOffset.x / zoom}px, ${panOffset.y / zoom}px)`, transformOrigin: '0 0' }}
+            style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`, transformOrigin: '0 0' }}
           >
               <svg
-                  className="absolute w-full h-full"
-                  style={{
-                      width: `calc(100vw * 10)`, 
-                      height: `calc(100vh * 10)`,
-                      transform: `translate(-50%, -50%)`, 
-                  }}
-                  >
+                className="absolute w-full h-full pointer-events-none"
+                style={{
+                    width: `calc(100% / ${zoom})`, 
+                    height: `calc(100% / ${zoom})`,
+                    transform: `translate(${-panOffset.x / zoom}px, ${-panOffset.y / zoom}px) scale(${zoom})`
+                }}
+              >
                   <defs>
                       <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
                       <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
                       </marker>
                   </defs>
                   {connections.map((conn, index) => {
-                      let startPos: {x:number, y:number} | undefined;
-                      let endPos: {x:number, y:number} | undefined;
+                      const fromPos = getHandlePosition(`output-${conn.from}`);
+                      const toPos = getHandlePosition(`input-${conn.to}`);
 
-                      const toBlock = findBlock(conn.to);
-
-                      if (conn.from === 'start') {
-                          // Static position for the start node
-                          startPos = { x: 50 + 208, y: 50 + 20 }; // x + width, y + height/2
-                      } else {
-                        const fromBlock = findBlock(conn.from as number);
-                        if (fromBlock && fromBlock.type === 'group') {
-                            startPos = {
-                                x: fromBlock.position.x + 288, // group width
-                                y: fromBlock.position.y + 50, // approx middle
-                            };
-                        }
-                      }
-
-                      if (toBlock && toBlock.type === 'group') {
-                          endPos = {
-                              x: toBlock.position.x,
-                              y: toBlock.position.y + 50, // approx middle
-                          };
-                      }
-
-                      if (startPos && endPos) {
-                      return (
-                          <path
-                          key={index}
-                          d={getSmoothStepPath(startPos.x, startPos.y, endPos.x, endPos.y)}
-                          stroke="#f97316"
-                          strokeWidth="2"
-                          fill="none"
-                          markerEnd="url(#arrowhead)"
-                          />
-                      );
+                      if (fromPos && toPos) {
+                        return (
+                            <path
+                            key={index}
+                            d={getSmoothStepPath(fromPos.x, fromPos.y, toPos.x, toPos.y)}
+                            stroke="#f97316"
+                            strokeWidth="2"
+                            fill="none"
+                            markerEnd="url(#arrowhead)"
+                            />
+                        );
                       }
                       return null;
                   })}
