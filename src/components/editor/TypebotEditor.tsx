@@ -2253,14 +2253,7 @@ const handleConnectionStart = (
             className="relative h-full w-full pointer-events-none"
             style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`, transformOrigin: '0 0' }}
           >
-              <svg
-                className="absolute w-full h-full pointer-events-none"
-                style={{
-                    width: `calc(100% / ${zoom})`, 
-                    height: `calc(100% / ${zoom})`,
-                    transform: `translate(${-panOffset.x / zoom}px, ${-panOffset.y / zoom}px) scale(${zoom})`
-                }}
-              >
+              <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
                   <defs>
                       <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
                       <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
