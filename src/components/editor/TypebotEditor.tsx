@@ -2242,7 +2242,7 @@ export function TypebotEditor({
           </div>
           <div
             className="relative h-full w-full"
-            style={{ transform: `scale(${zoom}) translate(${panOffset.x}px, ${panOffset.y}px)`, transformOrigin: '0 0' }}
+            style={{ transform: `scale(${zoom}) translate(${panOffset.x / zoom}px, ${panOffset.y / zoom}px)`, transformOrigin: '0 0' }}
           >
               <svg
                   className="absolute w-full h-full pointer-events-none"
