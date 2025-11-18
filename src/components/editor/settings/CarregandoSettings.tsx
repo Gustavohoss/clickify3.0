@@ -3,7 +3,6 @@
 
 import { Input } from '@/components/ui/input';
 import { Label as UILabel } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
 import type { CanvasComponentData, ComponentProps } from '../types';
@@ -90,33 +89,6 @@ export const CarregandoSettings = ({
               onCheckedChange={(checked) => onUpdate({ ...component.props, showProgress: checked })}
             />
           </div>
-        </div>
-      </Card>
-      
-      <Card className="border-border/50 bg-card p-4">
-        <h3 className="mb-4 text-sm font-medium text-muted-foreground">Botão de Pular</h3>
-        <div className="space-y-4">
-           <div className="flex items-center justify-between">
-            <UILabel htmlFor="showSkipButton">Mostrar Botão</UILabel>
-            <Switch
-              id="showSkipButton"
-              checked={component.props.showSkipButton}
-              onCheckedChange={(checked) => onUpdate({ ...component.props, showSkipButton: checked })}
-            />
-          </div>
-          {component.props.showSkipButton && (
-            <div>
-              <UILabel htmlFor="skipButtonText" className="text-xs">
-                Texto do Botão
-              </UILabel>
-              <Input
-                id="skipButtonText"
-                value={component.props.skipButtonText || 'Pular'}
-                onChange={(e) => onUpdate({ ...component.props, skipButtonText: e.target.value })}
-                className="mt-1"
-              />
-            </div>
-          )}
         </div>
       </Card>
 

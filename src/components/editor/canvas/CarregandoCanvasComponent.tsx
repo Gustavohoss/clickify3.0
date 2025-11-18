@@ -4,7 +4,6 @@
 import { useEffect, useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import type { CanvasComponentData } from '../types';
-import { Button } from '@/components/ui/button';
 
 export const CarregandoCanvasComponent = ({
   component,
@@ -24,8 +23,6 @@ export const CarregandoCanvasComponent = ({
     limit = 100,
     showTitle = true,
     showProgress = true,
-    showSkipButton = true,
-    skipButtonText = 'Pular',
   } = component.props;
 
   const [animatedProgress, setAnimatedProgress] = useState(0);
@@ -88,13 +85,6 @@ export const CarregandoCanvasComponent = ({
       <p className="pt-1 text-sm" style={{ color: descriptionColor }}>
         {loadingDescription}
       </p>
-      {showSkipButton && (
-        <div className="pt-2">
-          <Button variant="link" onClick={onNextStep}>
-            {skipButtonText}
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

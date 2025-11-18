@@ -255,8 +255,6 @@ export type ComponentProps = {
   showControls?: boolean;
   autoplayVideo?: boolean;
   loopVideo?: boolean;
-  showSkipButton?: boolean;
-  skipButtonText?: string;
 };
 
 export type CanvasComponentData = ComponentType & {
