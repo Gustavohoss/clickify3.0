@@ -269,6 +269,44 @@
         }
       },
       "required": ["id", "name", "slug", "type", "userId", "createdAt"]
+    },
+    "ProductAffiliate": {
+      "title": "ProductAffiliate",
+      "type": "object",
+      "description": "Represents a product available for affiliation.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "imageUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "price": {
+          "type": "number"
+        },
+        "commission": {
+          "type": "string"
+        },
+        "affiliateLink": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "imageUrl",
+        "price",
+        "commission",
+        "affiliateLink"
+      ]
     }
   },
   "auth": {
@@ -375,10 +413,24 @@
             }
           ]
         }
+      },
+      {
+        "path": "/affiliateProducts/{productId}",
+        "definition": {
+          "entityName": "ProductAffiliate",
+          "schema": {
+            "$ref": "#/backend/entities/ProductAffiliate"
+          },
+          "description": "Stores products available for affiliation. Publicly readable.",
+          "params": [
+            {
+              "name": "productId",
+              "description": "The unique identifier of the affiliate product."
+            }
+          ]
+        }
       }
     ],
     "reasoning": "The Firestore structure is designed to support the Clickify AI application, focusing on user management, AI model and template storage, and plan management. The structure emphasizes authorization independence and data clarity for scalable and secure operations.\n\n*   **Authorization Independence**: Authorization is achieved through path-based ownership (`/users/{userId}`). This eliminates the need for `get()` calls in security rules, thus enabling atomic operations (transactions/batches). \n*   **Structural Segregation**: Each collection is designed to hold documents with similar security requirements.\n*   **Access Modeling**: Path-based ownership is used for user-related data (`/users/{userId}`). This is the simplest and most secure ownership model. This implicitly grants the user full ownership of the data stored under their path. There are no collaborative features that require membership maps.\n*   **QAPs**: Secure `list` operations are supported through structural segregation and path-based ownership. Since all documents under `/users/{userId}` are owned by the user, listing them only requires checking the `request.auth.uid` against the `userId` path parameter.\n*   **Invariants**: The structure facilitates enforcing ownership and data integrity. Timestamps can be enforced in security rules using `request.time`.\n\n**Details:**\n*   `/users/{userId}`: Stores user profiles.  The path itself ensures ownership and simplifies security rules.\n*   `/plans/{planId}`: Stores pricing plans. This is a global collection and readable by everyone.\n*   `/ai_models/{aiModelId}`: Stores AI models. This is a global collection and readable by everyone.\n*   `/ai_models/{aiModelId}/ai_templates/{aiTemplateId}`: Stores AI templates related to AI models. By nesting templates under models, we can define templates to specific models.\n*   `/funnels/{funnelId}`: Stores user-created funnels. Each funnel is associated with a `userId` to enforce ownership."
   }
 }
-
-    
