@@ -128,12 +128,12 @@ export default function ProdutosPage() {
                   layout="fill"
                   objectFit="cover"
                 />
-                <Badge className="absolute top-2 right-2 bg-primary text-primary-foreground">
-                  Comissão: {product.commission}
-                </Badge>
               </div>
               <CardHeader>
                 <CardTitle className="text-lg">{product.name}</CardTitle>
+                <Badge className="bg-green-500/10 text-green-500 border-green-500/20 w-fit">
+                  Comissão: {product.commission}
+                </Badge>
               </CardHeader>
               <CardContent className="flex-grow">
                  {product.description && (
