@@ -51,7 +51,7 @@ function QuizPreview({ funnel, activeStepId }: { funnel: Funnel, activeStepId: n
     return (
         <div className="w-[320px] h-[640px] bg-gray-900 rounded-3xl border-4 border-gray-700 shadow-2xl overflow-hidden flex flex-col">
             <div className="flex-1 p-4 overflow-y-auto">
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 pointer-events-none">
                     {activeStep.components.map(comp => (
                         <CanvasComponent
                             key={comp.id}
@@ -235,34 +235,10 @@ export function StandardFunnelEditor({
     if (component.name === 'Lista') {
       defaultProps = {
         listItems: [
-          {
-            id: Date.now(),
-            icon: '✅',
-            iconBgColor: '#10B981',
-            title: 'Item 1',
-            subtitle: 'Descrição do item 1',
-          },
-          {
-            id: Date.now() + 1,
-            icon: '✅',
-            iconBgColor: '#10B981',
-            title: 'Item 2',
-            subtitle: 'Descrição do item 2',
-          },
-          {
-            id: Date.now() + 2,
-            icon: '✅',
-            iconBgColor: '#10B981',
-            title: 'Item 3',
-            subtitle: 'Descrição do item 3',
-          },
-          {
-            id: Date.now() + 3,
-            icon: '✅',
-            iconBgColor: '#10B981',
-            title: 'Item 4',
-            subtitle: 'Descrição do item 4',
-          },
+          { id: Date.now() + 1, icon: '✅', iconBgColor: '#10B981', title: 'Item 1', subtitle: 'Descrição do item 1' },
+          { id: Date.now() + 2, icon: '✅', iconBgColor: '#10B981', title: 'Item 2', subtitle: 'Descrição do item 2' },
+          { id: Date.now() + 3, icon: '✅', iconBgColor: '#10B981', title: 'Item 3', subtitle: 'Descrição do item 3' },
+          { id: Date.now() + 4, icon: '✅', iconBgColor: '#10B981', title: 'Item 4', subtitle: 'Descrição do item 4' },
         ],
       };
     }
@@ -291,16 +267,8 @@ export function StandardFunnelEditor({
     if (component.name === 'Opções') {
       defaultProps = {
         opcoesItems: [
-          {
-            id: Date.now(),
-            icon: '💬',
-            text: 'Opção 1',
-          },
-          {
-            id: Date.now() + 1,
-            icon: '✅',
-            text: 'Opção 2',
-          },
+          { id: Date.now() + 1, icon: '💬', text: 'Opção 1' },
+          { id: Date.now() + 2, icon: '✅', text: 'Opção 2' },
         ],
       };
     }
@@ -309,10 +277,10 @@ export function StandardFunnelEditor({
       defaultProps = {
         mainText: 'Ao clicar em alguma das opções, você concorda com os',
         links: [
-           { id: Date.now(), text: 'Termos de utilização e serviço', url: '#', enabled: false },
-          { id: Date.now() + 1, text: 'Política de privacidade', url: '#', enabled: false },
-          { id: Date.now() + 2, text: 'Política de subscrição', url: '#', enabled: false },
-          { id: Date.now() + 3, text: 'Política de cookies', url: '#', enabled: false },
+           { id: Date.now() + 1, text: 'Termos de utilização e serviço', url: '#', enabled: false },
+           { id: Date.now() + 2, text: 'Política de privacidade', url: '#', enabled: false },
+           { id: Date.now() + 3, text: 'Política de subscrição', url: '#', enabled: false },
+           { id: Date.now() + 4, text: 'Política de cookies', url: '#', enabled: false },
         ],
       };
     }
