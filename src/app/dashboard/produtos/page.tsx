@@ -30,7 +30,7 @@ const staticProducts: Product[] = [
     imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/m7r3o42acz47md2cn2iqc4bh?v=1763451610688',
     price: 'de R$ 19,90 a R$ 59,90',
     commission: 'de R$ 13,93 à R$ 41,93',
-    affiliateLink: 'https://seulinkdeafiliado.com/dieta'
+    affiliateLink: 'https://app.cakto.com.br/affiliate/invite/e588af5d-cccd-40f8-9b01-42111409ebc8'
   }
 ];
 
