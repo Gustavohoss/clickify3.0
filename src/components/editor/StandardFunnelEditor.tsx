@@ -65,17 +65,23 @@ import { VideoCanvasComponent } from './canvas/VideoCanvasComponent';
 // Read-only version of CanvasComponent for the preview
 const PreviewCanvasComponent = ({
   component,
-  onOptionClick,
+  onNextStep,
 }: {
   component: CanvasComponentData;
-  onOptionClick?: () => void;
+  onNextStep?: () => void;
 }) => {
   const renderComponent = () => {
     switch (component.name) {
       case 'Alerta': return <AlertCanvasComponent component={component} />;
       case 'Argumentos': return <ArgumentoCanvasComponent component={component} />;
       case 'Audio': return <AudioCanvasComponent component={component} />;
-      case 'Botão': return <BotaoCanvasComponent component={component} />;
+      case 'Botão':
+        // The button itself will trigger the onNextStep when clicked.
+        return (
+          <div onClick={component.props.action === 'next_step' ? onNextStep : undefined}>
+            <BotaoCanvasComponent component={component} />
+          </div>
+        );
       case 'Carregando': return <CarregandoCanvasComponent component={component} />;
       case 'Carrosel': return <CarroselCanvasComponent component={component} />;
       case 'Cartesiano': return <CartesianoCanvasComponent component={component} />;
@@ -90,7 +96,7 @@ const PreviewCanvasComponent = ({
       case 'Lista': return <ListaCanvasComponent component={component} />;
       case 'Marquise': return <MarquiseCanvasComponent component={component} />;
       case 'Nível': return <NivelCanvasComponent component={component} />;
-      case 'Opções': return <OpcoesCanvasComponent component={component} onOptionClick={onOptionClick} />;
+      case 'Opções': return <OpcoesCanvasComponent component={component} onOptionClick={onNextStep} />;
       case 'Preço': return <PrecoCanvasComponent component={component} />;
       case 'Termos': return <TermosCanvasComponent component={component} />;
       case 'Texto': return <TextoCanvasComponent component={component} />;
@@ -122,7 +128,7 @@ function QuizPreview({ funnel, activeStepId, onNextStep }: { funnel: Funnel, act
                         <PreviewCanvasComponent
                             key={comp.id}
                             component={comp}
-                            onOptionClick={comp.name === 'Opções' ? onNextStep : undefined}
+                            onNextStep={onNextStep}
                         />
                     ))}
                 </div>
