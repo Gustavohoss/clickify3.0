@@ -64,7 +64,7 @@ export default function ProdutosPage() {
   const handleCopyLink = (link: string) => {
     navigator.clipboard.writeText(link).then(() => {
       toast({
-        title: 'Link de afiliado copiado!',
+        title: 'Link de afiliado copiado',
         description: 'Agora você pode começar a divulgar.',
       });
     }).catch(err => {
@@ -151,7 +151,7 @@ export default function ProdutosPage() {
               <CardFooter>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button className="w-full" variant="outline">
+                    <Button className="w-full bg-green-600 hover:bg-green-700">
                       <Info className="mr-2 h-4 w-4" />
                       Veja mais
                     </Button>
