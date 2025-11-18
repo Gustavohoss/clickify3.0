@@ -1600,11 +1600,10 @@ export function TypebotEditor({
 
   const handleMouseUp = (e: React.MouseEvent<HTMLElement>) => {
     if (drawingConnection) {
-        const targetElement = e.target as HTMLElement;
-        const targetBlockId = targetElement.closest('[id^="block-"]')?.id.split('-')[1];
+        const targetBlockIdStr = (e.target as HTMLElement).closest('[id^="block-"]')?.id.split('-')[1];
   
-        if (targetBlockId) {
-          const toBlockId = parseInt(targetBlockId, 10);
+        if (targetBlockIdStr) {
+          const toBlockId = parseInt(targetBlockIdStr, 10);
           const fromBlockId = drawingConnection.fromBlockId;
           
           if(fromBlockId !== toBlockId) {
@@ -1901,9 +1900,9 @@ export function TypebotEditor({
 
     let startPos;
     if (fromBlockId === 'start') {
-        const startNode = document.getElementById('start-node');
-        if (startNode) {
-            const rect = startNode.getBoundingClientRect();
+        const startNodeEl = document.getElementById('start-node');
+        if (startNodeEl) {
+            const rect = startNodeEl.getBoundingClientRect();
             startPos = {
                 x: (rect.right - canvasRect.left - panOffset.x) / zoom,
                 y: (rect.top + rect.height / 2 - canvasRect.top - panOffset.y) / zoom,
@@ -1911,15 +1910,11 @@ export function TypebotEditor({
         }
     } else {
         const fromBlock = findBlock(fromBlockId as number);
-        if (fromBlock && fromBlock.type === 'group') {
-            const blockEl = document.getElementById(`block-${fromBlockId}`);
-            if (blockEl) {
-                const rect = blockEl.getBoundingClientRect();
-                 startPos = {
-                    x: (rect.right - canvasRect.left - panOffset.x) / zoom,
-                    y: (rect.top + rect.height / 2 - canvasRect.top - panOffset.y) / zoom,
-                };
-            }
+        if (fromBlock) {
+             startPos = {
+                x: fromBlock.position.x + 288, // width of group block
+                y: fromBlock.position.y + 50, // approx middle
+            };
         }
     }
 
@@ -2264,22 +2259,16 @@ export function TypebotEditor({
                       const toBlock = findBlock(conn.to);
 
                       if (conn.from === 'start') {
-                          const startNode = document.getElementById('start-node');
-                          if (startNode) {
-                              const rect = startNode.getBoundingClientRect();
-                              startPos = {
-                                  x: (rect.right - rect.left/2 + 35),
-                                  y: (rect.top - rect.top/2 + 25),
-                              };
-                          }
+                          // Static position for the start node
+                          startPos = { x: 50 + 208, y: 50 + 20 }; // x + width, y + height/2
                       } else {
-                      const fromBlock = findBlock(conn.from as number);
-                          if (fromBlock && fromBlock.type === 'group') {
-                              startPos = {
-                                  x: fromBlock.position.x + 288, // width of group block
-                                  y: fromBlock.position.y + 50, // approx middle
-                              };
-                          }
+                        const fromBlock = findBlock(conn.from as number);
+                        if (fromBlock && fromBlock.type === 'group') {
+                            startPos = {
+                                x: fromBlock.position.x + 288, // group width
+                                y: fromBlock.position.y + 50, // approx middle
+                            };
+                        }
                       }
 
                       if (toBlock && toBlock.type === 'group') {
