@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Globe, Bot, Pencil, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Funnel } from '../types.tsx';
+import { Textarea } from '@/components/ui/textarea.tsx';
 
 type SettingsCategory = 'geral' | 'dominio' | 'scripts' | 'seo' | 'webhook';
 
@@ -81,14 +82,33 @@ const DomainSettings = () => (
         </Card>
     </div>
 )
-const ScriptsSettings = () => (
+
+const ScriptsSettings = ({ funnel }: { funnel: Funnel }) => (
     <div>
         <h2 className="text-xl font-bold text-white mb-4">Scripts e Pixel</h2>
         <Card className="bg-gray-800/50 border-gray-700 p-6 text-white">
-             <p className="text-gray-400">Configurações de scripts e pixel em breve.</p>
+            <div className="space-y-6">
+                <div>
+                    <label htmlFor="head-script" className="text-base font-semibold text-white">Head</label>
+                    <p className="text-sm text-gray-400 mb-2">Este código será carregado antes do fechamento da tag &lt;/head&gt;</p>
+                    <Textarea id="head-script" placeholder="" className="mt-1 bg-gray-900 border-gray-600 min-h-[120px] font-mono text-sm" />
+                </div>
+                <div>
+                    <label htmlFor="body-script" className="text-base font-semibold text-white">Body</label>
+                    <p className="text-sm text-gray-400 mb-2">Este código será carregado logo após a tag &lt;body&gt;</p>
+                    <Textarea id="body-script" placeholder="" className="mt-1 bg-gray-900 border-gray-600 min-h-[120px] font-mono text-sm" />
+                </div>
+                <div>
+                    <label htmlFor="footer-script" className="text-base font-semibold text-white">Footer</label>
+                    <p className="text-sm text-gray-400 mb-2">Este código será carregado antes do fechamento da tag &lt;/body&gt;</p>
+                    <Textarea id="footer-script" placeholder="" className="mt-1 bg-gray-900 border-gray-600 min-h-[120px] font-mono text-sm" />
+                </div>
+            </div>
         </Card>
     </div>
-)
+);
+
+
 const SeoSettings = () => (
     <div>
         <h2 className="text-xl font-bold text-white mb-4">SEO</h2>
@@ -114,7 +134,7 @@ export function FunnelSettings({ funnel }: { funnel: Funnel }) {
         switch(activeCategory) {
             case 'geral': return <GeneralSettings funnel={funnel} />;
             case 'dominio': return <DomainSettings />;
-            case 'scripts': return <ScriptsSettings />;
+            case 'scripts': return <ScriptsSettings funnel={funnel} />;
             case 'seo': return <SeoSettings />;
             case 'webhook': return <WebhookSettings />;
             default: return null;
@@ -141,7 +161,7 @@ export function FunnelSettings({ funnel }: { funnel: Funnel }) {
                     ))}
                 </nav>
             </aside>
-            <main className="flex-1 p-8">
+            <main className="flex-1 p-8 overflow-y-auto">
                 {renderContent()}
             </main>
         </div>
