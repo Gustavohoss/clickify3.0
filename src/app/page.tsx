@@ -11,7 +11,7 @@ export default function Home() {
       <div className="h-screen w-full bg-background flex flex-col items-center justify-center overflow-hidden rounded-md">
         <div className="relative z-20 max-w-4xl px-4 text-center">
           <h1 className="md:text-5xl text-3xl lg:text-7xl font-bold text-white">
-            <span style={{ color: "#120a8f" }}>Automatize suas vendas online</span>{' '}
+            <span style={{ color: "#FFD700" }}>Automatize suas vendas online</span>{' '}
             e saia na frente de 97% dos concorrentes!
           </h1>
           <p className="mt-6 text-lg text-neutral-300">
