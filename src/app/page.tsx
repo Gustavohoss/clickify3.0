@@ -82,7 +82,6 @@ export default function Home() {
               <Button size="lg" className="w-64 h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full">Assinar agora</Button>
               <Button variant="outline" size="lg" className="w-64 h-14 text-lg bg-transparent border-primary text-primary hover:bg-primary/10 rounded-full">Ver Planos</Button>
             </div>
-            <Button variant="link" className="text-neutral-300 mt-2">Conheça Área de Membros</Button>
         </div>
 
       </div>
