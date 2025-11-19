@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -72,19 +73,6 @@ export default function Home() {
             <Button variant="link" className="text-neutral-300">Conheça Área de Membros</Button>
         </div>
 
-        {heroImage && 
-          <div className="relative z-10 mt-12 px-4 w-full max-w-5xl">
-              <Image 
-                  src={heroImage.imageUrl}
-                  alt={heroImage.description}
-                  width={1080}
-                  height={607}
-                  className="rounded-lg shadow-2xl shadow-primary/20 w-full"
-                  data-ai-hint={heroImage.imageHint}
-              />
-          </div>
-        }
-        
       </div>
       
       <div className="py-20 bg-black text-white text-center">
