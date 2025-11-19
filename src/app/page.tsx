@@ -109,9 +109,6 @@ export default function Home() {
 
       <section className="relative overflow-hidden bg-background text-foreground pt-10 pb-20 text-center">
         <div className="relative z-10 mx-auto max-w-5xl px-4 md:px-8">
-            <div className="inline-block bg-gray-800 text-gray-300 rounded-full px-6 py-2 mb-6 border border-gray-700">
-                <p className="font-semibold">Preços - Planos flexíveis</p>
-            </div>
             <h1 className="md:text-5xl text-3xl lg:text-6xl text-white font-body">
               <span className="text-primary">Escolha o plano ideal para você.</span> Comece seu negócio com a liberdade de <span className="text-primary">crescer ainda mais.</span>
             </h1>
