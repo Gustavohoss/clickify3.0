@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -92,8 +93,8 @@ export default function Home() {
             <Image
               src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/mmudllxka9yrr0ypf1lpqfdh?v=1763540792561"
               alt="Smartphone"
-              width={300}
-              height={600}
+              width={350}
+              height={700}
               className="z-0"
             />
             <div className="absolute inset-0 z-10 p-4">
