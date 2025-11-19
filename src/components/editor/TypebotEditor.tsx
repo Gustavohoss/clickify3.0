@@ -1,7 +1,7 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
   Settings,
@@ -94,6 +94,7 @@ import {
   ChevronsUpDown,
   Globe,
   X,
+  Construction,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -118,6 +119,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.tsx';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion.tsx';
 import { Badge } from '../ui/badge.tsx';
 import { Textarea } from '../ui/textarea.tsx';
+import { EditableTextBlock } from './typebot/EditableTextBlock.tsx';
+
 
 const ButtonsBlockSettings = ({
   block,
@@ -915,89 +918,7 @@ const WaitBlockSettings = ({
     );
 };
 
-const EditableTextBlock = memo(
-  ({ initialContent, onSave, onVariableInsert, variables, isSelected }) => {
-    const editorRef = useRef<HTMLDivElement>(null);
-    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-    
-    useEffect(() => {
-      const editor = editorRef.current;
-      if (editor && editor.innerHTML !== initialContent) {
-        editor.innerHTML = initialContent || '';
-      }
-    }, [initialContent]);
-    
-    const handleBlur = () => {
-      if (editorRef.current) {
-        onSave(editorRef.current.innerHTML);
-      }
-    };
-    
-    const handleVariableInsert = (variable: string) => {
-      const editor = editorRef.current;
-      if (!editor) return;
-    
-      editor.focus();
-    
-      document.execCommand('insertHTML', false, `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`);
-      
-      onSave(editor.innerHTML);
-      setIsPopoverOpen(false);
-    };
-
-    return (
-      <div className="relative w-full">
-        <div
-          ref={editorRef}
-          contentEditable
-          suppressContentEditableWarning
-          onBlur={handleBlur}
-          onClick={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-          onInput={(e) => {
-            if (editorRef.current) {
-              onSave(editorRef.current.innerHTML);
-            }
-          }}
-          dangerouslySetInnerHTML={{ __html: initialContent || '' }}
-          data-placeholder="Digite sua mensagem..."
-          className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8 min-h-[20px] [&[data-placeholder]]:before:content-[attr(data-placeholder)] [&[data-placeholder]]:before:text-white/40 [&:not(:empty)]:before:hidden"
-        />
-        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-          <PopoverTrigger asChild>
-            <button
-              className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]"
-            >
-              <Braces size={14} />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-48 p-0 bg-[#262626] border-[#3f3f46] text-white">
-            <Command>
-              <CommandInput placeholder="Procurar variável..." className="h-9 text-white" />
-              <CommandList>
-                <CommandEmpty>Nenhuma variável encontrada.</CommandEmpty>
-                <CommandGroup>
-                  {variables.map((variable) => (
-                    <CommandItem
-                      key={variable}
-                      value={variable}
-                      onSelect={() => handleVariableInsert(variable)}
-                    >
-                      {variable}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
-    );
-  }
-);
-
-
-const CanvasTextBlock = ({
+const CanvasTextBlock = React.memo(({
   block,
   onBlockMouseDown,
   onContextMenu,
@@ -1017,7 +938,7 @@ const CanvasTextBlock = ({
   variables: string[];
 }) => {
   const [hasMounted, setHasMounted] = useState(false);
-  
+
   useEffect(() => {
     setHasMounted(true);
   }, []);
@@ -1041,7 +962,8 @@ const CanvasTextBlock = ({
     switch (block.type) {
       case 'image':
         if (block.props?.imageUrl) {
-          return <img src={block.props.imageUrl} alt="Conteúdo fornecido pelo usuário" className="max-w-full h-auto object-contain rounded-md" />;
+          // Add min-h to prevent collapsing
+          return <div className="min-h-[50px]"><img src={block.props.imageUrl} alt="Conteúdo fornecido pelo usuário" className="max-w-full h-auto object-contain rounded-md" /></div>;
         }
         return (
           <div className="flex items-center gap-2">
@@ -1110,7 +1032,6 @@ const CanvasTextBlock = ({
                 const newContent = `${currentContent}{{${variable}}}`;
                 updateBlockProps(block.id, { content: newContent });
               }}
-              isSelected={isSelected}
             />
           );
       case 'input-buttons':
@@ -1129,7 +1050,6 @@ const CanvasTextBlock = ({
                      const newContent = `${currentContent}{{${variable}}}`;
                      updateBlockProps(block.id, { content: newContent });
                   }}
-                  isSelected={isSelected}
                 />
               </div>
 
@@ -1189,7 +1109,9 @@ const CanvasTextBlock = ({
       </div>
     </div>
   );
-};
+});
+CanvasTextBlock.displayName = 'CanvasTextBlock';
+
 
 type DropIndicator = {
   groupId: number;
@@ -1385,6 +1307,7 @@ export function TypebotEditor({
   setFunnel: (updater: (prev: Funnel | null) => Funnel | null) => void;
   debouncedUpdateFunnel: any;
 }) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('Fluxo');
   const [isPanning, setIsPanning] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -1907,7 +1830,7 @@ export function TypebotEditor({
       isReadyToDrag: true,
       dragStartMouse: { x: e.clientX, y: e.clientY },
       dragStartOffset: dragStartOffset,
-      originalBlock: JSON.parse(JSON.stringify(blockToDrag)),
+      originalBlock: { ...blockToDrag },
     });
   };
 
@@ -2159,6 +2082,25 @@ const handleConnectionStart = (
 
   return (
     <div className="flex h-screen w-full flex-col bg-[#111111] text-white">
+       <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80">
+        <div className="flex flex-col items-center gap-4 rounded-lg bg-[#262626] p-8 text-center shadow-2xl">
+          <div className="rounded-full bg-yellow-500/10 p-3 text-yellow-500">
+            <Construction className="h-8 w-8" />
+          </div>
+          <h2 className="text-2xl font-bold">Em Manutenção!</h2>
+          <p className="max-w-xs text-white/70">
+            Esta área do editor está sendo aprimorada. Volte em breve para conferir as novidades!
+          </p>
+          <Button
+            variant="outline"
+            className="mt-4 border-white/20 bg-white/10 hover:bg-white/20"
+            onClick={() => router.back()}
+          >
+            Voltar ao painel
+          </Button>
+        </div>
+      </div>
+
       <header className="flex h-14 shrink-0 items-center justify-between border-b border-[#262626] px-4">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-[#262626]">
