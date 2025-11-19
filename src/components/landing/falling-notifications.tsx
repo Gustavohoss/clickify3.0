@@ -13,15 +13,9 @@ const getRandomCommission = () => {
 const notificationTypes = [
   {
     type: 'sale',
-    icon: 'https://s3.typebot.io/public/workspaces/cme0in7zf0022jo04wbcry6pa/typebots/cmeqkb6ac0007ji04gxy4m02s/blocks/kwzzsi7nt34repq7p1cpo9ts?v=1756426931803',
+    icon: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/e8vsn1pelzr1o22gyvomkn6l?v=1763544631191',
     title: 'Venda Realizada',
     description: (commission: string) => `Sua comissão: R$ ${commission}`,
-  },
-  {
-    type: 'followers',
-    icon: 'https://s3.typebot.io/public/workspaces/cme0in7zf0022jo04wbcry6pa/typebots/cmeqkb6ac0007ji04gxy4m02s/blocks/awdexqtujuj8ef9o1d3ms9gn?v=1756719010878',
-    title: 'Tik Tok',
-    description: () => 'Ganhou mais 1000 seguidores',
   },
 ];
 

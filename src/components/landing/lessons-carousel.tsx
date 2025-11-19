@@ -1,0 +1,52 @@
+
+'use client';
+
+import React from 'react';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { cn } from '@/lib/utils';
+
+const lessons = [
+  PlaceHolderImages.find(p => p.id === 'lesson-card-1'),
+  PlaceHolderImages.find(p => p.id === 'lesson-card-2'),
+  PlaceHolderImages.find(p => p.id === 'lesson-card-3'),
+  PlaceHolderImages.find(p => p.id === 'lesson-card-4'),
+  PlaceHolderImages.find(p => p.id === 'lesson-card-5'),
+  PlaceHolderImages.find(p => p.id === 'lesson-card-6'),
+].filter(Boolean) as any[];
+
+const lessonsWithDuplicates = [...lessons, ...lessons];
+
+export const LessonsCarousel = () => {
+    return (
+        <section className="py-16 bg-background">
+            <div className="container mx-auto px-4 text-center">
+                <h2 className="text-3xl md:text-4xl font-bold font-headline mb-10">
+                    Aulas <span className="text-primary">Premium e Exclusivas</span>
+                </h2>
+                <div
+                    className="group relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_10%,white_90%,transparent)]"
+                >
+                    <div
+                        className={cn(
+                            'flex shrink-0 items-center justify-around [animation-play-state:running] group-hover:[animation-play-state:paused]',
+                            'animate-slide'
+                        )}
+                    >
+                        {lessonsWithDuplicates.map((lesson, index) => (
+                            <div key={`${lesson.id}-${index}`} className="relative w-[280px] h-[500px] shrink-0 px-4">
+                                <Image
+                                    src={lesson.imageUrl}
+                                    alt={lesson.description}
+                                    width={280}
+                                    height={500}
+                                    className="rounded-xl object-cover"
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+};

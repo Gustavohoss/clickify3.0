@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { BGPattern } from "@/components/ui/bg-pattern";
 import { Header } from "@/components/landing/header";
 import SocialProof from "@/components/landing/social-proof";
+import { LessonsCarousel } from "@/components/landing/lessons-carousel";
 
 const partners = [
   PlaceHolderImages.find(p => p.id === 'shopee-logo'),
@@ -87,6 +87,7 @@ export default function Home() {
       </div>
 
       <SocialProof />
+      <LessonsCarousel />
 
     </main>
   );
