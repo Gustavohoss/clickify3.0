@@ -1,12 +1,12 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Header } from "@/components/landing/header";
 import Image from "next/image";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import React from 'react';
+import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { BGPattern } from "@/components/ui/bg-pattern";
 
 const partners = [
   PlaceHolderImages.find(p => p.id === 'shopee-logo'),
@@ -35,7 +35,6 @@ const MovingRibbon = ({ reverse = false }: { reverse?: boolean }) => (
 
 
 export default function Home() {
-  const heroImage = PlaceHolderImages.find(p => p.id === 'hero-mockup');
 
   return (
     <main className="dark">
@@ -58,6 +57,7 @@ export default function Home() {
 
        <Header />
       <div className="relative w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md pt-32 pb-20">
+        <BGPattern variant='grid' mask='fade-edges' />
         <div className="relative z-20 max-w-4xl px-4 text-center">
            <h1 className="md:text-5xl text-3xl lg:text-6xl text-white font-body">
             <span className="text-primary">Automatize suas vendas online</span> e saia na frente de 97% dos <span className="text-primary">concorrentes!</span>
