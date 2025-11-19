@@ -20,15 +20,9 @@ import { ArrowRight, Bot, FileText, HelpCircle } from 'lucide-react';
 import { useAuth, useFirestore, useUser } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
-type FunnelType = 'sales-page' | 'typebot' | 'quiz';
+type FunnelType = 'typebot' | 'quiz';
 
 const funnelTypes = [
-  {
-    icon: <FileText className="h-8 w-8" />,
-    title: 'Página de Venda',
-    description: 'Crie uma página de alta conversão para vender seu produto diretamente.',
-    type: 'sales-page' as FunnelType,
-  },
   {
     icon: <Bot className="h-8 w-8" />,
     title: 'Typebot',
@@ -79,7 +73,7 @@ export default function NovoFunilPage() {
         type: selectedFunnel,
         userId: user.uid,
         createdAt: serverTimestamp(),
-        steps: [
+        steps: selectedFunnel === 'typebot' ? [] : [
           {
             id: Date.now(),
             name: 'Etapa 1',
@@ -166,5 +160,3 @@ export default function NovoFunilPage() {
     </div>
   );
 }
-
-    

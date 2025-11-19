@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { Suspense, useState, useEffect, useMemo } from 'react';
@@ -7,7 +8,7 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { useDebouncedCallback } from 'use-debounce';
 import { StandardFunnelEditor } from '@/components/editor/StandardFunnelEditor';
 import { TypebotEditor } from '@/components/editor/TypebotEditor';
-import type { Funnel, Step } from '@/components/editor/types.tsx';
+import type { Funnel, Step, CanvasBlock } from '@/components/editor/types.tsx';
 
 
 function FunnelEditorContent() {
@@ -27,15 +28,27 @@ function FunnelEditorContent() {
       const funnelToSave = JSON.parse(JSON.stringify(updatedFunnel));
       
       if (funnelToSave.steps) {
-        funnelToSave.steps.forEach((step: Step) => {
-          if (step.components) {
-            step.components.forEach((component: any) => {
-              if (component.props && component.props.icon) {
-                delete component.props.icon;
+        if(funnelToSave.type === 'typebot') {
+            (funnelToSave.steps as CanvasBlock[]).forEach((block: CanvasBlock) => {
+                if(block.children) {
+                    block.children.forEach((child: any) => {
+                       if (child.props && child.props.icon) {
+                         delete child.props.icon;
+                       }
+                    })
+                }
+            })
+        } else {
+             (funnelToSave.steps as Step[]).forEach((step: Step) => {
+              if (step.components) {
+                step.components.forEach((component: any) => {
+                  if (component.props && component.props.icon) {
+                    delete component.props.icon;
+                  }
+                });
               }
             });
-          }
-        });
+        }
       }
       
       const { id, ...rest } = funnelToSave;
@@ -54,7 +67,7 @@ function FunnelEditorContent() {
       const initialFunnel: Funnel = {
         id: funnelId,
         ...funnelData,
-        steps: funnelData.steps || [{ id: Date.now(), name: 'Etapa 1', components: [] }],
+        steps: funnelData.steps || (funnelData.type === 'typebot' ? [] : [{ id: Date.now(), name: 'Etapa 1', components: [] }]),
       };
       setFunnel(initialFunnel);
     }
