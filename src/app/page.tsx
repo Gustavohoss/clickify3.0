@@ -6,7 +6,6 @@ import { Header } from "@/components/landing/header";
 import Image from "next/image";
 import React from 'react';
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { BGPattern } from "@/components/ui/bg-pattern";
 
 const partners = [
   PlaceHolderImages.find(p => p.id === 'shopee-logo'),
@@ -17,7 +16,7 @@ const partners = [
 ].filter(Boolean);
 
 const MovingRibbon = ({ reverse = false }: { reverse?: boolean }) => (
-  <div className={`absolute h-12 w-[300%] -rotate-[25deg] bg-primary flex items-center justify-center gap-12 text-black font-semibold text-lg ${reverse ? "animate-slide-reverse" : "animate-slide"}`}>
+  <div className={`absolute h-12 w-[300%] -rotate-[25deg] bg-accent flex items-center justify-center gap-12 text-black font-semibold text-lg ${reverse ? "animate-slide-reverse" : "animate-slide"}`}>
     {Array(10).fill(null).map((_, i) => (
       <React.Fragment key={i}>
         <span>Nuxdrop.io</span>
@@ -57,10 +56,9 @@ export default function Home() {
 
        <Header />
       <div className="relative w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md pt-32 pb-20">
-        <BGPattern variant='grid' mask='fade-edges' />
         <div className="relative z-20 max-w-4xl px-4 text-center">
            <h1 className="md:text-5xl text-3xl lg:text-6xl text-white font-body">
-            <span className="text-primary">Automatize suas vendas online</span> e saia na frente de 97% dos <span className="text-primary">concorrentes!</span>
+            <span className="text-primary">Automatize suas vendas online</span> e saia na frente de 97% dos <span className="text-accent">concorrentes!</span>
           </h1>
           <p className="mt-6 text-lg text-neutral-300 max-w-2xl mx-auto">
             A Clickify te dá tudo: funil pronto, área de membros, afiliados e ferramentas completas para vender online.
@@ -75,8 +73,8 @@ export default function Home() {
               height={80}
               className="h-20 w-20 mb-8"
             />
-            <Button size="lg" className="w-64 h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full">Assinar agora</Button>
-            <Button variant="outline" size="lg" className="w-64 h-14 text-lg bg-transparent border-primary text-primary hover:bg-primary/10 rounded-full">Ver Planos</Button>
+            <Button size="lg" className="w-64 h-14 text-lg bg-accent hover:bg-accent/90 text-accent-foreground font-bold rounded-full">Assinar agora</Button>
+            <Button variant="outline" size="lg" className="w-64 h-14 text-lg bg-transparent border-accent text-accent hover:bg-accent/10 rounded-full">Ver Planos</Button>
             <Button variant="link" className="text-neutral-300">Conheça Área de Membros</Button>
         </div>
 
@@ -84,9 +82,9 @@ export default function Home() {
       
       <div className="py-20 bg-black text-white text-center">
         <h2 className="text-4xl font-bold">
-            Aulas <span className="text-primary">Premium</span> e <span className="text-primary">Exclusivas</span>
+            Aulas <span className="text-accent">Premium</span> e <span className="text-accent">Exclusivas</span>
         </h2>
-        <div className="mt-8 relative aspect-video max-w-4xl mx-auto rounded-lg overflow-hidden border border-primary/20 shadow-2xl shadow-primary/10">
+        <div className="mt-8 relative aspect-video max-w-4xl mx-auto rounded-lg overflow-hidden border border-accent/20 shadow-2xl shadow-accent/10">
           <video
             src="https://s3.typebot.io/public/workspaces/clh2omgfr000008ju0g6zjgj6/typebots/clhe9f9x3000708jnf263884e/videos/video_1.mp4"
             autoPlay
