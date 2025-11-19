@@ -47,6 +47,36 @@
       "description": "Avatar for a user testimonial.",
       "imageUrl": "https://images.unsplash.com/photo-1557053910-d9eadeed1c58?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2Mjg4ODYyM3ww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "woman portrait"
+    },
+    {
+      "id": "shopee-logo",
+      "description": "Shopee logo",
+      "imageUrl": "https://cdn.worldvectorlogo.com/logos/shopee-1.svg",
+      "imageHint": "shopee logo"
+    },
+    {
+      "id": "mercado-livre-logo",
+      "description": "Mercado Livre logo",
+      "imageUrl": "https://cdn.worldvectorlogo.com/logos/mercado-libre-1.svg",
+      "imageHint": "mercado livre logo"
+    },
+    {
+      "id": "bling-logo",
+      "description": "Bling logo",
+      "imageUrl": "https://cdn.worldvectorlogo.com/logos/bling-1.svg",
+      "imageHint": "bling logo"
+    },
+    {
+      "id": "magalu-logo",
+      "description": "Magalu logo",
+      "imageUrl": "https://cdn.worldvectorlogo.com/logos/magalu-1.svg",
+      "imageHint": "magalu logo"
+    },
+    {
+      "id": "perfectpay-logo",
+      "description": "PerfectPay logo",
+      "imageUrl": "https://perfectpay.com.br/images/logo-perfect-pay-branca.png",
+      "imageHint": "perfectpay logo"
     }
   ]
 }
