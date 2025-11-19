@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { SparklesCore } from "@/components/ui/sparkles";
 
 const heroImage = PlaceHolderImages.find((img) => img.id === "hero-mockup");
 
@@ -16,16 +17,17 @@ const partners = [
 export function Hero() {
   return (
     <section className="relative overflow-hidden bg-background py-20 md:py-32">
-       <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] sm:w-[100%] sm:h-[100%] rounded-full bg-primary/5 blur-[120px] -z-10"
-       />
-       <div 
-        className="absolute inset-0 w-full h-full"
-        style={{
-          backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px)',
-          backgroundSize: '30px 30px',
-        }}
-       />
+       <div className="absolute inset-0 w-full h-full -z-10">
+        <SparklesCore
+          id="tsparticlesfullpage"
+          background="transparent"
+          minSize={0.6}
+          maxSize={1.4}
+          particleDensity={100}
+          className="w-full h-full"
+          particleColor="#FFFFFF"
+        />
+      </div>
       <div className="container mx-auto px-4 z-10">
         <div className="flex flex-col items-center text-center">
             <h1 className="text-4xl font-bold tracking-tighter text-foreground sm:text-5xl md:text-6xl lg:text-7xl font-headline max-w-4xl">
