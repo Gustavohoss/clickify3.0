@@ -16,6 +16,7 @@ const partners = [
   PlaceHolderImages.find(p => p.id === 'hotmart-logo'),
   PlaceHolderImages.find(p => p.id === 'monetizze-logo'),
   PlaceHolderImages.find(p => p.id === 'braip-logo'),
+  PlaceHolderImages.find(p => p.id === 'kirvano-logo'),
 ].filter(Boolean);
 
 const MovingRibbon = ({ reverse = false }: { reverse?: boolean }) => (
@@ -103,6 +104,17 @@ export default function Home() {
 
       <SocialProof />
       <LessonsCarousel />
+
+      <section className="py-20 text-center">
+        <div className="container mx-auto px-4">
+          <div className="inline-block bg-gray-800 text-gray-300 rounded-full px-6 py-2 mb-6 border border-gray-700">
+            <p className="font-semibold">Preços - Planos flexíveis</p>
+          </div>
+          <h2 className="text-4xl lg:text-5xl text-white font-body max-w-3xl mx-auto">
+            Escolha o plano ideal para você. Comece seu negócio com a liberdade de crescer ainda mais.
+          </h2>
+        </div>
+      </section>
 
     </main>
   );
