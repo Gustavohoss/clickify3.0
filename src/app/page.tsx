@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import React from 'react';
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { BGPattern } from "@/components/ui/bg-pattern";
 
 const partners = [
   PlaceHolderImages.find(p => p.id === 'shopee-logo'),
@@ -54,6 +55,7 @@ export default function Home() {
       `}</style>
 
       <div className="relative w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md pt-32 pb-20">
+        
         <div className="relative z-20 max-w-4xl px-4 text-center">
            <h1 className="md:text-5xl text-3xl lg:text-6xl text-white font-body">
             <span className="text-primary">Automatize suas vendas online</span> e saia na frente de 97% dos <span className="text-primary">concorrentes!</span>
@@ -63,13 +65,13 @@ export default function Home() {
           </p>
         </div>
         
-        <div className="relative z-20 mt-12 flex flex-col items-center gap-4 px-8">
+        <div className="relative z-20 mt-12 flex flex-col items-center gap-4 w-full px-4 md:px-8">
              <Image
               src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/ewcazkwlemjkynkyhtz2tkoy?v=1763539211986"
               alt="Dashboard"
-              width={900}
-              height={675}
-              className="mb-4 rounded-lg border-2 border-primary/20 shadow-2xl shadow-primary/10"
+              width={1200}
+              height={900}
+              className="w-full max-w-5xl rounded-lg border-2 border-primary/20 shadow-2xl shadow-primary/10 mb-8"
             />
             <Button size="lg" className="w-64 h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full">Assinar agora</Button>
             <Button variant="outline" size="lg" className="w-64 h-14 text-lg bg-transparent border-primary text-primary hover:bg-primary/10 rounded-full">Ver Planos</Button>
