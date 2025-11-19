@@ -57,37 +57,37 @@
     {
       "id": "lesson-card-1",
       "description": "Lesson card for 'Como Acessar'",
-      "imageUrl": "https://images.unsplash.com/photo-1762329367301-9009fd143ffa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8YWNjZXNzJTIwbGVzc29ufGVufDB8fHx8MTc2MzU1MjE4OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/hj90zu0z15zcd0o51dgijhwf?v=1763592174971",
       "imageHint": "access lesson"
     },
     {
       "id": "lesson-card-2",
       "description": "Lesson card for 'Configurações'",
-      "imageUrl": "https://images.unsplash.com/photo-1758270704851-adff797a2010?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c2V0dGluZ3MlMjBsZXNzb258ZW58MHx8fHwxNzYzNTUyMTg5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/hj90zu0z15zcd0o51dgijhwf?v=1763592174971",
       "imageHint": "settings lesson"
     },
     {
       "id": "lesson-card-3",
       "description": "Lesson card for 'Venda sem Gastar'",
-      "imageUrl": "https://images.unsplash.com/photo-1642543348745-03b1219733d9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzYWxlcyUyMGxlc3NvbnxlbnwwfHx8fDE3NjM1NTIxODl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/hj90zu0z15zcd0o51dgijhwf?v=1763592174971",
       "imageHint": "sales lesson"
     },
     {
       "id": "lesson-card-4",
       "description": "Lesson card for 'O Ouro da Primeira Venda'",
-      "imageUrl": "https://images.unsplash.com/photo-1582556544229-40a11e954e71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxmaXJzdCUyMHNhbGV8ZW58MHx8fHwxNzYzNTUyMTg5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/hj90zu0z15zcd0o51dgijhwf?v=1763592174971",
       "imageHint": "first sale"
     },
     {
       "id": "lesson-card-5",
       "description": "Lesson card for 'Suporte'",
-      "imageUrl": "https://images.unsplash.com/photo-1758525860435-502240649c59?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzdXBwb3J0JTIwbGVzc29ufGVufDB8fHx8MTc2MzU1MjE4OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/hj90zu0z15zcd0o51dgijhwf?v=1763592174971",
       "imageHint": "support lesson"
     },
     {
       "id": "lesson-card-6",
       "description": "Lesson card for another lesson",
-      "imageUrl": "https://picsum.photos/seed/lesson6/280/500",
+      "imageUrl": "https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/hj90zu0z15zcd0o51dgijhwf?v=1763592174971",
       "imageHint": "bonus lesson"
     },
     {
