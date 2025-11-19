@@ -8,7 +8,7 @@ import React from 'react';
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { BGPattern } from "@/components/ui/bg-pattern";
 import { Header } from "@/components/landing/header";
-import FallingNotifications from "@/components/landing/falling-notifications";
+import SocialProof from "@/components/landing/social-proof";
 
 const partners = [
   PlaceHolderImages.find(p => p.id === 'shopee-logo'),
@@ -87,22 +87,7 @@ export default function Home() {
 
       </div>
 
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="relative mx-auto w-fit rounded-2xl overflow-hidden">
-            <Image
-              src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/mmudllxka9yrr0ypf1lpqfdh?v=1763540792561"
-              alt="Smartphone"
-              width={350}
-              height={700}
-              className="z-0"
-            />
-            <div className="absolute inset-0 z-10 p-4">
-              <FallingNotifications />
-            </div>
-          </div>
-        </div>
-      </section>
+      <SocialProof />
 
     </main>
   );
