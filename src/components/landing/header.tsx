@@ -6,7 +6,6 @@ import { Menu, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ThemeToggleButton } from "@/components/ui/theme-toggle-button";
 import { Logo } from "@/components/landing/logo";
 
 const NAV_LINKS = [
@@ -70,7 +69,6 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <ThemeToggleButton />
           <Button asChild>
             <Link href="/signup">Começar Agora</Link>
           </Button>
@@ -101,9 +99,6 @@ export function Header() {
               <Button asChild className="w-full">
                 <Link href="/signup">Começar Agora</Link>
               </Button>
-              <div className="mx-auto">
-                <ThemeToggleButton />
-              </div>
             </div>
           </div>
         </div>
