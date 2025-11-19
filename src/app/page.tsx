@@ -68,6 +68,13 @@ export default function Home() {
         </div>
         
         <div className="relative z-20 mt-12 flex flex-col items-center gap-4">
+            <Image
+              src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/lgxma7645moftyw430ecl8d3?v=1763537206143"
+              alt="Clickify Logo"
+              width={80}
+              height={80}
+              className="h-20 w-20 mb-8"
+            />
             <Button size="lg" className="w-64 h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full">Assinar agora</Button>
             <Button variant="outline" size="lg" className="w-64 h-14 text-lg bg-transparent border-primary text-primary hover:bg-primary/10 rounded-full">Ver Planos</Button>
             <Button variant="link" className="text-neutral-300">Conheça Área de Membros</Button>
