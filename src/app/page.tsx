@@ -11,11 +11,11 @@ import SocialProof from "@/components/landing/social-proof";
 import { LessonsCarousel } from "@/components/landing/lessons-carousel";
 
 const partners = [
-  PlaceHolderImages.find(p => p.id === 'shopee-logo'),
-  PlaceHolderImages.find(p => p.id === 'mercado-livre-logo'),
-  PlaceHolderImages.find(p => p.id === 'bling-logo'),
-  PlaceHolderImages.find(p => p.id === 'magalu-logo'),
+  PlaceHolderImages.find(p => p.id === 'kiwify-logo'),
   PlaceHolderImages.find(p => p.id === 'perfectpay-logo'),
+  PlaceHolderImages.find(p => p.id === 'hotmart-logo'),
+  PlaceHolderImages.find(p => p.id === 'monetizze-logo'),
+  PlaceHolderImages.find(p => p.id === 'braip-logo'),
 ].filter(Boolean);
 
 const MovingRibbon = ({ reverse = false }: { reverse?: boolean }) => (
@@ -35,6 +35,27 @@ const MovingRibbon = ({ reverse = false }: { reverse?: boolean }) => (
   </div>
 );
 
+const InfiniteMovingLogos = () => {
+    const logosWithDuplicates = [...partners, ...partners];
+    return (
+        <div className="w-full max-w-4xl mx-auto overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]">
+            <div className="flex animate-slide w-max">
+                {logosWithDuplicates.map((logo, index) => (
+                    <div key={`${logo!.id}-${index}`} className="w-32 h-16 flex items-center justify-center mx-4">
+                        <Image
+                            src={logo!.imageUrl}
+                            alt={logo!.description}
+                            width={100}
+                            height={40}
+                            className="object-contain"
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 
 export default function Home() {
 
@@ -43,18 +64,11 @@ export default function Home() {
        <Header />
        <style jsx global>{`
         @keyframes slide {
-          from { transform: translateX(-33.33%); }
-          to { transform: translateX(0); }
-        }
-        @keyframes slide-reverse {
           from { transform: translateX(0); }
-          to { transform: translateX(-33.33%); }
+          to { transform: translateX(-50%); }
         }
         .animate-slide {
           animation: slide 20s linear infinite;
-        }
-        .animate-slide-reverse {
-          animation: slide-reverse 20s linear infinite;
         }
       `}</style>
 
@@ -70,15 +84,16 @@ export default function Home() {
           </p>
         </div>
         
-        <div className="relative z-20 mt-12 flex flex-col items-center gap-4 w-full max-w-5xl px-4 md:px-8">
+        <div className="relative z-20 mt-12 flex flex-col items-center gap-8 w-full max-w-5xl px-4 md:px-8">
             <Image
               src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/ewcazkwlemjkynkyhtz2tkoy?v=1763539211986"
               alt="Dashboard"
               width={1200}
               height={900}
-              className="w-full h-auto rounded-lg border-2 border-primary/20 shadow-2xl shadow-primary/10 mb-8"
+              className="w-full h-auto rounded-lg border-2 border-primary/20 shadow-2xl shadow-primary/10 mb-4"
             />
-            <div className="flex flex-col sm:flex-row items-center gap-4">
+            <InfiniteMovingLogos />
+            <div className="flex flex-col sm:flex-row items-center gap-4 mt-4">
               <Button size="lg" className="w-64 h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full">Assinar agora</Button>
               <Button variant="outline" size="lg" className="w-64 h-14 text-lg bg-transparent border-primary text-primary hover:bg-primary/10 rounded-full">Ver Planos</Button>
             </div>
