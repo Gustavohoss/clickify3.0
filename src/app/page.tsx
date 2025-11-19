@@ -1,52 +1,40 @@
-import { Header } from "@/components/landing/header";
-import { SparklesCore } from "@/components/ui/sparkles";
+
 import { Button } from "@/components/ui/button";
+import { SparklesCore } from "@/components/ui/sparkles";
 import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <Header />
-      <main className="flex-1">
-        <div className="h-[40rem] w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
-          <div className="relative z-20 max-w-4xl px-4 text-center">
-            <h1 className="md:text-5xl text-3xl lg:text-7xl font-bold text-white">
-              <span className="text-primary">Automatize suas</span>{' '}
-              <span className="text-primary">vendas online</span> e saia na{' '}
-              <span className="text-primary">frente de 97% dos</span>{' '}
-              <span className="text-primary">concorrentes!</span>
-            </h1>
-            <p className="mt-6 text-lg text-neutral-300">
-              A Clickify é parceira oficial do Mercado Livre e diversos outros marketplaces.
-            </p>
-          </div>
-          <div className="w-[40rem] h-40 relative">
-            {/* Gradients */}
-            <div className="absolute inset-x-20 top-0 bg-gradient-to-r from-transparent via-indigo-500 to-transparent h-[2px] w-3/4 blur-sm" />
-            <div className="absolute inset-x-20 top-0 bg-gradient-to-r from-transparent via-indigo-500 to-transparent h-px w-3/4" />
-            <div className="absolute inset-x-60 top-0 bg-gradient-to-r from-transparent via-sky-500 to-transparent h-[5px] w-1/4 blur-sm" />
-            <div className="absolute inset-x-60 top-0 bg-gradient-to-r from-transparent via-sky-500 to-transparent h-px w-1/4" />
-
-            {/* Core component */}
-            <SparklesCore
-              background="transparent"
-              minSize={0.4}
-              maxSize={1}
-              particleDensity={1200}
-              className="w-full h-full"
-              particleColor="#FFFFFF"
-            />
-
-            {/* Radial Gradient to prevent sharp edges */}
-            <div className="absolute inset-0 w-full h-full bg-black [mask-image:radial-gradient(350px_200px_at_top,transparent_20%,white)]"></div>
-          </div>
-           <div className="relative z-20 mt-8">
-             <Link href="/signup">
+    <main>
+      <div className="h-screen w-full bg-background flex flex-col items-center justify-center overflow-hidden rounded-md">
+        <div className="relative z-20 max-w-4xl px-4 text-center">
+          <h1 className="md:text-5xl text-3xl lg:text-7xl font-bold text-white">
+            <span className="text-primary">Automatize suas</span>{' '}
+            <span className="text-primary">vendas online</span> e saia na{' '}
+            <span className="text-primary">frente de 97% dos</span>{' '}
+            <span className="text-primary">concorrentes!</span>
+          </h1>
+          <p className="mt-6 text-lg text-neutral-300">
+            A Clickify te dá tudo: funil pronto, área de membros, afiliados e ferramentas completas para vender online.
+          </p>
+        </div>
+        <div className="w-full h-full absolute inset-0">
+          <SparklesCore
+            id="tsparticlesfullpage"
+            background="transparent"
+            minSize={0.6}
+            maxSize={1.4}
+            particleDensity={100}
+            className="w-full h-full"
+            particleColor="#FFFFFF"
+          />
+        </div>
+        <div className="relative z-20 mt-8">
+            <Link href="/signup">
                 <Button>Começar Agora</Button>
             </Link>
-          </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
