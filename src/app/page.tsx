@@ -10,7 +10,7 @@ import { BGPattern } from "@/components/ui/bg-pattern";
 import { Header } from "@/components/landing/header";
 import SocialProof from "@/components/landing/social-proof";
 import { LessonsCarousel } from "@/components/landing/lessons-carousel";
-import { PricingCard } from "@/components/ui/dark-gradient-pricing";
+import { NewPricingCard } from "@/components/ui/new-pricing-card";
 
 const partners = [
   PlaceHolderImages.find(p => p.id === 'kiwify-logo'),
@@ -114,30 +114,33 @@ export default function Home() {
             </h1>
         </div>
         <div className="relative z-10 mx-auto max-w-5xl px-4 md:px-8 mt-20">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <PricingCard
-                  tier="Mensal"
-                  price="R$149,00"
-                  bestFor="Acesso completo por um mês"
-                  CTA="Assinar agora"
-                  benefits={[
-                      { text: "Todos os recursos Pro", checked: true },
-                      { text: "Suporte via chat", checked: true },
-                      { text: "Cancelamento a qualquer momento", checked: true },
-                      { text: "Acesso a todas as aulas", checked: false },
-                  ]}
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                <NewPricingCard
+                    title="Plano Básico"
+                    subtitle="Para pequenas empresas"
+                    price="R$ 149,90"
+                    priceSuffix="/mês"
+                    features={[
+                        "Acesso a 11 fornecedores",
+                        "Mercado Livre",
+                        "Shopee",
+                        "Suporte",
+                        "MENSAL",
+                    ]}
+                    isFeatured={false}
                 />
-                <PricingCard
-                  tier="Vitalício"
-                  price="R$249,00"
-                  bestFor="Pagamento único"
-                  CTA="Garantir acesso vitalício"
-                  benefits={[
-                      { text: "Todos os recursos Pro", checked: true },
-                      { text: "Suporte prioritário", checked: true },
-                      { text: "Acesso a todas as aulas futuras", checked: true },
-                      { text: "Acesso vitalício", checked: true },
-                  ]}
+                <NewPricingCard
+                    title="Plano Premium"
+                    subtitle="Para empresas maiores e além"
+                    price="R$ 249,90"
+                    features={[
+                        "Acesso a 11 fornecedores",
+                        "Mercado Livre",
+                        "Shopee, Magalu e Bling",
+                        "Suporte e Curso Completo",
+                        "VITALÍCIO",
+                    ]}
+                    isFeatured={true}
                 />
             </div>
         </div>
