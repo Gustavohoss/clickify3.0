@@ -71,7 +71,7 @@ export default function LoginPage() {
       const user = userCredential.user;
 
       if(user.email === 'Clickify@adm.com') {
-        router.push('/clickifyadmpainelemail/dashboard');
+        router.push('/dashboard');
         return;
       }
 
@@ -189,5 +189,3 @@ export default function LoginPage() {
     </>
   );
 }
-
-    

@@ -79,7 +79,7 @@ export default function SignupPage() {
         firstName: firstName,
         lastName: lastName,
         createdAt: new Date().toISOString(),
-        planId: isAdmin ? 'vitalicio' : null, // Set plan based on admin status
+        planId: isAdmin ? 'vitalicio' : '',
         isAdmin: isAdmin,
         balance: 0,
         simulateRevenue: false, 
@@ -211,5 +211,3 @@ export default function SignupPage() {
     </div>
   );
 }
-
-    
