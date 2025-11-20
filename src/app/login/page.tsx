@@ -78,7 +78,7 @@ export default function LoginPage() {
       const userDocRef = doc(firestore, 'users', user.uid);
       const userDoc = await getDoc(userDocRef);
 
-      if (userDoc.exists() && userDoc.data().isVerified) {
+      if (userDoc.exists() && userDoc.data().planId) {
         toast({
           title: 'Login bem-sucedido!',
           description: 'Você será redirecionado em breve.',
@@ -189,3 +189,5 @@ export default function LoginPage() {
     </>
   );
 }
+
+    

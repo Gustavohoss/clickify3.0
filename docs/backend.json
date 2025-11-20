@@ -40,8 +40,9 @@
           "format": "uri"
         },
         "planId": {
-          "type": "string",
-          "description": "Reference to the user's pricing plan. (Relationship: Plan 1:N User)"
+          "type": ["string", "null"],
+          "description": "The user's subscription plan.",
+          "enum": ["mensal", "vitalicio", null]
         },
         "balance": {
           "type": "number",

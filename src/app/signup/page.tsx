@@ -79,10 +79,10 @@ export default function SignupPage() {
         firstName: firstName,
         lastName: lastName,
         createdAt: new Date().toISOString(),
-        isVerified: isAdmin, // Admin is verified by default, others are not.
+        planId: isAdmin ? 'vitalicio' : null, // Set plan based on admin status
         isAdmin: isAdmin,
         balance: 0,
-        simulateRevenue: false, // Default value for the new field
+        simulateRevenue: false, 
       });
 
 
