@@ -42,7 +42,7 @@ export function NewPricingCard({
 
       <ul className="mt-8 space-y-4">
         {features.map((feature, index) => (
-          <li key={index} className="flex items-center gap-3">
+          <li key={index} className="flex items-start gap-3">
             <Image
               src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/w8rpngje86gb2p2e1f0olqzc?v=1763598299100"
               alt="Checkmark"
@@ -50,7 +50,7 @@ export function NewPricingCard({
               height={24}
               className="h-6 w-6 flex-shrink-0"
             />
-            <span className="font-medium">{feature}</span>
+            <span className="font-medium text-left">{feature}</span>
           </li>
         ))}
       </ul>
