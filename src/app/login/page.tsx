@@ -87,9 +87,6 @@ export default function LoginPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
-                      <FormDescription>
-                        Coloque o Email que foi realizado a compra
-                      </FormDescription>
                       <FormControl>
                         <Input placeholder="seu@email.com" {...field} />
                       </FormControl>
