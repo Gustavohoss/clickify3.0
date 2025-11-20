@@ -10,7 +10,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { Area, AreaChart as RechartsAreaChart, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { useCollection, useFirestore, useUser, useMemoFirebase, useDoc, doc } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 
 const chartData = [
@@ -38,6 +38,12 @@ export default function DashboardPage() {
   const { user } = useUser();
   const firestore = useFirestore();
 
+  const userDocRef = useMemoFirebase(
+    () => (user && firestore ? doc(firestore, 'users', user.uid) : null),
+    [firestore, user]
+  );
+  const { data: userData } = useDoc(userDocRef);
+
   const funnelsQuery = useMemoFirebase(
     () =>
       user && firestore
@@ -60,6 +66,13 @@ export default function DashboardPage() {
   const { data: memberAreas } = useCollection(memberAreasQuery);
   const memberAreasCount = memberAreas?.length || 0;
 
+  const formatBalance = (balance: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    }).format(balance);
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -78,8 +91,8 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$0,00</div>
-            <p className="text-xs text-muted-foreground">Conecte sua plataforma para ver seus ganhos.</p>
+            <div className="text-2xl font-bold">{userData ? formatBalance(userData.balance) : 'R$0,00'}</div>
+            <p className="text-xs text-muted-foreground">{userData ? 'Faturamento total da sua conta.' : 'Conecte sua plataforma para ver seus ganhos.'}</p>
           </CardContent>
         </Card>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
