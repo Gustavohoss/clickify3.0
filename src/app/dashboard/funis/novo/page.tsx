@@ -17,8 +17,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Bot, FileText, HelpCircle } from 'lucide-react';
-import { useAuth, useFirestore, useUser } from '@/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useAuth, useFirestore, useUser, useCollection, useDoc, doc as firebaseDoc, useMemoFirebase } from '@/firebase';
+import { collection, addDoc, serverTimestamp, query, where } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 type FunnelType = 'typebot' | 'quiz';
 
@@ -45,23 +46,68 @@ const generateSlug = (name: string) => {
       .replace(/[\s-]+/g, '-');
 };
 
+type UserData = {
+  planId: 'mensal' | 'vitalicio' | '';
+};
+
 export default function NovoFunilPage() {
   const router = useRouter();
   const firestore = useFirestore();
   const { user } = useUser();
+  const { toast } = useToast();
+  
   const [selectedFunnel, setSelectedFunnel] = useState<FunnelType | null>(null);
   const [funnelName, setFunnelName] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
+  const userDocRef = useMemoFirebase(() => (user ? firebaseDoc(firestore, 'users', user.uid) : null), [firestore, user]);
+  const { data: userData } = useDoc<UserData>(userDocRef);
+
+  const funnelsQuery = useMemoFirebase(
+    () => (user ? query(collection(firestore, 'funnels'), where('userId', '==', user.uid)) : null),
+    [firestore, user]
+  );
+  const { data: userFunnels } = useCollection(funnelsQuery);
+
   const handleFunnelSelect = (funnelType: FunnelType) => {
+    if (!userData || !userData.planId) {
+      toast({
+        variant: 'destructive',
+        title: 'Plano não definido',
+        description: 'Você precisa ter um plano ativo para criar um funil.',
+      });
+      return;
+    }
+
+    const funnelsOfType = userFunnels?.filter(f => f.type === funnelType).length || 0;
+    const { planId } = userData;
+    
+    if (planId === 'mensal' && funnelsOfType >= 1) {
+       toast({
+        variant: 'destructive',
+        title: 'Limite Atingido',
+        description: `Você já criou o máximo de 1 funil do tipo "${funnelType}" para o plano mensal.`,
+      });
+      return;
+    }
+
+    if (planId === 'vitalicio' && funnelsOfType >= 5) {
+       toast({
+        variant: 'destructive',
+        title: 'Limite Atingido',
+        description: `Você já criou o máximo de 5 funis do tipo "${funnelType}" para o plano vitalício.`,
+      });
+      return;
+    }
+
     setSelectedFunnel(funnelType);
     setIsDialogOpen(true);
   };
 
   const handleCreateFunnel = async () => {
     if (!funnelName.trim() || !selectedFunnel || !user || !firestore) {
-      // TODO: Add toast notification for empty name or no user
+      toast({ variant: 'destructive', title: 'Erro', description: 'O nome do funil é obrigatório.' });
       return;
     }
     setIsCreating(true);
@@ -84,7 +130,7 @@ export default function NovoFunilPage() {
       router.push(`/editor/${newFunnelDoc.id}`);
     } catch (error) {
       console.error('Error creating funnel: ', error);
-      // TODO: Add toast notification for error
+      toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível criar o funil.' });
       setIsCreating(false);
     }
   };

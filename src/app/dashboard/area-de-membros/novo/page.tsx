@@ -11,9 +11,13 @@ import { Progress } from '@/components/ui/progress';
 import { File, Sparkles, BookCopy, Folder, ArrowLeft } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { useFirestore, useUser } from '@/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useFirestore, useUser, useCollection, useDoc, doc as firebaseDoc, useMemoFirebase } from '@/firebase';
+import { collection, addDoc, serverTimestamp, query, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+
+type UserData = {
+  planId: 'mensal' | 'vitalicio' | '';
+};
 
 export default function NovaAreaDeMembrosPage() {
   const router = useRouter();
@@ -27,12 +31,52 @@ export default function NovaAreaDeMembrosPage() {
   const [isCreating, setIsCreating] = useState(false);
   const type = searchParams.get('type') || 'common';
 
+  const userDocRef = useMemoFirebase(() => (user ? firebaseDoc(firestore, 'users', user.uid) : null), [firestore, user]);
+  const { data: userData } = useDoc<UserData>(userDocRef);
+
+  const memberAreasQuery = useMemoFirebase(
+    () => (user ? query(collection(firestore, 'memberAreas'), where('userId', '==', user.uid)) : null),
+    [firestore, user]
+  );
+  const { data: userMemberAreas } = useCollection(memberAreasQuery);
+
+
   const handleContinue = async () => {
     if (!workspaceName.trim() || !user) {
       toast({
         variant: 'destructive',
         title: 'Nome é obrigatório',
         description: 'Por favor, dê um nome para sua área de membros.',
+      });
+      return;
+    }
+
+    if (!userData || !userData.planId) {
+      toast({
+        variant: 'destructive',
+        title: 'Plano não definido',
+        description: 'Você precisa ter um plano ativo para criar uma área de membros.',
+      });
+      return;
+    }
+
+    const areaCount = userMemberAreas?.length || 0;
+    const { planId } = userData;
+
+    if (planId === 'mensal' && areaCount >= 1) {
+      toast({
+        variant: 'destructive',
+        title: 'Limite Atingido',
+        description: `Você já criou o máximo de 1 área de membros para o plano mensal.`,
+      });
+      return;
+    }
+
+    if (planId === 'vitalicio' && areaCount >= 5) {
+      toast({
+        variant: 'destructive',
+        title: 'Limite Atingido',
+        description: `Você já criou o máximo de 5 áreas de membros para o plano vitalício.`,
       });
       return;
     }
