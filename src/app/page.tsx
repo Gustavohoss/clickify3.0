@@ -121,10 +121,12 @@ export default function Home() {
                     price="R$ 149,90"
                     priceSuffix="/mês"
                     features={[
-                        "Acesso a 11 fornecedores",
-                        "Mercado Livre",
-                        "Shopee",
-                        "Suporte",
+                        "Criar funis com limite de 1 funil por categoria",
+                        "Criar 1 área de membros",
+                        "Criar landing pages, quizzes e fluxos estilo Typebot",
+                        "Conectar 1 gateway de pagamento",
+                        "Afiliação limitada a apenas 1 produto",
+                        "Suporte básico"
                     ]}
                     isFeatured={false}
                 />
@@ -133,10 +135,12 @@ export default function Home() {
                     subtitle="Para empresas maiores e além"
                     price="R$ 249,90"
                     features={[
-                        "Acesso a 11 fornecedores",
-                        "Mercado Livre",
-                        "Shopee, Magalu e Bling",
-                        "Suporte e Curso Completo",
+                        "Criar até 5 funis por categoria",
+                        "Criar áreas de membros ilimitadas",
+                        "Conectar gateways de pagamento ilimitados",
+                        "Afiliação a produtos ilimitada",
+                        "Suporte prioritário",
+                        "Todas as atualizações incluídas"
                     ]}
                     isFeatured={true}
                 />
