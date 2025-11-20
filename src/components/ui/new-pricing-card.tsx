@@ -59,10 +59,9 @@ export function NewPricingCard({
           {priceSuffix && <span className="text-lg font-normal text-gray-400">{priceSuffix}</span>}
         </p>
         <div className="mt-4 flex items-center justify-center gap-4">
-           <Image src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/awzljw9b2m177oad7g632d4l?v=1763864434931" alt="Pix" width={32} height={24} />
-           <Image src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/a7j5au4e892u6f2ddl0yq01k?v=1763864440051" alt="Mastercard" width={32} height={24} />
-           <Image src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/h9y1l0xj6a5m3zld9v6myqg2?v=1763864444589" alt="Visa" width={32} height={24} />
-           <Image src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/luj15wht151f15ql30qoyj1q?v=1763864448556" alt="Boleto" width={32} height={24} />
+           <Image src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/a68fdlm0uvhla5lseapdlldx?v=1763597469798" alt="Pix" width={32} height={24} />
+           <Image src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/dy0jgeiy3p0ow3jv7girqid2?v=1763597472369" alt="Visa" width={32} height={24} />
+           <Image src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/ecqfs0lq4nosjbnybwwl63lz?v=1763597481076" alt="Boleto" width={32} height={24} />
         </div>
       </div>
       
