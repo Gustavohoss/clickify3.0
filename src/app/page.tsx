@@ -73,6 +73,9 @@ export default function Home() {
         .animate-slide {
           animation: slide 20s linear infinite;
         }
+        html {
+          scroll-behavior: smooth;
+        }
       `}</style>
 
       <div className="relative w-full flex flex-col items-center justify-center overflow-hidden pt-32 pb-20">
@@ -97,8 +100,12 @@ export default function Home() {
             />
             <InfiniteMovingLogos />
             <div className="flex flex-col sm:flex-row items-center gap-4 mt-4">
-              <Button size="lg" className="w-64 h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full">Assinar agora</Button>
-              <Button variant="outline" size="lg" className="w-64 h-14 text-lg bg-transparent border-primary text-primary hover:bg-primary/10 rounded-full">Ver Planos</Button>
+              <Button asChild size="lg" className="w-64 h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full">
+                <Link href="#pricing">Assinar agora</Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="w-64 h-14 text-lg bg-transparent border-primary text-primary hover:bg-primary/10 rounded-full">
+                <Link href="#pricing">Ver Planos</Link>
+              </Button>
             </div>
         </div>
 
@@ -107,7 +114,7 @@ export default function Home() {
       <SocialProof />
       <LessonsCarousel />
 
-      <section className="relative overflow-hidden bg-background text-foreground pt-10 pb-20 text-center">
+      <section id="pricing" className="relative overflow-hidden bg-background text-foreground pt-10 pb-20 text-center">
         <div className="relative z-10 mx-auto max-w-5xl px-4 md:px-8">
             <h1 className="md:text-5xl text-3xl lg:text-6xl text-white font-body">
               <span className="text-primary">Escolha o plano ideal para você.</span> Comece seu negócio com a liberdade de <span className="text-primary">crescer ainda mais.</span>
