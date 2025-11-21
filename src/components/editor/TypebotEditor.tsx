@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -115,6 +114,7 @@ import { ButtonsBlockSettings } from './typebot/settings/ButtonsSettings.tsx';
 import { TextBlockSettings } from './typebot/settings/TextSettings.tsx';
 import { EmailBlockSettings } from './typebot/settings/EmailSettings.tsx';
 import { DateBlockSettings } from './typebot/settings/DateSettings.tsx';
+import { EmbedBlockSettings } from './typebot/settings/EmbedSettings.tsx';
 
 const getSmoothStepPath = (x1: number, y1: number, x2: number, y2: number) => {
   const dx = x2 - x1;
@@ -696,7 +696,6 @@ export function TypebotEditor({
       const dy = e.clientY - startPanPosition.current.y;
       setPanOffset((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
       startPanPosition.current = { x: e.clientX, y: e.clientY };
-      return;
     }
 
     if (draggingState.isReadyToDrag && !draggingState.isDragging) {
@@ -1260,215 +1259,201 @@ export function TypebotEditor({
           </ScrollArea>
         </aside>
 
-        <main
-          ref={canvasRef}
-          className="relative flex-1 overflow-hidden"
-          style={{
-            background: '#1d1d1d',
-            backgroundImage:
-              'radial-gradient(circle at center, rgba(128, 128, 128, 0.3) 1px, transparent 1px)',
-            backgroundSize: '20px 20px',
-          }}
-          onMouseDown={handleCanvasMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          onWheel={handleWheel}
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2">
-            <div className="flex items-center gap-1 rounded-md bg-[#181818] p-1">
-              {['Fluxo', 'Tema', 'Configurações', 'Compartilhar'].map(
-                (tab) => (
-                  <Button
-                    key={tab}
-                    variant={activeTab === tab ? 'secondary' : 'ghost'}
-                    size="sm"
-                    onClick={() => setActiveTab(tab)}
-                    className={cn(
-                      'h-7 px-3 text-xs',
-                      activeTab === tab
-                        ? 'bg-[#262626] text-white'
-                        : 'text-white/60 hover:bg-[#262626] hover:text-white'
-                    )}
-                  >
-                    {tab}
-                  </Button>
-                )
-              )}
-            </div>
-          </div>
-          <div
-            className="relative h-full w-full pointer-events-none"
+        <div className="flex-1 relative">
+            <main
+            ref={canvasRef}
+            className="absolute inset-0 overflow-hidden"
             style={{
-              transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
-              transformOrigin: '0 0',
+                background: '#1d1d1d',
+                backgroundImage:
+                'radial-gradient(circle at center, rgba(128, 128, 128, 0.3) 1px, transparent 1px)',
+                backgroundSize: '20px 20px',
             }}
-          >
-            <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
-              <defs>
-                <marker
-                  id="arrowhead"
-                  markerWidth="10"
-                  markerHeight="7"
-                  refX="0"
-                  refY="3.5"
-                  orient="auto"
-                >
-                  <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
-                </marker>
-              </defs>
-              {connections.map((conn, index) => {
-                const fromPos = getHandlePosition(`output-${conn.from}`);
-                const toPos = getHandlePosition(`input-${conn.to}`);
-
-                if (fromPos && toPos) {
-                  return (
-                    <path
-                      key={index}
-                      d={getSmoothStepPath(fromPos.x, fromPos.y, toPos.x, toPos.y)}
-                      stroke="#f97316"
-                      strokeWidth="2"
-                      fill="none"
-                      markerEnd="url(#arrowhead)"
-                    />
-                  );
-                }
-                return null;
-              })}
-
-              {drawingConnection && (
-                <path
-                  d={getSmoothStepPath(
-                    drawingConnection.from.x,
-                    drawingConnection.from.y,
-                    drawingConnection.to.x,
-                    drawingConnection.to.y
-                  )}
-                  stroke="#f97316"
-                  strokeWidth="2"
-                  fill="none"
-                  markerEnd="url(#arrowhead)"
-                />
-              )}
-            </svg>
-            <div
-              id="start-node"
-              className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2 w-52 pointer-events-auto"
-              style={{
-                transform: `translate(50px, 50px)`,
-              }}
+            onMouseDown={handleCanvasMouseDown}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            onWheel={handleWheel}
+            onContextMenu={(e) => e.preventDefault()}
             >
-              <PlaySquare size={16} className="text-white/60" />
-              <span className="text-sm font-medium">Início</span>
-              <div className="flex-grow" />
-            </div>
-            {canvasBlocks
-              .filter((b) => !b.parentId)
-              .map((block, index) => {
-                const BlockComponent =
-                  block.type === 'group' ? CanvasGroupBlock : CanvasTextBlock;
-                const groupIndex = canvasBlocks
-                  .filter((b) => b.type === 'group' && !b.parentId)
-                  .findIndex((g) => g.id === block.id);
-                return (
-                  <BlockComponent
-                    key={block.id}
-                    block={block}
-                    groupIndex={groupIndex}
-                    onBlockMouseDown={handleBlockMouseDown}
-                    onDuplicate={(e: React.MouseEvent) => {
-                      e.stopPropagation();
-                      duplicateBlock(block.id);
-                    }}
-                    onDelete={(e: React.MouseEvent) => {
-                      e.stopPropagation();
-                      deleteBlock(block.id);
-                    }}
-                    onContextMenu={handleContextMenu}
-                    isSelected={selectedBlockId === block.id}
-                    setSelectedBlockId={setSelectedBlockId}
-                    dropIndicator={dropIndicator}
-                    updateBlockProps={updateBlockProps}
-                    variables={variables}
-                    onConnectionStart={handleConnectionStart}
-                    selectedBlockId={selectedBlockId}
-                  />
-                );
-              })}
-          </div>
-          {contextMenu.visible && (
-            <ContextMenu
-              x={contextMenu.x}
-              y={contextMenu.y}
-              onDuplicate={handleDuplicateFromMenu}
-              onDelete={handleDeleteFromMenu}
-            />
-          )}
+            <div
+                className="relative h-full w-full pointer-events-none"
+                style={{
+                transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
+                transformOrigin: '0 0',
+                }}
+            >
+                <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                <defs>
+                    <marker
+                    id="arrowhead"
+                    markerWidth="10"
+                    markerHeight="7"
+                    refX="0"
+                    refY="3.5"
+                    orient="auto"
+                    >
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
+                    </marker>
+                </defs>
+                {connections.map((conn, index) => {
+                    const fromPos = getHandlePosition(`output-${conn.from}`);
+                    const toPos = getHandlePosition(`input-${conn.to}`);
 
-          {selectedBlock && selectedBlock.type === 'image' && (
-            <ImageBlockSettings
-              block={selectedBlock}
-              onUpdate={updateBlockProps}
-              position={selectedBlockPosition}
-            />
-          )}
-          {selectedBlock && selectedBlock.type === 'video' && (
-            <VideoBlockSettings
-              block={selectedBlock}
-              onUpdate={updateBlockProps}
-              position={selectedBlockPosition}
-            />
-          )}
-          {selectedBlock && selectedBlock.type === 'audio' && (
-            <AudioBlockSettings
-              block={selectedBlock}
-              onUpdate={updateBlockProps}
-              position={selectedBlockPosition}
-            />
-          )}
-          {selectedBlock && selectedBlock.type === 'logic-wait' && (
-            <WaitBlockSettings
-              block={selectedBlock}
-              onUpdate={updateBlockProps}
-              position={selectedBlockPosition}
-            />
-          )}
-          {selectedBlock && selectedBlock.type === 'input-buttons' && (
-            <ButtonsBlockSettings
-              block={selectedBlock}
-              onUpdate={updateBlockProps}
-              position={selectedBlockPosition}
-            />
-          )}
-          {selectedBlock && selectedBlock.type === 'input-text' && (
-            <TextBlockSettings
-              block={selectedBlock}
-              onUpdate={updateBlockProps}
-              position={selectedBlockPosition}
-              variables={variables}
-              onAddVariable={(newVar) => setVariables((prev) => [...prev, newVar])}
-            />
-          )}
-          {selectedBlock && selectedBlock.type === 'input-email' && (
-            <EmailBlockSettings
-              block={selectedBlock}
-              onUpdate={updateBlockProps}
-              position={selectedBlockPosition}
-              variables={variables}
-              onAddVariable={(newVar) => setVariables((prev) => [...prev, newVar])}
-            />
-          )}
-          {selectedBlock && selectedBlock.type === 'input-date' && (
-            <DateBlockSettings
-              block={selectedBlock}
-              onUpdate={updateBlockProps}
-              position={selectedBlockPosition}
-              variables={variables}
-              onAddVariable={(newVar) => setVariables((prev) => [...prev, newVar])}
-            />
-          )}
-        </main>
+                    if (fromPos && toPos) {
+                    return (
+                        <path
+                        key={index}
+                        d={getSmoothStepPath(fromPos.x, fromPos.y, toPos.x, toPos.y)}
+                        stroke="#f97316"
+                        strokeWidth="2"
+                        fill="none"
+                        markerEnd="url(#arrowhead)"
+                        />
+                    );
+                    }
+                    return null;
+                })}
+
+                {drawingConnection && (
+                    <path
+                    d={getSmoothStepPath(
+                        drawingConnection.from.x,
+                        drawingConnection.from.y,
+                        drawingConnection.to.x,
+                        drawingConnection.to.y
+                    )}
+                    stroke="#f97316"
+                    strokeWidth="2"
+                    fill="none"
+                    markerEnd="url(#arrowhead)"
+                    />
+                )}
+                </svg>
+                <div
+                id="start-node"
+                className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2 w-52 pointer-events-auto"
+                style={{
+                    transform: `translate(50px, 50px)`,
+                }}
+                >
+                <PlaySquare size={16} className="text-white/60" />
+                <span className="text-sm font-medium">Início</span>
+                <div className="flex-grow" />
+                </div>
+                {canvasBlocks
+                .filter((b) => !b.parentId)
+                .map((block, index) => {
+                    const BlockComponent =
+                    block.type === 'group' ? CanvasGroupBlock : CanvasTextBlock;
+                    const groupIndex = canvasBlocks
+                    .filter((b) => b.type === 'group' && !b.parentId)
+                    .findIndex((g) => g.id === block.id);
+                    return (
+                    <BlockComponent
+                        key={block.id}
+                        block={block}
+                        groupIndex={groupIndex}
+                        onBlockMouseDown={handleBlockMouseDown}
+                        onDuplicate={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        duplicateBlock(block.id);
+                        }}
+                        onDelete={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        deleteBlock(block.id);
+                        }}
+                        onContextMenu={handleContextMenu}
+                        isSelected={selectedBlockId === block.id}
+                        setSelectedBlockId={setSelectedBlockId}
+                        dropIndicator={dropIndicator}
+                        updateBlockProps={updateBlockProps}
+                        variables={variables}
+                        onConnectionStart={handleConnectionStart}
+                        selectedBlockId={selectedBlockId}
+                    />
+                    );
+                })}
+            </div>
+            {contextMenu.visible && (
+                <ContextMenu
+                x={contextMenu.x}
+                y={contextMenu.y}
+                onDuplicate={handleDuplicateFromMenu}
+                onDelete={handleDeleteFromMenu}
+                />
+            )}
+            </main>
+            {selectedBlock && selectedBlock.type === 'image' && (
+                <ImageBlockSettings
+                block={selectedBlock}
+                onUpdate={updateBlockProps}
+                position={selectedBlockPosition}
+                />
+            )}
+            {selectedBlock && selectedBlock.type === 'video' && (
+                <VideoBlockSettings
+                block={selectedBlock}
+                onUpdate={updateBlockProps}
+                position={selectedBlockPosition}
+                />
+            )}
+            {selectedBlock && selectedBlock.type === 'audio' && (
+                <AudioBlockSettings
+                block={selectedBlock}
+                onUpdate={updateBlockProps}
+                position={selectedBlockPosition}
+                />
+            )}
+            {selectedBlock && selectedBlock.type === 'embed' && (
+                <EmbedBlockSettings
+                block={selectedBlock}
+                onUpdate={updateBlockProps}
+                position={selectedBlockPosition}
+                />
+            )}
+            {selectedBlock && selectedBlock.type === 'logic-wait' && (
+                <WaitBlockSettings
+                block={selectedBlock}
+                onUpdate={updateBlockProps}
+                position={selectedBlockPosition}
+                />
+            )}
+            {selectedBlock && selectedBlock.type === 'input-buttons' && (
+                <ButtonsBlockSettings
+                block={selectedBlock}
+                onUpdate={updateBlockProps}
+                position={selectedBlockPosition}
+                />
+            )}
+            {selectedBlock && selectedBlock.type === 'input-text' && (
+                <TextBlockSettings
+                block={selectedBlock}
+                onUpdate={updateBlockProps}
+                position={selectedBlockPosition}
+                variables={variables}
+                onAddVariable={(newVar) => setVariables((prev) => [...prev, newVar])}
+                />
+            )}
+            {selectedBlock && selectedBlock.type === 'input-email' && (
+                <EmailBlockSettings
+                block={selectedBlock}
+                onUpdate={updateBlockProps}
+                position={selectedBlockPosition}
+                variables={variables}
+                onAddVariable={(newVar) => setVariables((prev) => [...prev, newVar])}
+                />
+            )}
+            {selectedBlock && selectedBlock.type === 'input-date' && (
+                <DateBlockSettings
+                block={selectedBlock}
+                onUpdate={updateBlockProps}
+                position={selectedBlockPosition}
+                variables={variables}
+                onAddVariable={(newVar) => setVariables((prev) => [...prev, newVar])}
+                />
+            )}
+        </div>
         {isPreviewOpen && (
           <aside className="w-96 shrink-0 border-l border-[#262626] bg-white flex flex-col">
             <div className="flex h-14 items-center justify-between border-b border-gray-200 px-4">

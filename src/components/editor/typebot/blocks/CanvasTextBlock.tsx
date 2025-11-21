@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -12,6 +11,7 @@ import {
   Clock10,
   MessageCircle,
   Check,
+  Code2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { CanvasBlock } from '../../types';
@@ -118,7 +118,8 @@ export const CanvasTextBlock = React.memo(
                     width="100%"
                     height="100%"
                     controls
-                    playing={block.props.autoplay}
+                    playing={block.props.autoplayVideo}
+                    loop={block.props.loopVideo}
                   />
                 )}
               </div>
@@ -130,6 +131,26 @@ export const CanvasTextBlock = React.memo(
               <span className="text-sm text-white/60">
                 Clique para editar...
               </span>
+            </div>
+          );
+        case 'embed':
+           if (block.props?.url) {
+            return (
+              <div style={{ height: `${block.props.height || 200}px`, width: '100%' }}>
+                <iframe
+                  src={block.props.url}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                ></iframe>
+              </div>
+            );
+          }
+          return (
+            <div className="flex items-center gap-2">
+              <Code2 size={16} className="text-sky-400" />
+              <span className="text-sm text-white/60">Clique para configurar o embed.</span>
             </div>
           );
         case 'input-text':
