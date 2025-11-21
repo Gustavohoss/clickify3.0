@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -739,6 +738,7 @@ export function TypebotEditor({
       const dy = e.clientY - startPanPosition.current.y;
       setPanOffset((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
       startPanPosition.current = { x: e.clientX, y: e.clientY };
+      return;
     }
 
     if (draggingState.isReadyToDrag && !draggingState.isDragging) {
@@ -1409,11 +1409,11 @@ export function TypebotEditor({
             <div
                 className="relative h-full w-full"
                 style={{
-                transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
-                transformOrigin: '0 0',
+                    transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
+                    transformOrigin: '0 0',
                 }}
             >
-                <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
                 <defs>
                     <marker
                     id="arrowhead"
