@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -2082,28 +2083,9 @@ const handleConnectionStart = (
 
   return (
     <div className="flex h-screen w-full flex-col bg-[#111111] text-white">
-       <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80">
-        <div className="flex flex-col items-center gap-4 rounded-lg bg-[#262626] p-8 text-center shadow-2xl">
-          <div className="rounded-full bg-yellow-500/10 p-3 text-yellow-500">
-            <Construction className="h-8 w-8" />
-          </div>
-          <h2 className="text-2xl font-bold">Em Manutenção!</h2>
-          <p className="max-w-xs text-white/70">
-            Esta área do editor está sendo aprimorada. Volte em breve para conferir as novidades!
-          </p>
-          <Button
-            variant="outline"
-            className="mt-4 border-white/20 bg-white/10 hover:bg-white/20"
-            onClick={() => router.back()}
-          >
-            Voltar ao painel
-          </Button>
-        </div>
-      </div>
-
       <header className="flex h-14 shrink-0 items-center justify-between border-b border-[#262626] px-4">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-[#262626]">
+          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-[#262626]" onClick={() => router.back()}>
             <ArrowLeft size={16} />
           </Button>
           <div className="h-6 w-px bg-[#262626]"></div>
