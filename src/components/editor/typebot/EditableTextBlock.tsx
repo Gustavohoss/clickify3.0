@@ -10,22 +10,13 @@ export const EditableTextBlock = React.memo(
   ({ initialContent, onSave, onVariableInsert, variables }) => {
     const editorRef = useRef<HTMLDivElement>(null);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-    // Internal state to manage editing without causing parent re-renders
-    const [currentContent, setCurrentContent] = useState(initialContent);
 
-    // Sync from parent only when initialContent changes (e.g., new block selected)
     useEffect(() => {
-      setCurrentContent(initialContent);
+      // Set initial content when the component mounts or initialContent changes
       if (editorRef.current && editorRef.current.innerHTML !== initialContent) {
         editorRef.current.innerHTML = initialContent || '';
       }
     }, [initialContent]);
-
-    const handleContentChange = () => {
-      if (editorRef.current) {
-        setCurrentContent(editorRef.current.innerHTML);
-      }
-    };
 
     const handleBlur = () => {
       if (editorRef.current) {
@@ -42,9 +33,7 @@ export const EditableTextBlock = React.memo(
     
       document.execCommand('insertHTML', false, `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`);
       
-      const newContent = editor.innerHTML;
-      setCurrentContent(newContent);
-      onSave(newContent); // Save immediately after inserting a variable
+      onSave(editor.innerHTML); // Save immediately after inserting a variable
       setIsPopoverOpen(false);
     };
 
@@ -57,8 +46,7 @@ export const EditableTextBlock = React.memo(
           onBlur={handleBlur}
           onClick={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
-          onInput={handleContentChange}
-          dangerouslySetInnerHTML={{ __html: currentContent || '' }}
+          dangerouslySetInnerHTML={{ __html: initialContent || '' }}
           data-placeholder="Digite sua mensagem..."
           className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8 min-h-[20px] [&[data-placeholder]]:before:content-[attr(data-placeholder)] [&[data-placeholder]]:before:text-white/40 [&:not(:empty)]:before:hidden"
         />
