@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -689,7 +690,7 @@ export function TypebotEditor({
       setDrawingConnection((prev: any) => ({ ...prev, to: mousePos }));
       return;
     }
-
+    
     if (isPanning) {
       const dx = e.clientX - startPanPosition.current.x;
       const dy = e.clientY - startPanPosition.current.y;
@@ -790,7 +791,6 @@ export function TypebotEditor({
     }
 
     if (draggingState.isDragging && draggingState.blockId && canvasRef.current) {
-      if (isPanning) return;
       const newX =
         (e.clientX - canvasRect.left - panOffset.x) / zoom -
         draggingState.dragStartOffset.x;
