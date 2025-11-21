@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { CanvasBlock } from '../../types';
 
@@ -15,10 +17,16 @@ export const VideoBlockSettings = ({
   position: { x: number; y: number };
 }) => {
   const [videoUrl, setVideoUrl] = useState(block.props?.videoUrl || '');
+  const [autoplay, setAutoplay] = useState(block.props?.autoplay || false);
 
   const handleVideoUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setVideoUrl(e.target.value);
     onUpdate(block.id, { ...block.props, videoUrl: e.target.value });
+  };
+
+  const handleAutoplayChange = (checked: boolean) => {
+    setAutoplay(checked);
+    onUpdate(block.id, { ...block.props, autoplay: checked });
   };
 
   return (
@@ -47,6 +55,16 @@ export const VideoBlockSettings = ({
               onChange={handleVideoUrlChange}
               className="bg-[#181818] border-[#3f3f46] text-white"
             />
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="autoplay"
+                checked={autoplay}
+                onCheckedChange={handleAutoplayChange}
+              />
+              <Label htmlFor="autoplay" className="text-sm text-white">
+                Habilitar autoplay
+              </Label>
+            </div>
           </div>
         </TabsContent>
       </Tabs>

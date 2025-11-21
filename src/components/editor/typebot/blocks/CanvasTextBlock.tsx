@@ -117,6 +117,7 @@ export const CanvasTextBlock = React.memo(
                     width="100%"
                     height="100%"
                     controls
+                    playing={block.props.autoplay}
                   />
                 )}
               </div>
@@ -164,7 +165,7 @@ export const CanvasTextBlock = React.memo(
               variables={variables}
               onVariableInsert={(variable) => {
                 const currentContent = block.props?.content || '';
-                const newContent = `${currentContent}{{${variable}}}`;
+                const newContent = `${''currentContent}{{${variable}}}`;
                 updateBlockProps(block.id, { content: newContent });
               }}
             />
@@ -187,7 +188,7 @@ export const CanvasTextBlock = React.memo(
                   variables={variables}
                   onVariableInsert={(variable) => {
                     const currentContent = block.props?.content || '';
-                    const newContent = `${currentContent}{{${variable}}}`;
+                    const newContent = `${''currentContent}{{${variable}}}`;
                     updateBlockProps(block.id, { content: newContent });
                   }}
                 />
