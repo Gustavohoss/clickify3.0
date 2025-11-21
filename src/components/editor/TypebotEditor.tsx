@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -932,7 +931,7 @@ export function TypebotEditor({
     return { x, y };
   };
 
-  const handleConnectionStart = (
+  const onConnectionStart = (
     e: React.MouseEvent,
     fromBlockId: number | 'start',
     fromHandle: 'output'
