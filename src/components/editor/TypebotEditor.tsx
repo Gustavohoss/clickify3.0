@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -115,6 +116,8 @@ import { TextBlockSettings } from './typebot/settings/TextSettings.tsx';
 import { EmailBlockSettings } from './typebot/settings/EmailSettings.tsx';
 import { DateBlockSettings } from './typebot/settings/DateSettings.tsx';
 import { EmbedBlockSettings } from './typebot/settings/EmbedSettings.tsx';
+import { ConnectionHandle } from './typebot/ui/ConnectionHandle.tsx';
+
 
 const getSmoothStepPath = (x1: number, y1: number, x2: number, y2: number) => {
   const dx = x2 - x1;
@@ -1331,15 +1334,22 @@ export function TypebotEditor({
                 )}
                 </svg>
                 <div
-                id="start-node"
-                className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2 w-52 pointer-events-auto"
-                style={{
-                    transform: `translate(50px, 50px)`,
-                }}
+                    id="start-node"
+                    className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2 w-52 pointer-events-auto"
+                    style={{
+                        transform: `translate(50px, 50px)`,
+                    }}
                 >
-                <PlaySquare size={16} className="text-white/60" />
-                <span className="text-sm font-medium">Início</span>
-                <div className="flex-grow" />
+                    <PlaySquare size={16} className="text-white/60" />
+                    <span className="text-sm font-medium">Início</span>
+                    <div className="flex-grow" />
+                    <ConnectionHandle
+                        data-handle-id="output-start"
+                        onMouseDown={(e) => {
+                            e.stopPropagation();
+                            onConnectionStart(e, 'start', 'output');
+                        }}
+                    />
                 </div>
                 {canvasBlocks
                 .filter((b) => !b.parentId)
@@ -1369,7 +1379,7 @@ export function TypebotEditor({
                         dropIndicator={dropIndicator}
                         updateBlockProps={updateBlockProps}
                         variables={variables}
-                        onConnectionStart={handleConnectionStart}
+                        onConnectionStart={onConnectionStart}
                         selectedBlockId={selectedBlockId}
                     />
                     );
