@@ -135,7 +135,7 @@ function QuizPreview({ funnel, activeStepId, onNextStep, backgroundColor }: { fu
       if (funnel.headerLogoType === 'image' && funnel.headerLogoValue) {
         return <Image src={funnel.headerLogoValue} alt="Logo" width={40} height={40} className="rounded-md" />;
       }
-      return <Image src="https://picsum.photos/seed/logo/40/40" alt="Logo" width={40} height={40} className="rounded-md" />;
+      return <ImageIcon size={40} className="rounded-md text-gray-400" />;
     }
 
 
@@ -564,6 +564,17 @@ export function StandardFunnelEditor({
   const stepWidth = 256;
   const stepGap = 64;
 
+  const renderLogo = () => {
+    if (funnel.headerLogoType === 'emoji') {
+      return <span className="text-4xl">{funnel.headerLogoValue}</span>;
+    }
+    if (funnel.headerLogoType === 'image' && funnel.headerLogoValue) {
+      return <Image src={funnel.headerLogoValue} alt="Logo" width={40} height={40} className="rounded-md" />;
+    }
+    // Fallback or default icon
+    return <ImageIcon size={40} className="rounded-md text-gray-400" />;
+  };
+
   return (
     <div className="flex h-screen w-full flex-col bg-background text-foreground">
       <header className="flex h-16 items-center justify-between border-b border-border px-4 md:px-6">
@@ -803,13 +814,7 @@ export function StandardFunnelEditor({
             {funnel.type === 'quiz' && (
               <div className="mx-auto w-full max-w-sm">
                 <header className="flex flex-col items-center p-4 space-y-4 rounded-t-lg bg-transparent">
-                  {funnel.headerLogoType === 'emoji' ? (
-                    <span className="text-4xl">{funnel.headerLogoValue}</span>
-                  ) : funnel.headerLogoType === 'image' && funnel.headerLogoValue ? (
-                    <Image src={funnel.headerLogoValue} alt="Logo" width={40} height={40} className="rounded-md" />
-                  ) : (
-                    <Image src="https://picsum.photos/seed/logo/40/40" alt="Logo" width={40} height={40} className="rounded-md" />
-                  )}
+                  {renderLogo()}
                   <Progress value={progressValue} className="w-full mt-4 h-2" />
                 </header>
               </div>

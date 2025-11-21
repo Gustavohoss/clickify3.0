@@ -9,6 +9,7 @@ import type { Funnel, Step } from '@/components/editor/types.tsx';
 import { PreviewCanvasComponent } from '@/components/editor/StandardFunnelEditor';
 import Image from 'next/image';
 import { Progress } from '@/components/ui/progress';
+import { ImageIcon } from 'lucide-react';
 
 function FunnelPublicContent() {
   const { funnelId } = useParams() as { funnelId: string };
@@ -76,8 +77,8 @@ function FunnelPublicContent() {
     if (funnelData.headerLogoType === 'image' && funnelData.headerLogoValue) {
       return <Image src={funnelData.headerLogoValue} alt="Logo" width={40} height={40} className="rounded-md" />;
     }
-    // Fallback or default logo
-    return <Image src="https://picsum.photos/seed/logo/40/40" alt="Logo" width={40} height={40} className="rounded-md" />;
+    // Fallback or default icon
+    return <ImageIcon size={40} className="rounded-md text-gray-400" />;
   }
 
   return (
