@@ -132,7 +132,7 @@ function QuizPreview({ funnel, activeStepId, onNextStep, backgroundColor }: { fu
       if (funnel.headerLogoType === 'emoji') {
         return <span className="text-4xl">{funnel.headerLogoValue}</span>;
       }
-      if (funnel.headerLogoType === 'image' && funnel.headerLogoValue) {
+      if (funnel.headerLogoType === 'image' && funnel.headerLogoValue && (funnel.headerLogoValue.startsWith('http') || funnel.headerLogoValue.startsWith('/'))) {
         return <Image src={funnel.headerLogoValue} alt="Logo" width={40} height={40} className="rounded-md" />;
       }
       return <ImageIcon size={40} className="rounded-md text-gray-400" />;
@@ -568,10 +568,9 @@ export function StandardFunnelEditor({
     if (funnel.headerLogoType === 'emoji') {
       return <span className="text-4xl">{funnel.headerLogoValue}</span>;
     }
-    if (funnel.headerLogoType === 'image' && funnel.headerLogoValue) {
+    if (funnel.headerLogoType === 'image' && funnel.headerLogoValue && (funnel.headerLogoValue.startsWith('http') || funnel.headerLogoValue.startsWith('/'))) {
       return <Image src={funnel.headerLogoValue} alt="Logo" width={40} height={40} className="rounded-md" />;
     }
-    // Fallback or default icon
     return <ImageIcon size={40} className="rounded-md text-gray-400" />;
   };
 
