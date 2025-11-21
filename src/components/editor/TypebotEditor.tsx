@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -101,7 +102,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import type { Funnel, CanvasBlock, CanvasConnection, DropIndicator } from './types.tsx';
+import type { Funnel, CanvasBlock, CanvasConnection, DropIndicator, ButtonItem } from './types.tsx';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.tsx';
 import { CanvasGroupBlock } from './typebot/blocks/CanvasGroupBlock.tsx';
 import { CanvasTextBlock } from './typebot/blocks/CanvasTextBlock.tsx';
@@ -130,6 +131,23 @@ type PreviewMessage = {
   sender: 'bot' | 'user';
   content: React.ReactNode;
 };
+
+const PreviewButtons = ({ buttons, onButtonClick }: { buttons: ButtonItem[], onButtonClick: (buttonIndex: number) => void }) => {
+    return (
+        <div className="flex justify-end gap-2 my-2">
+            {buttons.map((button, index) => (
+                <Button 
+                    key={index}
+                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                    onClick={() => onButtonClick(index)}
+                >
+                    {button.text}
+                </Button>
+            ))}
+        </div>
+    );
+};
+
 
 export function TypebotEditor({
   funnel,
@@ -934,19 +952,26 @@ export function TypebotEditor({
   const onConnectionStart = (
     e: React.MouseEvent,
     fromBlockId: number | 'start',
-    fromHandle: 'output'
+    fromHandle: 'output',
+    buttonIndex?: number,
   ) => {
     e.stopPropagation();
-    const handleId = `output-${fromBlockId}`;
+    const handleId =
+      buttonIndex !== undefined
+        ? `output-${fromBlockId}-${buttonIndex}`
+        : `output-${fromBlockId}`;
+
     const startPos = getHandlePosition(handleId);
 
     setDrawingConnection({
-      fromBlockId,
+      fromBlockId: fromBlockId,
       fromHandle,
+      buttonIndex,
       from: startPos,
       to: startPos,
     });
   };
+
 
   const handleWheel = (e: React.WheelEvent<HTMLElement>) => {
     e.preventDefault();
@@ -1013,12 +1038,12 @@ export function TypebotEditor({
   }, []);
 
   const processFlow = useCallback(
-    (blockId: number | 'start' | null, startIndex = 0) => {
+    (blockId: number | 'start' | null, startIndex = 0, buttonIndex?: number) => {
       if (blockId === null) {
         setWaitingForInput(null);
         return;
       }
-
+      
       const findBlockInState = (id: number) => {
         for (const block of canvasBlocksRef.current) {
           if (block.id === id) return block;
@@ -1026,51 +1051,61 @@ export function TypebotEditor({
         return undefined;
       };
 
-      const currentBlockId =
-        blockId === 'start'
-          ? connectionsRef.current.find((c) => c.from === 'start')?.to
-          : blockId;
-
-      if (!currentBlockId) {
+      let nextBlockId;
+      if (blockId === 'start') {
+          nextBlockId = connectionsRef.current.find((c) => c.from === 'start')?.to;
+      } else if (buttonIndex !== undefined) {
+          // Find connection from a specific button
+          nextBlockId = connectionsRef.current.find(
+              (c) => c.from === blockId && c.buttonIndex === buttonIndex
+          )?.to;
+      } else {
+          // Find a general connection from a group
+          nextBlockId = connectionsRef.current.find(
+              (c) => c.from === blockId && c.buttonIndex === undefined
+          )?.to;
+      }
+      
+      if (!nextBlockId) {
         setWaitingForInput(null);
         return;
       }
-
-      const currentBlock = findBlockInState(currentBlockId);
+      
+      const currentBlock = findBlockInState(nextBlockId);
       if (!currentBlock || !currentBlock.children) {
         setWaitingForInput(null);
         return;
       }
-
-      setCurrentPreviewBlockId(currentBlockId);
-
+  
+      setCurrentPreviewBlockId(nextBlockId);
+  
       let isWaiting = false;
-
+  
       const childrenToProcess = currentBlock.children.slice(startIndex);
-
+  
       for (let i = 0; i < childrenToProcess.length; i++) {
         const child = childrenToProcess[i];
-
+  
         if (child.type === 'logic-wait') {
           const duration = child.props.duration || 0;
           if (duration > 0) {
             setTimeout(() => {
-              processFlow(currentBlockId, startIndex + i + 1);
+              processFlow(nextBlockId, startIndex + i + 1);
             }, duration * 1000);
             isWaiting = true;
             break;
           }
           continue;
         }
-
+  
         if (child.type.startsWith('input-')) {
           setWaitingForInput(child);
           isWaiting = true;
           break;
         }
-
+  
         const interpolatedContent = interpolateVariables(child.props.content);
-
+  
         setPreviewMessages((prev) => [
           ...prev,
           {
@@ -1082,10 +1117,10 @@ export function TypebotEditor({
           },
         ]);
       }
-
+  
       if (!isWaiting) {
         const nextGroupId = connectionsRef.current.find(
-          (c) => c.from === currentBlockId
+          (c) => c.from === nextBlockId
         )?.to;
         if (nextGroupId) {
           setTimeout(() => processFlow(nextGroupId, 0), 500);
@@ -1096,6 +1131,7 @@ export function TypebotEditor({
     },
     [interpolateVariables]
   );
+  
 
   const startPreview = useCallback(() => {
     setPreviewMessages([]);
@@ -1110,6 +1146,23 @@ export function TypebotEditor({
       startPreview();
     }
   }, [isPreviewOpen, startPreview]);
+  
+  const handleUserButtonClick = (buttonIndex: number) => {
+    if (!waitingForInput) return;
+
+    const clickedButton = waitingForInput.props.buttons[buttonIndex];
+    if (!clickedButton) return;
+
+    setPreviewMessages((prev) => [
+        ...prev,
+        { id: Date.now(), sender: 'user', content: clickedButton.text },
+    ]);
+    
+    setWaitingForInput(null);
+
+    processFlow(waitingForInput.id, 0, buttonIndex);
+  };
+
 
   const handleUserInput = () => {
     if (!userInput.trim() || !waitingForInput) return;
@@ -1299,7 +1352,8 @@ export function TypebotEditor({
                     </marker>
                 </defs>
                 {connections.map((conn, index) => {
-                    const fromPos = getHandlePosition(`output-${conn.from}`);
+                    const fromHandleId = conn.buttonIndex !== undefined ? `output-${conn.from}-${conn.buttonIndex}` : `output-${conn.from}`;
+                    const fromPos = getHandlePosition(fromHandleId);
                     const toPos = getHandlePosition(`input-${conn.to}`);
 
                     if (fromPos && toPos) {
@@ -1493,30 +1547,37 @@ export function TypebotEditor({
             <ScrollArea className="flex-1 p-4">
               <div className="space-y-4">{previewMessages.map(renderPreviewMessage)}</div>
             </ScrollArea>
-            <div className="border-t border-gray-200 p-4">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleUserInput();
-                }}
-                className="relative"
-              >
-                <Input
-                  placeholder="Digite sua resposta..."
-                  className="bg-white text-black border-gray-300 pr-12"
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  disabled={!waitingForInput}
-                />
-                <Button
-                  type="submit"
-                  size="icon"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 bg-orange-500 hover:bg-orange-600"
-                  disabled={!waitingForInput}
-                >
-                  <ArrowRight size={16} className="text-white" />
-                </Button>
-              </form>
+             <div className="border-t border-gray-200 p-4">
+                 {waitingForInput?.type === 'input-buttons' ? (
+                     <PreviewButtons 
+                        buttons={waitingForInput.props.buttons || []}
+                        onButtonClick={handleUserButtonClick}
+                    />
+                 ) : (
+                    <form
+                        onSubmit={(e) => {
+                        e.preventDefault();
+                        handleUserInput();
+                        }}
+                        className="relative"
+                    >
+                        <Input
+                        placeholder="Digite sua resposta..."
+                        className="bg-white text-black border-gray-300 pr-12"
+                        value={userInput}
+                        onChange={(e) => setUserInput(e.target.value)}
+                        disabled={!waitingForInput}
+                        />
+                        <Button
+                        type="submit"
+                        size="icon"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 bg-orange-500 hover:bg-orange-600"
+                        disabled={!waitingForInput}
+                        >
+                        <ArrowRight size={16} className="text-white" />
+                        </Button>
+                    </form>
+                 )}
               <div className="text-center mt-3">
                 <Button variant="link" size="sm" className="text-gray-400">
                   Feito com Typebot

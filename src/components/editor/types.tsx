@@ -132,6 +132,10 @@ export type TermosLinkItem = {
   enabled: boolean;
 };
 
+export type ButtonItem = {
+  text: string;
+}
+
 export type ComponentProps = {
   [key: string]: any;
   title?: string;
@@ -256,6 +260,7 @@ export type ComponentProps = {
   showControls?: boolean;
   autoplayVideo?: boolean;
   loopVideo?: boolean;
+  buttons?: ButtonItem[];
 };
 
 export type CanvasComponentData = ComponentType & {
@@ -293,13 +298,20 @@ export type CanvasBlock = {
     position: { x: number; y: number };
     parentId?: number;
     children?: CanvasBlock[];
-    props: { [key: string]: any };
+    props: ComponentProps;
 };
 
 export type CanvasConnection = {
   from: number | 'start';
   to: number;
+  buttonIndex?: number;
 };
+
+export type DropIndicator = {
+  groupId: number;
+  index: number;
+} | null;
+
 
 export const components: ComponentType[] = [
   { name: 'Alerta', icon: <AlertTriangle /> },
