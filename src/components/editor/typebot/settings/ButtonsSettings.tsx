@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
 import { Trash2 } from 'lucide-react';
 import React from 'react';
 import type { CanvasBlock } from '../../types';
@@ -51,15 +50,6 @@ export const ButtonsBlockSettings = ({
       }}
       onMouseDown={(e) => e.stopPropagation()}
     >
-      <div>
-        <Label className="text-xs text-white/50">Pergunta</Label>
-        <Textarea
-          value={props.content || ''}
-          onChange={(e) => handleChange('content', e.target.value)}
-          placeholder="Digite sua pergunta aqui..."
-          className="bg-[#181818] border-[#3f3f46] text-white mt-1"
-        />
-      </div>
       <div>
         <Label className="text-xs text-white/50">Botões</Label>
         <div className="space-y-2 mt-1">

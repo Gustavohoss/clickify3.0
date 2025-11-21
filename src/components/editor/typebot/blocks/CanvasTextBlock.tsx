@@ -203,48 +203,26 @@ export const CanvasTextBlock = React.memo(
           );
         case 'input-buttons':
           return (
-            <div className="flex flex-col gap-2 w-full text-sm text-white/80">
-              <div className="flex items-center gap-2">
-                <div className="h-5 w-5 flex items-center justify-center rounded border-2 border-orange-400">
-                  <Check size={12} className="text-orange-400" />
+            <div className="flex flex-col gap-1 w-full">
+              {(block.props?.buttons || []).map((button: any, index: number) => (
+                <div key={index} className="relative">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start bg-[#2a2a2a] border-[#3f3f46] text-white h-8"
+                  >
+                    {button.text}
+                  </Button>
+                  {onConnectionStart && (
+                    <ConnectionHandle
+                      data-handle-id={`output-${block.id}-${index}`}
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
+                        onConnectionStart(e, block.id, 'output', index);
+                      }}
+                    />
+                  )}
                 </div>
-                <EditableTextBlock
-                  initialContent={block.props?.content || 'Click to edit'}
-                  onSave={(newContent) =>
-                    updateBlockProps(block.id, {
-                      ...block.props,
-                      content: newContent,
-                    })
-                  }
-                  variables={variables}
-                  onVariableInsert={(variable) => {
-                    const currentContent = block.props?.content || '';
-                    const newContent = `${currentContent}{{${variable}}}`;
-                    updateBlockProps(block.id, { content: newContent });
-                  }}
-                />
-              </div>
-              <div className="space-y-1">
-                {(block.props?.buttons || []).map((button: any, index: number) => (
-                  <div key={index} className="relative">
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start bg-[#2a2a2a] border-[#3f3f46] text-white h-8"
-                    >
-                      {button.text}
-                    </Button>
-                    {onConnectionStart && (
-                        <ConnectionHandle
-                            data-handle-id={`output-${block.id}-${index}`}
-                            onMouseDown={(e) => {
-                                e.stopPropagation();
-                                onConnectionStart(e, block.id, 'output', index);
-                            }}
-                        />
-                    )}
-                  </div>
-                ))}
-              </div>
+              ))}
             </div>
           );
         default:
