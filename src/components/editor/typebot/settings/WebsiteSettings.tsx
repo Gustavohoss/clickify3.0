@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -71,7 +70,7 @@ export const WebsiteBlockSettings = ({
         <Label className="text-xs text-white/50">Placeholder</Label>
         <div className="relative mt-1">
           <Input
-            placeholder="Type a URL..."
+            placeholder="Digite uma URL..."
             value={props.placeholder || ''}
             onChange={(e) => handleChange('placeholder', e.target.value)}
             className="bg-[#181818] border-[#3f3f46] text-white pr-8"
@@ -83,10 +82,10 @@ export const WebsiteBlockSettings = ({
       </div>
 
       <div>
-        <Label className="text-xs text-white/50">Button label</Label>
+        <Label className="text-xs text-white/50">Rótulo do botão</Label>
         <div className="relative mt-1">
           <Input
-            placeholder="Send"
+            placeholder="Enviar"
             value={props.buttonLabel || ''}
             onChange={(e) => handleChange('buttonLabel', e.target.value)}
             className="bg-[#181818] border-[#3f3f46] text-white pr-8"
@@ -98,10 +97,10 @@ export const WebsiteBlockSettings = ({
       </div>
 
       <div>
-        <Label className="text-xs text-white/50">Retry message</Label>
+        <Label className="text-xs text-white/50">Mensagem de nova tentativa</Label>
         <div className="relative mt-1">
           <Input
-            placeholder="This URL doesn't seem to be valid. Can you..."
+            placeholder="Esta URL não parece ser válida..."
             value={props.retryMessageContent || ''}
             onChange={(e) => handleChange('retryMessageContent', e.target.value)}
             className="bg-[#181818] border-[#3f3f46] text-white pr-8"
@@ -115,7 +114,7 @@ export const WebsiteBlockSettings = ({
 
       <div>
         <Label className="text-xs text-white/50">
-          Save the answer in a variable
+          Salvar a resposta em uma variável
         </Label>
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
@@ -125,20 +124,20 @@ export const WebsiteBlockSettings = ({
               aria-expanded={open}
               className="w-full justify-between bg-[#181818] border-[#3f3f46] hover:bg-[#181818] hover:text-white text-white mt-1"
             >
-              {props.variable || 'Select a variable'}
+              {props.variable || 'Selecione uma variável'}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-64 p-0 bg-[#262626] border-[#3f3f46] text-white">
             <Command>
               <CommandInput
-                placeholder="Search or create..."
+                placeholder="Pesquisar ou criar..."
                 className="h-9 text-white"
                 value={searchTerm}
                 onValueChange={setSearchTerm}
               />
               <CommandList>
-                <CommandEmpty>No variable found.</CommandEmpty>
+                <CommandEmpty>Nenhuma variável encontrada.</CommandEmpty>
                 <CommandGroup>
                   {filteredVariables.map((variable) => (
                     <CommandItem
@@ -161,7 +160,7 @@ export const WebsiteBlockSettings = ({
                       className="text-blue-400"
                     >
                       <Plus className="mr-2 h-4 w-4" />
-                      Create <span className="font-bold mx-1">{searchTerm}</span>
+                      Criar <span className="font-bold mx-1">{searchTerm}</span>
                     </CommandItem>
                   )}
                 </CommandGroup>
