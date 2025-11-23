@@ -1352,76 +1352,76 @@ export function TypebotEditor({
 
         <div className="flex-1 relative">
             <main
-            ref={canvasRef}
-            className="h-full w-full"
-            style={{
+              ref={canvasRef}
+              className="h-full w-full"
+              style={{
                 background: '#1d1d1d',
                 backgroundImage:
-                'radial-gradient(circle at center, rgba(128, 128, 128, 0.3) 1px, transparent 1px)',
+                  'radial-gradient(circle at center, rgba(128, 128, 128, 0.3) 1px, transparent 1px)',
                 backgroundSize: '20px 20px',
-            }}
-            onMouseDown={handleCanvasMouseDown}
-            onMouseUp={handleMouseUp}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            onWheel={handleWheel}
-            onContextMenu={(e) => e.preventDefault()}
+              }}
+              onMouseDown={handleCanvasMouseDown}
+              onMouseUp={handleMouseUp}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              onWheel={handleWheel}
+              onContextMenu={(e) => e.preventDefault()}
             >
+              <svg className="pointer-events-none absolute top-0 left-0 h-full w-full overflow-visible z-10">
+                <defs>
+                    <marker
+                    id="arrowhead"
+                    markerWidth="10"
+                    markerHeight="7"
+                    refX="0"
+                    refY="3.5"
+                    orient="auto"
+                    >
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
+                    </marker>
+                </defs>
+                {connections.map((conn, index) => {
+                    const fromHandleId = conn.buttonIndex !== undefined ? `output-${conn.from}-${conn.buttonIndex}` : `output-${conn.from}`;
+                    const fromPos = getHandlePosition(fromHandleId);
+                    const toPos = getHandlePosition(`input-${conn.to}`);
+
+                    if (fromPos && toPos) {
+                    return (
+                        <path
+                        key={index}
+                        d={getSmoothStepPath(fromPos.x, fromPos.y, toPos.x, toPos.y)}
+                        stroke="#f97316"
+                        strokeWidth="2"
+                        fill="none"
+                        markerEnd="url(#arrowhead)"
+                        />
+                    );
+                    }
+                    return null;
+                })}
+
+                {drawingConnection && (
+                    <path
+                    d={getSmoothStepPath(
+                        drawingConnection.from.x,
+                        drawingConnection.from.y,
+                        drawingConnection.to.x,
+                        drawingConnection.to.y
+                    )}
+                    stroke="#f97316"
+                    strokeWidth="2"
+                    fill="none"
+                    markerEnd="url(#arrowhead)"
+                    />
+                )}
+              </svg>
               <div
-                className="pointer-events-none absolute inset-0"
-                style={{
+                className="relative h-full w-full"
+                 style={{
                   transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
                   transformOrigin: '0 0',
                 }}
               >
-                  <svg className="pointer-events-none absolute top-0 left-0 h-full w-full overflow-visible z-0">
-                  <defs>
-                      <marker
-                      id="arrowhead"
-                      markerWidth="10"
-                      markerHeight="7"
-                      refX="0"
-                      refY="3.5"
-                      orient="auto"
-                      >
-                      <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
-                      </marker>
-                  </defs>
-                  {connections.map((conn, index) => {
-                      const fromHandleId = conn.buttonIndex !== undefined ? `output-${conn.from}-${conn.buttonIndex}` : `output-${conn.from}`;
-                      const fromPos = getHandlePosition(fromHandleId);
-                      const toPos = getHandlePosition(`input-${conn.to}`);
-
-                      if (fromPos && toPos) {
-                      return (
-                          <path
-                          key={index}
-                          d={getSmoothStepPath(fromPos.x, fromPos.y, toPos.x, toPos.y)}
-                          stroke="#f97316"
-                          strokeWidth="2"
-                          fill="none"
-                          markerEnd="url(#arrowhead)"
-                          />
-                      );
-                      }
-                      return null;
-                  })}
-
-                  {drawingConnection && (
-                      <path
-                      d={getSmoothStepPath(
-                          drawingConnection.from.x,
-                          drawingConnection.from.y,
-                          drawingConnection.to.x,
-                          drawingConnection.to.y
-                      )}
-                      stroke="#f97316"
-                      strokeWidth="2"
-                      fill="none"
-                      markerEnd="url(#arrowhead)"
-                      />
-                  )}
-                  </svg>
                   <div
                       id="start-node"
                       className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2 w-52 pointer-events-auto"

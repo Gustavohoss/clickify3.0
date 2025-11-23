@@ -38,7 +38,7 @@ export const WaitBlockSettings = ({
       onMouseDown={(e) => e.stopPropagation()}
     >
       <div>
-        <Label className="text-sm">Seconds to wait for:</Label>
+        <Label className="text-sm text-white/80">Segundos a esperar:</Label>
         <div className="relative mt-1">
           <Input
             type="number"
@@ -57,12 +57,12 @@ export const WaitBlockSettings = ({
       <Accordion type="single" collapsible>
         <AccordionItem value="advanced" className="border-none">
           <AccordionTrigger className="text-sm p-2 hover:no-underline hover:bg-[#3f3f46] rounded-md">
-            Advanced
+            Avançado
           </AccordionTrigger>
           <AccordionContent className="p-2 space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="show-timer" className="text-sm">
-                Show timer
+                Mostrar temporizador
               </Label>
               <Switch
                 id="show-timer"
