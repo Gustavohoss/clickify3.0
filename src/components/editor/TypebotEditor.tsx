@@ -990,85 +990,98 @@ export function TypebotEditor({
     });
   }, []);
 
-  const processFlow = useCallback(
-    (startFromId: number | 'start', startIndex = 0, buttonIndex?: number) => {
-      if (startFromId === null) {
-        setWaitingForInput(null);
-        return;
-      }
-  
-      const findNextGroupId = () => {
-        if (startFromId === 'start') {
-          return connectionsRef.current.find(c => c.from === 'start')?.to;
+  const processFlow = useCallback((startId: number | "start", startIndex: number = 0, buttonIndex?: number) => {
+    if (startId === null) {
+      setWaitingForInput(null);
+      return;
+    }
+
+    let nextGroupId: number | undefined;
+
+    if (typeof startId === 'number') {
+        const parentBlock = canvasBlocksRef.current.find(b => b.children?.some(c => c.id === startId));
+        const startBlock = parentBlock?.children?.find(c => c.id === startId);
+        
+        if (parentBlock && startBlock) {
+            if (buttonIndex !== undefined) {
+                // It's a button click from within a group
+                nextGroupId = connectionsRef.current.find(c => c.from === startBlock.id && c.buttonIndex === buttonIndex)?.to;
+            } else {
+                 // Continuing inside a group
+                 const currentIndex = parentBlock.children?.findIndex(c => c.id === startId) ?? -1;
+                 if (currentIndex !== -1 && currentIndex + 1 < (parentBlock.children?.length ?? 0)) {
+                    // There are more blocks in the current group
+                    setCurrentPreviewBlockId(parentBlock.id);
+                    processGroup(parentBlock, currentIndex + 1);
+                    return;
+                } else {
+                    // End of group, find next connection from the group
+                    nextGroupId = connectionsRef.current.find(c => c.from === parentBlock.id && c.buttonIndex === undefined)?.to;
+                }
+            }
+        } else { // It's a group
+           nextGroupId = connectionsRef.current.find(c => c.from === startId && c.buttonIndex === buttonIndex)?.to;
         }
-        if (buttonIndex !== undefined) {
-          return connectionsRef.current.find(c => c.from === startFromId && c.buttonIndex === buttonIndex)?.to;
-        }
-        return connectionsRef.current.find(c => c.from === startFromId && c.buttonIndex === undefined)?.to;
-      };
-      
-      const nextGroupId = findNextGroupId();
-  
-      if (!nextGroupId) {
+
+    } else { // startId is 'start'
+      nextGroupId = connectionsRef.current.find(c => c.from === 'start')?.to;
+    }
+
+
+    if (nextGroupId) {
+      const nextGroup = canvasBlocksRef.current.find(b => b.id === nextGroupId);
+      if (nextGroup) {
+        setCurrentPreviewBlockId(nextGroup.id);
+        processGroup(nextGroup, 0);
+      } else {
         setWaitingForInput(null);
-        return;
       }
-  
-      const currentGroup = canvasBlocksRef.current.find(b => b.id === nextGroupId);
-      if (!currentGroup || !currentGroup.children) {
-        setWaitingForInput(null);
-        return;
-      }
-  
-      setCurrentPreviewBlockId(nextGroupId);
-  
+    } else {
+      setWaitingForInput(null);
+    }
+  }, [interpolateVariables]);
+
+
+  const processGroup = (group: CanvasBlock, startIndex: number) => {
       let isWaiting = false;
-      const childrenToProcess = currentGroup.children.slice(startIndex);
-  
+      const childrenToProcess = group.children?.slice(startIndex) || [];
+      let timeout = 0;
+
       for (let i = 0; i < childrenToProcess.length; i++) {
         const child = childrenToProcess[i];
-  
-        if (child.type === 'logic-wait') {
-          const duration = child.props.duration || 0;
-          if (duration > 0) {
-            setTimeout(() => {
-              processFlow(nextGroupId, startIndex + i + 1);
-            }, duration * 1000);
-            isWaiting = true;
-            break;
-          }
-          continue;
-        }
-  
-        if (child.type.startsWith('input-')) {
-          setWaitingForInput(child);
-          isWaiting = true;
-          break;
-        }
-  
-        const interpolatedContent = interpolateVariables(child.props?.content);
-  
-        setPreviewMessages((prev) => [
-          ...prev,
-          {
-            id: Date.now() + Math.random(),
-            sender: 'bot',
-            content: <div dangerouslySetInnerHTML={{ __html: interpolatedContent }} />,
-          },
-        ]);
-      }
-  
-      if (!isWaiting) {
-        const nextConnectedGroupId = connectionsRef.current.find(c => c.from === nextGroupId)?.to;
-        if (nextConnectedGroupId) {
-          setTimeout(() => processFlow(nextConnectedGroupId, 0), 500);
+        
+        const processChild = () => {
+            if (child.type.startsWith('input-')) {
+                setWaitingForInput(child);
+                isWaiting = true;
+                return; // Stop processing further in this loop iteration
+            }
+
+            const interpolatedContent = interpolateVariables(child.props?.content);
+            setPreviewMessages((prev) => [
+              ...prev,
+              {
+                id: Date.now() + Math.random(),
+                sender: 'bot',
+                content: <div dangerouslySetInnerHTML={{ __html: interpolatedContent }} />,
+              },
+            ]);
+
+            if (i === childrenToProcess.length - 1 && !isWaiting) {
+                 processFlow(group.id, 0);
+            }
+        };
+
+        if (child.type === 'logic-wait' && child.props?.duration) {
+            timeout += (child.props.duration || 0) * 1000;
+            setTimeout(processChild, timeout);
         } else {
-          setWaitingForInput(null);
+            setTimeout(processChild, timeout);
         }
+         
+        if (isWaiting) break;
       }
-    },
-    [interpolateVariables]
-  );
+  }
   
 
   const startPreview = useCallback(() => {
@@ -1102,7 +1115,7 @@ export function TypebotEditor({
         { id: Date.now(), sender: 'user', content: clickedButton.text },
     ]);
     
-    const parentId = waitingForInput.parentId;
+    const parentId = waitingForInput.id;
     setWaitingForInput(null);
 
     processFlow(parentId, 0, buttonIndex);
@@ -1110,7 +1123,7 @@ export function TypebotEditor({
   
   const handleImageChoiceClick = (choiceIndex: number) => {
     if (!waitingForInput) return;
-    const parentId = waitingForInput.parentId;
+    const parentId = waitingForInput.id;
     setWaitingForInput(null);
     processFlow(parentId, 0, choiceIndex);
   }
@@ -1128,23 +1141,11 @@ export function TypebotEditor({
       previewVariablesRef.current[waitingForInput.props.variable] = userInput;
     }
   
-    const lastInputBlock = waitingForInput;
+    const lastInputBlockId = waitingForInput.id;
     setUserInput('');
     setWaitingForInput(null);
   
-    const parentBlock = canvasBlocksRef.current.find(
-      (b) => b.id === lastInputBlock.parentId
-    );
-  
-    if (parentBlock && parentBlock.children) {
-      const lastInputIndex = parentBlock.children.findIndex(
-        (c) => c.id === lastInputBlock.id
-      );
-  
-       if (lastInputIndex !== -1) {
-        processFlow(parentBlock.id, lastInputIndex + 1);
-       }
-    }
+    processFlow(lastInputBlockId, 0);
   };
 
   const renderPreviewMessage = (message: PreviewMessage) => {
@@ -1587,6 +1588,7 @@ export function TypebotEditor({
     </div>
   );
 }
+
 
 
 
