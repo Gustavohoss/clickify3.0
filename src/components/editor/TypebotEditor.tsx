@@ -1335,7 +1335,7 @@ export function TypebotEditor({
         </div>
 
         <div className="flex items-center gap-2 rounded-lg bg-[#181818] p-1">
-            {(['Fluxo', 'Tema', 'Configurações', 'Compartilhar'] as EditorTab[]).map(tab => (
+            {(['Fluxo', 'Tema', 'Configurações'] as EditorTab[]).map(tab => (
                 <Button 
                     key={tab}
                     variant={activeTab === tab ? 'secondary' : 'ghost'}
@@ -1352,6 +1352,9 @@ export function TypebotEditor({
         </div>
 
         <div className="flex items-center gap-2">
+            <Button variant="ghost" className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white">
+                <Share2 size={16} /> Compartilhar
+            </Button>
           <Button
             variant="ghost"
             className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white"
@@ -1426,182 +1429,190 @@ export function TypebotEditor({
         )}
 
         <div className="flex-1 relative">
-            {activeTab === 'Fluxo' && (
-                <main
-                ref={canvasRef}
-                className="h-full w-full pointer-events-auto"
+          <main
+            ref={canvasRef}
+            className={cn(
+              'h-full w-full pointer-events-auto',
+              activeTab !== 'Fluxo' && 'hidden'
+            )}
+            style={{
+              background: '#1d1d1d',
+              backgroundImage:
+                'radial-gradient(circle at center, rgba(128, 128, 128, 0.3) 1px, transparent 1px)',
+              backgroundSize: '20px 20px',
+            }}
+            onMouseDown={handleCanvasMouseDown}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            onWheel={handleWheel}
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
+                transformOrigin: '0 0',
+              }}
+            >
+              <svg className="absolute inset-0 w-full h-full overflow-visible z-0">
+                <defs>
+                  <marker
+                    id="arrowhead"
+                    markerWidth="10"
+                    markerHeight="7"
+                    refX="0"
+                    refY="3.5"
+                    orient="auto"
+                  >
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
+                  </marker>
+                </defs>
+                <g>
+                  {connections.map((conn, index) => {
+                    const fromHandleId =
+                      conn.buttonIndex !== undefined
+                        ? `output-${conn.from}-${conn.buttonIndex}`
+                        : `output-${conn.from}`;
+                    const fromPos = getHandlePosition(fromHandleId);
+                    const toPos = getHandlePosition(`input-${conn.to}`);
+
+                    if (fromPos && toPos) {
+                      return (
+                        <path
+                          key={index}
+                          d={getSmoothStepPath(
+                            fromPos.x,
+                            fromPos.y,
+                            toPos.x,
+                            toPos.y
+                          )}
+                          stroke="#f97316"
+                          strokeWidth="2"
+                          fill="none"
+                          markerEnd="url(#arrowhead)"
+                        />
+                      );
+                    }
+                    return null;
+                  })}
+
+                  {drawingConnection && (
+                    <path
+                      d={getSmoothStepPath(
+                        drawingConnection.from.x,
+                        drawingConnection.from.y,
+                        drawingConnection.to.x,
+                        drawingConnection.to.y
+                      )}
+                      stroke="#f97316"
+                      strokeWidth="2"
+                      fill="none"
+                      markerEnd="url(#arrowhead)"
+                    />
+                  )}
+                </g>
+              </svg>
+              <div
+                id="start-node"
+                className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2 w-52 pointer-events-auto"
                 style={{
-                    background: '#1d1d1d',
-                    backgroundImage:
-                    'radial-gradient(circle at center, rgba(128, 128, 128, 0.3) 1px, transparent 1px)',
-                    backgroundSize: '20px 20px',
+                  transform: `translate(50px, 50px)`,
                 }}
-                onMouseDown={handleCanvasMouseDown}
-                onMouseUp={handleMouseUp}
-                onMouseMove={handleMouseMove}
-                onMouseLeave={handleMouseLeave}
-                onWheel={handleWheel}
-                onContextMenu={(e) => e.preventDefault()}
-                >
-                <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                    transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
-                    transformOrigin: '0 0',
-                    }}
-                >
-                    <svg className="absolute inset-0 w-full h-full overflow-visible z-0">
-                        <defs>
-                            <marker
-                            id="arrowhead"
-                            markerWidth="10"
-                            markerHeight="7"
-                            refX="0"
-                            refY="3.5"
-                            orient="auto"
-                            >
-                            <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
-                            </marker>
-                        </defs>
-                        <g>
-                            {connections.map((conn, index) => {
-                                const fromHandleId = conn.buttonIndex !== undefined ? `output-${conn.from}-${conn.buttonIndex}` : `output-${conn.from}`;
-                                const fromPos = getHandlePosition(fromHandleId);
-                                const toPos = getHandlePosition(`input-${conn.to}`);
-
-                                if (fromPos && toPos) {
-                                return (
-                                    <path
-                                    key={index}
-                                    d={getSmoothStepPath(fromPos.x, fromPos.y, toPos.x, toPos.y)}
-                                    stroke="#f97316"
-                                    strokeWidth="2"
-                                    fill="none"
-                                    markerEnd="url(#arrowhead)"
-                                    />
-                                );
-                                }
-                                return null;
-                            })}
-
-                            {drawingConnection && (
-                                <path
-                                d={getSmoothStepPath(
-                                    drawingConnection.from.x,
-                                    drawingConnection.from.y,
-                                    drawingConnection.to.x,
-                                    drawingConnection.to.y
-                                )}
-                                stroke="#f97316"
-                                strokeWidth="2"
-                                fill="none"
-                                markerEnd="url(#arrowhead)"
-                                />
-                            )}
-                        </g>
-                    </svg>
-                    <div
-                        id="start-node"
-                        className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2 w-52 pointer-events-auto"
-                        style={{
-                            transform: `translate(50px, 50px)`,
-                        }}
-                    >
-                        <PlaySquare size={16} className="text-white/60" />
-                        <span className="text-sm font-medium">Início</span>
-                        <div className="flex-grow" />
-                        <ConnectionHandle
-                            data-handle-id="output-start"
-                            onMouseDown={(e) => {
-                                e.stopPropagation();
-                                onConnectionStart(e, 'start', 'output');
-                            }}
-                        />
-                    </div>
-                    {canvasBlocks
-                    .filter((b) => !b.parentId)
-                    .map((block, index) => {
-                        const BlockComponent =
-                        block.type === 'group' ? CanvasGroupBlock : CanvasTextBlock;
-                        const groupIndex = canvasBlocks
-                        .filter((b) => b.type === 'group' && !b.parentId)
-                        .findIndex((g) => g.id === block.id);
-                        return (
-                        <BlockComponent
-                            key={block.id}
-                            block={block}
-                            groupIndex={groupIndex}
-                            onBlockMouseDown={handleBlockMouseDown}
-                            onDuplicate={(e: React.MouseEvent) => {
-                            e.stopPropagation();
-                            duplicateBlock(block.id);
-                            }}
-                            onDelete={(e: React.MouseEvent) => {
-                            e.stopPropagation();
-                            deleteBlock(block.id);
-                            }}
-                            onContextMenu={handleContextMenu}
-                            isSelected={selectedBlockId === block.id}
-                            setSelectedBlockId={setSelectedBlockId}
-                            dropIndicator={dropIndicator}
-                            updateBlockProps={updateBlockProps}
-                            variables={variables}
-                            onConnectionStart={onConnectionStart}
-                            selectedBlockId={selectedBlockId}
-                        />
-                        );
-                    })}
-                </div>
-                </main>
-            )}
-
-            {activeTab === 'Tema' && (
-                <main className="flex-1 bg-gray-900 pointer-events-none">
-                   <TypebotPreview />
-                </main>
-            )}
-
-            <SettingsPanel />
-            {contextMenu.visible && (
-                <ContextMenu
-                x={contextMenu.x}
-                y={contextMenu.y}
-                onDuplicate={handleDuplicateFromMenu}
-                onDelete={handleDeleteFromMenu}
-                />
-            )}
-        </div>
-        {isPreviewOpen && (
-          <aside className="w-96 shrink-0 border-l border-[#262626] bg-white flex flex-col">
-            <div className="flex h-14 items-center justify-between border-b border-gray-200 px-4">
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="text-black border-gray-300">
-                  <Globe size={14} className="mr-2" />
-                  Web
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-gray-600"
-                  onClick={startPreview}
-                >
-                  <RefreshCw size={14} className="mr-2" />
-                  Reiniciar
-                </Button>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-gray-500"
-                onClick={() => setIsPreviewOpen(false)}
               >
-                <X size={16} />
-              </Button>
+                <PlaySquare size={16} className="text-white/60" />
+                <span className="text-sm font-medium">Início</span>
+                <div className="flex-grow" />
+                <ConnectionHandle
+                  data-handle-id="output-start"
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    onConnectionStart(e, 'start', 'output');
+                  }}
+                />
+              </div>
+              {canvasBlocks
+                .filter((b) => !b.parentId)
+                .map((block, index) => {
+                  const BlockComponent =
+                    block.type === 'group' ? CanvasGroupBlock : CanvasTextBlock;
+                  const groupIndex = canvasBlocks
+                    .filter((b) => b.type === 'group' && !b.parentId)
+                    .findIndex((g) => g.id === block.id);
+                  return (
+                    <BlockComponent
+                      key={block.id}
+                      block={block}
+                      groupIndex={groupIndex}
+                      onBlockMouseDown={handleBlockMouseDown}
+                      onDuplicate={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        duplicateBlock(block.id);
+                      }}
+                      onDelete={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        deleteBlock(block.id);
+                      }}
+                      onContextMenu={handleContextMenu}
+                      isSelected={selectedBlockId === block.id}
+                      setSelectedBlockId={setSelectedBlockId}
+                      dropIndicator={dropIndicator}
+                      updateBlockProps={updateBlockProps}
+                      variables={variables}
+                      onConnectionStart={onConnectionStart}
+                      selectedBlockId={selectedBlockId}
+                    />
+                  );
+                })}
             </div>
-            <TypebotPreview />
-          </aside>
+          </main>
+          {activeTab === 'Tema' && (
+            <div className="h-full w-full bg-gray-900 pointer-events-none">
+                <TypebotPreview />
+            </div>
+          )}
+        </div>
+
+        <SettingsPanel />
+        {contextMenu.visible && (
+          <ContextMenu
+            x={contextMenu.x}
+            y={contextMenu.y}
+            onDuplicate={handleDuplicateFromMenu}
+            onDelete={handleDeleteFromMenu}
+          />
         )}
       </div>
+      {isPreviewOpen && (
+        <aside className="w-96 shrink-0 border-l border-[#262626] bg-white flex flex-col">
+          <div className="flex h-14 items-center justify-between border-b border-gray-200 px-4">
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="text-black border-gray-300">
+                <Globe size={14} className="mr-2" />
+                Web
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-600"
+                onClick={startPreview}
+              >
+                <RefreshCw size={14} className="mr-2" />
+                Reiniciar
+              </Button>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-gray-500"
+              onClick={() => setIsPreviewOpen(false)}
+            >
+              <X size={16} />
+            </Button>
+          </div>
+          <TypebotPreview />
+        </aside>
+      )}
     </div>
   );
 }
