@@ -1131,45 +1131,41 @@ export function TypebotEditor({
 
   const handleUserInput = () => {
     if (!userInput.trim() || !waitingForInput) return;
-
+  
     setPreviewMessages((prev) => [
       ...prev,
       { id: Date.now(), sender: 'user', content: userInput },
     ]);
-
+  
     if (waitingForInput.props.variable) {
       previewVariablesRef.current[waitingForInput.props.variable] = userInput;
     }
-
-    const lastBlockId = currentPreviewBlockId;
+  
     const lastInputBlock = waitingForInput;
     setUserInput('');
     setWaitingForInput(null);
-
-    if (
-      lastBlockId &&
-      typeof lastBlockId === 'number' &&
-      lastInputBlock.parentId === lastBlockId
-    ) {
-      const parentBlock = canvasBlocksRef.current.find(
-        (b) => b.id === lastBlockId
+  
+    const parentBlock = canvasBlocksRef.current.find(
+      (b) => b.id === lastInputBlock.parentId
+    );
+  
+    if (parentBlock && parentBlock.children) {
+      const lastInputIndex = parentBlock.children.findIndex(
+        (c) => c.id === lastInputBlock.id
       );
-      if (parentBlock && parentBlock.children) {
-        const lastInputIndex = parentBlock.children.findIndex(
-          (c) => c.id === lastInputBlock.id
-        );
-        if (lastInputIndex !== -1) {
-          processFlow(lastBlockId, lastInputIndex + 1);
-          return;
+  
+      if (lastInputIndex !== -1 && lastInputIndex < parentBlock.children.length - 1) {
+        // If there are more blocks in the same group, process them
+        processFlow(parentBlock.id, lastInputIndex + 1);
+      } else {
+        // Otherwise, find the next connected group
+        const nextGroupId = connectionsRef.current.find(
+          (c) => c.from === parentBlock.id
+        )?.to;
+        if (nextGroupId) {
+          processFlow(nextGroupId, 0);
         }
       }
-    }
-
-    const nextGroupId = connectionsRef.current.find(
-      (c) => c.from === lastBlockId
-    )?.to;
-    if (nextGroupId) {
-      processFlow(nextGroupId, 0);
     }
   };
 
@@ -1553,8 +1549,8 @@ export function TypebotEditor({
             </div>
           </main>
           {activeTab === 'Tema' && (
-            <div className="w-full h-full pointer-events-none flex items-center justify-center p-8">
-              <div className="w-[360px] h-[720px] rounded-[40px] shadow-2xl overflow-hidden border-8 border-black">
+            <div className="w-full h-full pointer-events-none p-8">
+              <div className="w-full h-full rounded-2xl shadow-2xl overflow-hidden border-8 border-black">
                  <TypebotPreview />
               </div>
             </div>
@@ -1606,5 +1602,6 @@ export function TypebotEditor({
     </div>
   );
 }
+
 
 
