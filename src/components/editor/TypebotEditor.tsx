@@ -184,6 +184,90 @@ const PreviewImageChoices = ({ choices, onImageClick }: { choices: ImageChoice[]
 
 type EditorTab = 'Fluxo' | 'Tema' | 'Configurações' | 'Compartilhar';
 
+const renderPreviewMessage = (message: PreviewMessage) => {
+    if (message.sender === 'bot') {
+      return (
+        <div key={message.id} className="flex items-start gap-3">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src="" alt="Bot" />
+            <AvatarFallback>B</AvatarFallback>
+          </Avatar>
+          <div className="bg-gray-100 rounded-lg rounded-tl-none p-3 max-w-[80%] text-black">
+            {message.content}
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div key={message.id} className="flex justify-end">
+        <div className="bg-blue-600 text-white rounded-lg rounded-br-none p-3 max-w-[80%]">
+          <p className="text-sm">{message.content as string}</p>
+        </div>
+      </div>
+    );
+  };
+  
+const TypebotPreview = memo(function TypebotPreview({
+    previewMessages,
+    waitingForInput,
+    handleUserButtonClick,
+    handleImageChoiceClick,
+    userInput,
+    setUserInput,
+    handleUserInput
+}: any) {
+    return (
+        <div className="w-full h-full bg-white flex flex-col">
+            <ScrollArea className="flex-1 p-4">
+                <div className="space-y-4">{previewMessages.map(renderPreviewMessage)}</div>
+            </ScrollArea>
+            <div className="border-t border-gray-200 p-4">
+                {waitingForInput?.type === 'input-buttons' ? (
+                    <PreviewButtons
+                        buttons={waitingForInput.props.buttons || []}
+                        onButtonClick={handleUserButtonClick}
+                    />
+                ) : waitingForInput?.type === 'input-pic' ? (
+                    <PreviewImageChoices
+                        choices={waitingForInput.props.choices || []}
+                        onImageClick={handleImageChoiceClick}
+                    />
+                ) : (
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleUserInput();
+                        }}
+                        className="relative"
+                    >
+                        <Input
+                            placeholder="Digite sua resposta..."
+                            className="bg-white text-black border-gray-300 pr-12"
+                            value={userInput}
+                            onChange={(e) => setUserInput(e.target.value)}
+                            disabled={!waitingForInput}
+                        />
+                        <Button
+                            type="submit"
+                            size="icon"
+                            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 bg-orange-500 hover:bg-orange-600"
+                            disabled={!waitingForInput}
+                        >
+                            <ArrowRight size={16} className="text-white" />
+                        </Button>
+                    </form>
+                )}
+                <div className="text-center mt-3">
+                    <Button variant="link" size="sm" className="text-gray-400">
+                        Feito com Typebot
+                    </Button>
+                </div>
+            </div>
+        </div>
+    );
+});
+
+
 export function TypebotEditor({
   funnel,
   setFunnel,
@@ -1138,84 +1222,15 @@ export function TypebotEditor({
 
     if (parentGroup) {
       const childIndex = parentGroup.children?.findIndex(c => c.id === lastInputBlockId) ?? -1;
-      processGroup(parentGroup, childIndex + 1);
+      if (childIndex !== -1 && childIndex + 1 < (parentGroup.children?.length ?? 0)) {
+         processGroup(parentGroup, childIndex + 1);
+      } else {
+         processFlow(parentGroup.id, 0);
+      }
     } else {
        processFlow(lastInputBlockId, 0);
     }
   };
-
-  const renderPreviewMessage = (message: PreviewMessage) => {
-    if (message.sender === 'bot') {
-      return (
-        <div key={message.id} className="flex items-start gap-3">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="" alt="Bot" />
-            <AvatarFallback>B</AvatarFallback>
-          </Avatar>
-          <div className="bg-gray-100 rounded-lg rounded-tl-none p-3 max-w-[80%] text-black">
-            {message.content}
-          </div>
-        </div>
-      );
-    }
-    return (
-      <div key={message.id} className="flex justify-end">
-        <div className="bg-blue-600 text-white rounded-lg rounded-br-none p-3 max-w-[80%]">
-          <p className="text-sm">{message.content as string}</p>
-        </div>
-      </div>
-    );
-  };
-  
-  const TypebotPreview = () => (
-     <div className="w-full h-full bg-white flex flex-col">
-        <ScrollArea className="flex-1 p-4">
-          <div className="space-y-4">{previewMessages.map(renderPreviewMessage)}</div>
-        </ScrollArea>
-         <div className="border-t border-gray-200 p-4">
-             {waitingForInput?.type === 'input-buttons' ? (
-                 <PreviewButtons 
-                    buttons={waitingForInput.props.buttons || []}
-                    onButtonClick={handleUserButtonClick}
-                />
-             ) : waitingForInput?.type === 'input-pic' ? (
-                 <PreviewImageChoices
-                    choices={waitingForInput.props.choices || []}
-                    onImageClick={handleImageChoiceClick}
-                />
-             ) : (
-                <form
-                    onSubmit={(e) => {
-                    e.preventDefault();
-                    handleUserInput();
-                    }}
-                    className="relative"
-                >
-                    <Input
-                    placeholder="Digite sua resposta..."
-                    className="bg-white text-black border-gray-300 pr-12"
-                    value={userInput}
-                    onChange={(e) => setUserInput(e.target.value)}
-                    disabled={!waitingForInput}
-                    />
-                    <Button
-                    type="submit"
-                    size="icon"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 bg-orange-500 hover:bg-orange-600"
-                    disabled={!waitingForInput}
-                    >
-                    <ArrowRight size={16} className="text-white" />
-                    </Button>
-                </form>
-             )}
-          <div className="text-center mt-3">
-            <Button variant="link" size="sm" className="text-gray-400">
-              Feito com Typebot
-            </Button>
-          </div>
-        </div>
-      </div>
-  )
 
   const selectedBlock = findBlock(selectedBlockId);
   const selectedBlockPosition = getBlockPosition(selectedBlockId);
@@ -1531,9 +1546,17 @@ export function TypebotEditor({
             </div>
           </main>
           {activeTab === 'Tema' && (
-            <div className="w-full h-full p-8">
+            <div className="w-full h-full p-8 bg-[#1d1d1d]">
               <div className="w-full h-full rounded-2xl shadow-2xl overflow-hidden border-8 border-black">
-                 <TypebotPreview />
+                 <TypebotPreview 
+                    previewMessages={previewMessages}
+                    waitingForInput={waitingForInput}
+                    handleUserButtonClick={handleUserButtonClick}
+                    handleImageChoiceClick={handleImageChoiceClick}
+                    userInput={userInput}
+                    setUserInput={setUserInput}
+                    handleUserInput={handleUserInput}
+                 />
               </div>
             </div>
           )}
@@ -1577,13 +1600,22 @@ export function TypebotEditor({
             </Button>
           </div>
           <div className="flex-1 overflow-hidden">
-            <TypebotPreview />
+            <TypebotPreview 
+                previewMessages={previewMessages}
+                waitingForInput={waitingForInput}
+                handleUserButtonClick={handleUserButtonClick}
+                handleImageChoiceClick={handleImageChoiceClick}
+                userInput={userInput}
+                setUserInput={setUserInput}
+                handleUserInput={handleUserInput}
+            />
           </div>
         </div>
       )}
     </div>
   );
 }
+
 
 
 
