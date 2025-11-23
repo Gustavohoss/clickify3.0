@@ -443,33 +443,9 @@ export function TypebotEditor({
     ],
     Lógica: [
       {
-        name: 'Definir variável',
-        icon: <Variable size={16} />,
-        type: 'logic-variable',
-        color: 'text-indigo-400',
-      },
-      {
-        name: 'Condição',
-        icon: <GitBranch size={16} />,
-        type: 'logic-condition',
-        color: 'text-indigo-400',
-      },
-      {
         name: 'Redirecionar',
         icon: <ArrowRightLeft size={16} />,
         type: 'logic-redirect',
-        color: 'text-indigo-400',
-      },
-      {
-        name: 'Script',
-        icon: <FileCode size={16} />,
-        type: 'logic-script',
-        color: 'text-indigo-400',
-      },
-      {
-        name: 'Typebot',
-        icon: <Bot size={16} />,
-        type: 'logic-typebot',
         color: 'text-indigo-400',
       },
       {
@@ -482,12 +458,6 @@ export function TypebotEditor({
         name: 'Teste A/B',
         icon: <GitCompareArrows size={16} />,
         type: 'logic-abtest',
-        color: 'text-indigo-400',
-      },
-      {
-        name: 'Webhook',
-        icon: <Webhook size={16} />,
-        type: 'logic-webhook',
         color: 'text-indigo-400',
       },
       {
@@ -1380,8 +1350,14 @@ export function TypebotEditor({
               onWheel={handleWheel}
               onContextMenu={(e) => e.preventDefault()}
             >
-              <div className="absolute inset-0 pointer-events-none z-10">
-                <svg className="w-full h-full overflow-visible">
+              <div
+                className="relative h-full w-full pointer-events-none"
+                 style={{
+                  transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
+                  transformOrigin: '0 0',
+                }}
+              >
+                  <svg className="absolute inset-0 w-full h-full overflow-visible z-0">
                     <defs>
                         <marker
                         id="arrowhead"
@@ -1394,7 +1370,7 @@ export function TypebotEditor({
                         <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
                         </marker>
                     </defs>
-                    <g style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`}}>
+                    <g>
                         {connections.map((conn, index) => {
                             const fromHandleId = conn.buttonIndex !== undefined ? `output-${conn.from}-${conn.buttonIndex}` : `output-${conn.from}`;
                             const fromPos = getHandlePosition(fromHandleId);
@@ -1431,14 +1407,6 @@ export function TypebotEditor({
                         )}
                     </g>
                 </svg>
-              </div>
-              <div
-                className="relative h-full w-full pointer-events-none"
-                 style={{
-                  transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
-                  transformOrigin: '0 0',
-                }}
-              >
                   <div
                       id="start-node"
                       className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2 w-52 pointer-events-auto"
