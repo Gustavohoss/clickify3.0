@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -95,6 +96,8 @@ import {
   Globe,
   X,
   Construction,
+  MessageSquare,
+  Palette,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -122,6 +125,7 @@ import { ABTestSettings } from './typebot/settings/ABTestSettings.tsx';
 import { JumpToBlockSettings } from './typebot/settings/JumpToSettings.tsx';
 import { ConnectionHandle } from './typebot/ui/ConnectionHandle.tsx';
 import Image from 'next/image';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion.tsx';
 
 
 const getSmoothStepPath = (x1: number, y1: number, x2: number, y2: number) => {
@@ -177,7 +181,7 @@ const PreviewImageChoices = ({ choices, onImageClick }: { choices: ImageChoice[]
     );
 };
 
-type EditorTab = 'Fluxo' | 'Tema' | 'Configurações';
+type EditorTab = 'Fluxo' | 'Tema' | 'Configurações' | 'Compartilhar';
 
 export function TypebotEditor({
   funnel,
@@ -465,12 +469,6 @@ export function TypebotEditor({
         name: 'Pular para',
         icon: <GitCommit size={16} />,
         type: 'logic-jump',
-        color: 'text-indigo-400',
-      },
-      {
-        name: 'Retornar',
-        icon: <GitPullRequest size={16} />,
-        type: 'logic-return',
         color: 'text-indigo-400',
       },
     ],
@@ -1208,6 +1206,56 @@ export function TypebotEditor({
       </div>
     );
   };
+  
+  const TypebotPreview = () => (
+     <div className="w-full h-full bg-white flex flex-col">
+        <ScrollArea className="flex-1 p-4">
+          <div className="space-y-4">{previewMessages.map(renderPreviewMessage)}</div>
+        </ScrollArea>
+         <div className="border-t border-gray-200 p-4">
+             {waitingForInput?.type === 'input-buttons' ? (
+                 <PreviewButtons 
+                    buttons={waitingForInput.props.buttons || []}
+                    onButtonClick={handleUserButtonClick}
+                />
+             ) : waitingForInput?.type === 'input-pic' ? (
+                 <PreviewImageChoices
+                    choices={waitingForInput.props.choices || []}
+                    onImageClick={handleImageChoiceClick}
+                />
+             ) : (
+                <form
+                    onSubmit={(e) => {
+                    e.preventDefault();
+                    handleUserInput();
+                    }}
+                    className="relative"
+                >
+                    <Input
+                    placeholder="Digite sua resposta..."
+                    className="bg-white text-black border-gray-300 pr-12"
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    disabled={!waitingForInput}
+                    />
+                    <Button
+                    type="submit"
+                    size="icon"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 bg-orange-500 hover:bg-orange-600"
+                    disabled={!waitingForInput}
+                    >
+                    <ArrowRight size={16} className="text-white" />
+                    </Button>
+                </form>
+             )}
+          <div className="text-center mt-3">
+            <Button variant="link" size="sm" className="text-gray-400">
+              Feito com Typebot
+            </Button>
+          </div>
+        </div>
+      </div>
+  )
 
   const selectedBlock = findBlock(selectedBlockId);
   const selectedBlockPosition = getBlockPosition(selectedBlockId);
@@ -1286,8 +1334,8 @@ export function TypebotEditor({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 rounded-lg bg-[#262626] p-1">
-            {(['Fluxo', 'Tema', 'Configurações'] as EditorTab[]).map(tab => (
+        <div className="flex items-center gap-2 rounded-lg bg-[#181818] p-1">
+            {(['Fluxo', 'Tema', 'Configurações', 'Compartilhar'] as EditorTab[]).map(tab => (
                 <Button 
                     key={tab}
                     variant={activeTab === tab ? 'secondary' : 'ghost'}
@@ -1307,12 +1355,6 @@ export function TypebotEditor({
           <Button
             variant="ghost"
             className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white"
-          >
-            <Share2 size={16} /> Compartilhar
-          </Button>
-          <Button
-            variant="ghost"
-            className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white"
             onClick={() => setIsPreviewOpen(true)}
           >
             <TestTube2 size={16} /> Testar
@@ -1324,160 +1366,201 @@ export function TypebotEditor({
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className="w-64 shrink-0 border-r border-[#262626] bg-[#181818]">
-          <ScrollArea className="h-full">
-            <div className="space-y-4 p-3">
-              {Object.entries(blocks).map(([category, items]) => (
-                <div key={category}>
-                  <h3 className="mb-2 px-1 text-xs font-semibold uppercase text-white/40">
-                    {category}
-                  </h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {items.map((item) => (
-                      <Button
-                        key={item.name}
-                        variant="ghost"
-                        className="h-9 w-full justify-start gap-2 bg-[#262626] text-sm font-normal text-white/80 hover:bg-[#3f3f46] hover:text-white"
-                        onClick={() => addBlock(item.type)}
-                      >
-                        <span className={cn(item.color)}>{item.icon}</span>
-                        {item.name}
-                      </Button>
+        {activeTab === 'Fluxo' && (
+             <aside className="w-64 shrink-0 border-r border-[#262626] bg-[#181818]">
+                <ScrollArea className="h-full">
+                    <div className="space-y-4 p-3">
+                    {Object.entries(blocks).map(([category, items]) => (
+                        <div key={category}>
+                        <h3 className="mb-2 px-1 text-xs font-semibold uppercase text-white/40">
+                            {category}
+                        </h3>
+                        <div className="grid grid-cols-2 gap-2">
+                            {items.map((item) => (
+                            <Button
+                                key={item.name}
+                                variant="ghost"
+                                className="h-9 w-full justify-start gap-2 bg-[#262626] text-sm font-normal text-white/80 hover:bg-[#3f3f46] hover:text-white"
+                                onClick={() => addBlock(item.type)}
+                            >
+                                <span className={cn(item.color)}>{item.icon}</span>
+                                {item.name}
+                            </Button>
+                            ))}
+                        </div>
+                        </div>
                     ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </aside>
+                    </div>
+                </ScrollArea>
+            </aside>
+        )}
+        {activeTab === 'Tema' && (
+            <aside className="w-72 shrink-0 border-r border-[#262626] bg-[#181818] p-4">
+                <Accordion type="multiple" defaultValue={['global', 'chat']} className="w-full">
+                    <AccordionItem value="templates">
+                        <AccordionTrigger className="border-b border-[#262626] py-3 text-sm font-medium hover:no-underline"><Sparkles size={16} className="mr-2"/>Templates</AccordionTrigger>
+                        <AccordionContent className="pt-4 text-white/60">
+                           Em breve...
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="global">
+                        <AccordionTrigger className="border-b border-[#262626] py-3 text-sm font-medium hover:no-underline"><Globe size={16} className="mr-2"/>Global</AccordionTrigger>
+                        <AccordionContent className="pt-4 text-white/60">
+                           Configurações de aparência global.
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="chat">
+                        <AccordionTrigger className="border-b border-[#262626] py-3 text-sm font-medium hover:no-underline"><MessageSquare size={16} className="mr-2"/>Chat</AccordionTrigger>
+                         <AccordionContent className="pt-4 text-white/60">
+                           Configurações de aparência do chat.
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="css">
+                        <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline"><Code size={16} className="mr-2"/>Custom CSS</AccordionTrigger>
+                         <AccordionContent className="pt-4 text-white/60">
+                           Adicione seu próprio CSS.
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+            </aside>
+        )}
 
         <div className="flex-1 relative">
-            <main
-              ref={canvasRef}
-              className="h-full w-full"
-              style={{
-                background: '#1d1d1d',
-                backgroundImage:
-                  'radial-gradient(circle at center, rgba(128, 128, 128, 0.3) 1px, transparent 1px)',
-                backgroundSize: '20px 20px',
-              }}
-              onMouseDown={handleCanvasMouseDown}
-              onMouseUp={handleMouseUp}
-              onMouseMove={handleMouseMove}
-              onMouseLeave={handleMouseLeave}
-              onWheel={handleWheel}
-              onContextMenu={(e) => e.preventDefault()}
-            >
-              <div
-                className="relative h-full w-full pointer-events-none"
-                 style={{
-                  transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
-                  transformOrigin: '0 0',
+            {activeTab === 'Fluxo' && (
+                <main
+                ref={canvasRef}
+                className="h-full w-full pointer-events-auto"
+                style={{
+                    background: '#1d1d1d',
+                    backgroundImage:
+                    'radial-gradient(circle at center, rgba(128, 128, 128, 0.3) 1px, transparent 1px)',
+                    backgroundSize: '20px 20px',
                 }}
-              >
-                  <svg className="absolute inset-0 w-full h-full overflow-visible z-0">
-                    <defs>
-                        <marker
-                        id="arrowhead"
-                        markerWidth="10"
-                        markerHeight="7"
-                        refX="0"
-                        refY="3.5"
-                        orient="auto"
-                        >
-                        <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
-                        </marker>
-                    </defs>
-                    <g>
-                        {connections.map((conn, index) => {
-                            const fromHandleId = conn.buttonIndex !== undefined ? `output-${conn.from}-${conn.buttonIndex}` : `output-${conn.from}`;
-                            const fromPos = getHandlePosition(fromHandleId);
-                            const toPos = getHandlePosition(`input-${conn.to}`);
+                onMouseDown={handleCanvasMouseDown}
+                onMouseUp={handleMouseUp}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                onWheel={handleWheel}
+                onContextMenu={(e) => e.preventDefault()}
+                >
+                <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                    transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
+                    transformOrigin: '0 0',
+                    }}
+                >
+                    <svg className="absolute inset-0 w-full h-full overflow-visible z-0">
+                        <defs>
+                            <marker
+                            id="arrowhead"
+                            markerWidth="10"
+                            markerHeight="7"
+                            refX="0"
+                            refY="3.5"
+                            orient="auto"
+                            >
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
+                            </marker>
+                        </defs>
+                        <g>
+                            {connections.map((conn, index) => {
+                                const fromHandleId = conn.buttonIndex !== undefined ? `output-${conn.from}-${conn.buttonIndex}` : `output-${conn.from}`;
+                                const fromPos = getHandlePosition(fromHandleId);
+                                const toPos = getHandlePosition(`input-${conn.to}`);
 
-                            if (fromPos && toPos) {
-                            return (
+                                if (fromPos && toPos) {
+                                return (
+                                    <path
+                                    key={index}
+                                    d={getSmoothStepPath(fromPos.x, fromPos.y, toPos.x, toPos.y)}
+                                    stroke="#f97316"
+                                    strokeWidth="2"
+                                    fill="none"
+                                    markerEnd="url(#arrowhead)"
+                                    />
+                                );
+                                }
+                                return null;
+                            })}
+
+                            {drawingConnection && (
                                 <path
-                                key={index}
-                                d={getSmoothStepPath(fromPos.x, fromPos.y, toPos.x, toPos.y)}
+                                d={getSmoothStepPath(
+                                    drawingConnection.from.x,
+                                    drawingConnection.from.y,
+                                    drawingConnection.to.x,
+                                    drawingConnection.to.y
+                                )}
                                 stroke="#f97316"
                                 strokeWidth="2"
                                 fill="none"
                                 markerEnd="url(#arrowhead)"
                                 />
-                            );
-                            }
-                            return null;
-                        })}
-
-                        {drawingConnection && (
-                            <path
-                            d={getSmoothStepPath(
-                                drawingConnection.from.x,
-                                drawingConnection.from.y,
-                                drawingConnection.to.x,
-                                drawingConnection.to.y
                             )}
-                            stroke="#f97316"
-                            strokeWidth="2"
-                            fill="none"
-                            markerEnd="url(#arrowhead)"
-                            />
-                        )}
-                    </g>
-                </svg>
-                  <div
-                      id="start-node"
-                      className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2 w-52 pointer-events-auto"
-                      style={{
-                          transform: `translate(50px, 50px)`,
-                      }}
-                  >
-                      <PlaySquare size={16} className="text-white/60" />
-                      <span className="text-sm font-medium">Início</span>
-                      <div className="flex-grow" />
-                      <ConnectionHandle
-                          data-handle-id="output-start"
-                          onMouseDown={(e) => {
-                              e.stopPropagation();
-                              onConnectionStart(e, 'start', 'output');
-                          }}
-                      />
-                  </div>
-                  {canvasBlocks
-                  .filter((b) => !b.parentId)
-                  .map((block, index) => {
-                      const BlockComponent =
-                      block.type === 'group' ? CanvasGroupBlock : CanvasTextBlock;
-                      const groupIndex = canvasBlocks
-                      .filter((b) => b.type === 'group' && !b.parentId)
-                      .findIndex((g) => g.id === block.id);
-                      return (
-                      <BlockComponent
-                          key={block.id}
-                          block={block}
-                          groupIndex={groupIndex}
-                          onBlockMouseDown={handleBlockMouseDown}
-                          onDuplicate={(e: React.MouseEvent) => {
-                          e.stopPropagation();
-                          duplicateBlock(block.id);
-                          }}
-                          onDelete={(e: React.MouseEvent) => {
-                          e.stopPropagation();
-                          deleteBlock(block.id);
-                          }}
-                          onContextMenu={handleContextMenu}
-                          isSelected={selectedBlockId === block.id}
-                          setSelectedBlockId={setSelectedBlockId}
-                          dropIndicator={dropIndicator}
-                          updateBlockProps={updateBlockProps}
-                          variables={variables}
-                          onConnectionStart={onConnectionStart}
-                          selectedBlockId={selectedBlockId}
-                      />
-                      );
-                  })}
-              </div>
-            </main>
+                        </g>
+                    </svg>
+                    <div
+                        id="start-node"
+                        className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2 w-52 pointer-events-auto"
+                        style={{
+                            transform: `translate(50px, 50px)`,
+                        }}
+                    >
+                        <PlaySquare size={16} className="text-white/60" />
+                        <span className="text-sm font-medium">Início</span>
+                        <div className="flex-grow" />
+                        <ConnectionHandle
+                            data-handle-id="output-start"
+                            onMouseDown={(e) => {
+                                e.stopPropagation();
+                                onConnectionStart(e, 'start', 'output');
+                            }}
+                        />
+                    </div>
+                    {canvasBlocks
+                    .filter((b) => !b.parentId)
+                    .map((block, index) => {
+                        const BlockComponent =
+                        block.type === 'group' ? CanvasGroupBlock : CanvasTextBlock;
+                        const groupIndex = canvasBlocks
+                        .filter((b) => b.type === 'group' && !b.parentId)
+                        .findIndex((g) => g.id === block.id);
+                        return (
+                        <BlockComponent
+                            key={block.id}
+                            block={block}
+                            groupIndex={groupIndex}
+                            onBlockMouseDown={handleBlockMouseDown}
+                            onDuplicate={(e: React.MouseEvent) => {
+                            e.stopPropagation();
+                            duplicateBlock(block.id);
+                            }}
+                            onDelete={(e: React.MouseEvent) => {
+                            e.stopPropagation();
+                            deleteBlock(block.id);
+                            }}
+                            onContextMenu={handleContextMenu}
+                            isSelected={selectedBlockId === block.id}
+                            setSelectedBlockId={setSelectedBlockId}
+                            dropIndicator={dropIndicator}
+                            updateBlockProps={updateBlockProps}
+                            variables={variables}
+                            onConnectionStart={onConnectionStart}
+                            selectedBlockId={selectedBlockId}
+                        />
+                        );
+                    })}
+                </div>
+                </main>
+            )}
+
+            {activeTab === 'Tema' && (
+                <main className="flex-1 flex items-center justify-center bg-gray-900 p-8">
+                   <TypebotPreview />
+                </main>
+            )}
+
             <SettingsPanel />
             {contextMenu.visible && (
                 <ContextMenu
@@ -1515,51 +1598,7 @@ export function TypebotEditor({
                 <X size={16} />
               </Button>
             </div>
-            <ScrollArea className="flex-1 p-4">
-              <div className="space-y-4">{previewMessages.map(renderPreviewMessage)}</div>
-            </ScrollArea>
-             <div className="border-t border-gray-200 p-4">
-                 {waitingForInput?.type === 'input-buttons' ? (
-                     <PreviewButtons 
-                        buttons={waitingForInput.props.buttons || []}
-                        onButtonClick={handleUserButtonClick}
-                    />
-                 ) : waitingForInput?.type === 'input-pic' ? (
-                     <PreviewImageChoices
-                        choices={waitingForInput.props.choices || []}
-                        onImageClick={handleImageChoiceClick}
-                    />
-                 ) : (
-                    <form
-                        onSubmit={(e) => {
-                        e.preventDefault();
-                        handleUserInput();
-                        }}
-                        className="relative"
-                    >
-                        <Input
-                        placeholder="Digite sua resposta..."
-                        className="bg-white text-black border-gray-300 pr-12"
-                        value={userInput}
-                        onChange={(e) => setUserInput(e.target.value)}
-                        disabled={!waitingForInput}
-                        />
-                        <Button
-                        type="submit"
-                        size="icon"
-                        className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 bg-orange-500 hover:bg-orange-600"
-                        disabled={!waitingForInput}
-                        >
-                        <ArrowRight size={16} className="text-white" />
-                        </Button>
-                    </form>
-                 )}
-              <div className="text-center mt-3">
-                <Button variant="link" size="sm" className="text-gray-400">
-                  Feito com Typebot
-                </Button>
-              </div>
-            </div>
+            <TypebotPreview />
           </aside>
         )}
       </div>
