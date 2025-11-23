@@ -266,6 +266,7 @@ const TypebotPreview = memo(function TypebotPreview({
         </div>
     );
 });
+TypebotPreview.displayName = "TypebotPreview";
 
 
 export function TypebotEditor({
@@ -1127,34 +1128,51 @@ export function TypebotEditor({
 
 
   const processGroup = async (group: CanvasBlock, startIndex: number) => {
-      const childrenToProcess = group.children?.slice(startIndex) || [];
-      
-      for (let i = 0; i < childrenToProcess.length; i++) {
-        const child = childrenToProcess[i];
-        
-        if (child.type.startsWith('input-')) {
-          setWaitingForInput(child);
-          return;
-        }
-        
-        if (child.type === 'logic-wait' && child.props?.duration) {
-            await new Promise(resolve => setTimeout(resolve, (child.props.duration || 0) * 1000));
-        }
-
-        const interpolatedContent = interpolateVariables(child.props?.content);
-        setPreviewMessages((prev) => [
-          ...prev,
-          {
-            id: Date.now() + Math.random(),
-            sender: 'bot',
-            content: <div dangerouslySetInnerHTML={{ __html: interpolatedContent }} />,
-          },
-        ]);
+    const childrenToProcess = group.children?.slice(startIndex) || [];
+  
+    for (let i = 0; i < childrenToProcess.length; i++) {
+      const child = childrenToProcess[i];
+  
+      if (child.type.startsWith('input-')) {
+        setWaitingForInput(child);
+        return; // Stop processing this group and wait for input
       }
-      
-      // If we finished the group without waiting for input, continue the flow
-      processFlow(group.id);
-  }
+  
+      if (child.type === 'logic-wait') {
+        if (child.props?.duration) {
+          await new Promise(resolve => setTimeout(resolve, child.props.duration * 1000));
+        }
+        // Don't render a message for a wait block
+        continue;
+      }
+  
+      const interpolatedContent = interpolateVariables(child.props?.content);
+      setPreviewMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + Math.random(),
+          sender: 'bot',
+          content: <div dangerouslySetInnerHTML={{ __html: interpolatedContent }} />,
+        },
+      ]);
+    }
+  
+    // If we've processed all children in the group without waiting for input,
+    // find the next connected group and continue the flow.
+    const nextConnection = connectionsRef.current.find(
+      (c) => c.from === group.id && c.buttonIndex === undefined
+    );
+  
+    if (nextConnection) {
+      const nextGroup = canvasBlocksRef.current.find((b) => b.id === nextConnection.to);
+      if (nextGroup) {
+        processGroup(nextGroup, 0);
+      }
+    } else {
+      // End of flow for this branch
+      setWaitingForInput(null);
+    }
+  };
   
 
   const startPreview = useCallback(() => {
@@ -1222,11 +1240,7 @@ export function TypebotEditor({
 
     if (parentGroup) {
       const childIndex = parentGroup.children?.findIndex(c => c.id === lastInputBlockId) ?? -1;
-      if (childIndex !== -1 && childIndex + 1 < (parentGroup.children?.length ?? 0)) {
-         processGroup(parentGroup, childIndex + 1);
-      } else {
-         processFlow(parentGroup.id, 0);
-      }
+      processFlow(parentGroup.id, childIndex);
     } else {
        processFlow(lastInputBlockId, 0);
     }
@@ -1310,7 +1324,7 @@ export function TypebotEditor({
         </div>
 
         <div className="flex items-center gap-2 rounded-lg bg-[#181818] p-1">
-            {(['Fluxo', 'Tema', 'Configurações'] as EditorTab[]).map(tab => (
+            {(['Fluxo', 'Tema', 'Configurações', 'Compartilhar'] as EditorTab[]).map(tab => (
                 <Button 
                     key={tab}
                     variant={activeTab === tab ? 'secondary' : 'ghost'}
@@ -1327,13 +1341,6 @@ export function TypebotEditor({
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white"
-          >
-            <Share2 size={16} />
-            Compartilhar
-          </Button>
           <Button
             variant="ghost"
             className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white"
@@ -1615,6 +1622,7 @@ export function TypebotEditor({
     </div>
   );
 }
+
 
 
 
