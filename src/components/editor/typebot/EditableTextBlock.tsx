@@ -7,20 +7,18 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Braces } from 'lucide-react';
 
 export const EditableTextBlock = React.memo(
-  ({ initialContent, onSave, onVariableInsert, variables }) => {
+  ({ initialContent, onSave, onVariableInsert, variables }: { initialContent: string, onSave: (content: string) => void, onVariableInsert: (variable: string) => void, variables: string[] }) => {
     const editorRef = useRef<HTMLDivElement>(null);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
     useEffect(() => {
-      // Set initial content when the component mounts or initialContent changes
       if (editorRef.current && editorRef.current.innerHTML !== initialContent) {
         editorRef.current.innerHTML = initialContent || '';
       }
     }, [initialContent]);
 
     const handleBlur = () => {
-      if (editorRef.current) {
-        // Save to parent state only when focus is lost
+      if (editorRef.current && editorRef.current.innerHTML !== initialContent) {
         onSave(editorRef.current.innerHTML);
       }
     };
@@ -33,7 +31,7 @@ export const EditableTextBlock = React.memo(
     
       document.execCommand('insertHTML', false, `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`);
       
-      onSave(editor.innerHTML); // Save immediately after inserting a variable
+      onSave(editor.innerHTML);
       setIsPopoverOpen(false);
     };
 
@@ -46,7 +44,6 @@ export const EditableTextBlock = React.memo(
           onBlur={handleBlur}
           onClick={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
-          dangerouslySetInnerHTML={{ __html: initialContent || '' }}
           data-placeholder="Digite sua mensagem..."
           className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8 min-h-[20px] [&[data-placeholder]]:before:content-[attr(data-placeholder)] [&[data-placeholder]]:before:text-white/40 [&:not(:empty)]:before:hidden"
         />
@@ -54,7 +51,7 @@ export const EditableTextBlock = React.memo(
           <PopoverTrigger asChild>
             <button
               className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]"
-              onMouseDown={(e) => e.preventDefault()} // Prevent editor from losing focus
+              onMouseDown={(e) => e.preventDefault()}
             >
               <Braces size={14} />
             </button>
