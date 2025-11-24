@@ -10,7 +10,7 @@ import { Webhook, PlusCircle, Copy, Trash2, Info } from 'lucide-react';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, addDoc, deleteDoc, doc, query, where, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, deleteDoc, doc, query, where, updateDoc, setDoc } from 'firebase/firestore';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type Gateway = {
