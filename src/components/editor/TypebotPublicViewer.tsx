@@ -15,7 +15,7 @@ import { ArrowRight, ArrowLeft, Video, Phone, MoreHorizontal } from 'lucide-reac
 import Image from 'next/image';
 import { TypingIndicator } from './typebot/ui/TypingIndicator.tsx';
 
-type PreviewMessage = {
+type PreviewMessageType = {
   id: number;
   sender: 'bot' | 'user';
   content: React.ReactNode;
@@ -70,10 +70,10 @@ const WhatsAppCheck = ({ className }: { className?: string }) => (
 );
 
 
-const renderPreviewMessage = (message: PreviewMessage) => {
+const PreviewMessageItem = React.memo(({ message }: { message: PreviewMessageType }) => {
     if (message.sender === 'bot') {
       return (
-        <div key={message.id} className="flex items-start gap-3">
+        <div className="flex items-start gap-3">
           <Avatar className="h-8 w-8">
             <AvatarImage src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/e8vsn1pelzr1o22gyvomkn6l?v=1763544631191" alt="Bot" />
             <AvatarFallback>C</AvatarFallback>
@@ -85,13 +85,14 @@ const renderPreviewMessage = (message: PreviewMessage) => {
       );
     }
     return (
-      <div key={message.id} className="flex justify-end">
+      <div className="flex justify-end">
         <div className="bg-[#005c4b] text-white rounded-lg rounded-br-none p-3 max-w-[80%]">
           <p className="text-sm">{message.content as string}</p>
         </div>
       </div>
     );
-  };
+});
+PreviewMessageItem.displayName = 'PreviewMessageItem';
 
 const TypebotPreviewHeader = ({ name, avatarUrl }: { name: string; avatarUrl: string }) => (
     <div className="flex items-center p-2 bg-[#202c33] shrink-0">
@@ -120,7 +121,7 @@ export function TypebotPublicViewer() {
     const [funnel, setFunnel] = useState<Funnel | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const [previewMessages, setPreviewMessages] = useState<PreviewMessage[]>([]);
+    const [previewMessages, setPreviewMessages] = useState<PreviewMessageType[]>([]);
     const [waitingForInput, setWaitingForInput] = useState<CanvasBlock | null>(null);
     const [userInput, setUserInput] = useState('');
     
@@ -175,7 +176,7 @@ export function TypebotPublicViewer() {
             }
         
             if (child.type === 'logic-wait') {
-                const typingId = Date.now() + Math.random();
+                const typingId = Date.now();
                 setPreviewMessages((prev) => [...prev, { id: typingId, sender: 'bot', isTyping: true, content: '' }]);
                 if (child.props?.duration) {
                   await new Promise(resolve => setTimeout(resolve, child.props.duration * 1000));
@@ -189,7 +190,7 @@ export function TypebotPublicViewer() {
                 setPreviewMessages((prev) => [
                     ...prev,
                     {
-                        id: Date.now() + Math.random(),
+                        id: Date.now(),
                         sender: 'bot',
                         content: <div dangerouslySetInnerHTML={{ __html: interpolatedContent }} />,
                     },
@@ -336,7 +337,11 @@ export function TypebotPublicViewer() {
         <div className="flex h-screen w-screen flex-col" style={backgroundStyle}>
             <TypebotPreviewHeader name={headerName} avatarUrl={headerAvatarUrl} />
             <ScrollArea className="flex-1 p-4">
-                <div className="space-y-4 max-w-2xl mx-auto w-full">{previewMessages.map(renderPreviewMessage)}</div>
+                <div className="space-y-4 max-w-2xl mx-auto w-full">
+                    {previewMessages.map((message) => (
+                        <PreviewMessageItem key={message.id} message={message} />
+                    ))}
+                </div>
             </ScrollArea>
             <div className="p-4 bg-transparent">
                 <div className="max-w-2xl mx-auto w-full">
