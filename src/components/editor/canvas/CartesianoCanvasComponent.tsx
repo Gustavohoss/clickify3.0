@@ -150,8 +150,8 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
               return (
                 <g>
                   {chartData
-                    .filter((p) => p.indicatorLabel)
-                    .map((point) => {
+                    .filter((p: CartesianChartDataPoint) => p.indicatorLabel)
+                    .map((point: CartesianChartDataPoint) => {
                       const entry = data.find((d:any) => d.name === point.name);
                       if (!entry) return null;
                       
