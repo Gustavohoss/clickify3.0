@@ -263,11 +263,6 @@ const TypebotPreview = memo(function TypebotPreview({
                         </Button>
                     </form>
                 )}
-                <div className="text-center mt-3">
-                    <Button variant="link" size="sm" className="text-gray-600 hover:no-underline">
-                       <Bot size={14} className="mr-2"/> Feito com Typebot
-                    </Button>
-                </div>
             </div>
         </div>
     );
@@ -346,16 +341,28 @@ export function TypebotEditor({
     }
   }, [funnel, isPublished]);
 
-  const updateFunnelState = (newBlocks: CanvasBlock[], newConnections: CanvasConnection[]) => {
+  const updateFunnelState = useCallback((newBlocks: CanvasBlock[], newConnections: CanvasConnection[]) => {
     setFunnel(prev => {
       if (!prev) return null;
-      return {
-        ...prev,
-        steps: newBlocks,
-        connections: newConnections
-      } as Funnel & { connections: CanvasConnection[] };
+      // This is a simplified check. A deep equality check would be better.
+      const blocksChanged = JSON.stringify(prev.steps) !== JSON.stringify(newBlocks);
+      const connectionsChanged = JSON.stringify((prev as any).connections) !== JSON.stringify(newConnections);
+
+      if (blocksChanged || connectionsChanged) {
+        return {
+          ...prev,
+          steps: newBlocks,
+          connections: newConnections
+        } as Funnel & { connections: CanvasConnection[] };
+      }
+      return prev;
     });
-  }
+  }, [setFunnel]);
+
+  useEffect(() => {
+    updateFunnelState(canvasBlocks, connections);
+  }, [canvasBlocks, connections, updateFunnelState]);
+  
 
   const addBlock = (type: string) => {
     if (!canvasRef.current) return;

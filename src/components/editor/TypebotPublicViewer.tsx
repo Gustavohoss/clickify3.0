@@ -284,11 +284,6 @@ export function TypebotPublicViewer() {
                             </Button>
                         </form>
                     )}
-                    <div className="text-center mt-3">
-                        <Button variant="link" size="sm" className="text-gray-600 hover:no-underline">
-                           <Bot size={14} className="mr-2"/> Feito com Typebot
-                        </Button>
-                    </div>
                 </div>
             </div>
         </div>
