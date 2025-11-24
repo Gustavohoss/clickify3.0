@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -132,7 +133,7 @@ export function TypebotPublicViewer() {
             }
         
             if (child.type === 'logic-wait') {
-                const typingId = Date.now();
+                const typingId = Date.now() + Math.random();
                 setPreviewMessages((prev) => [...prev, { id: typingId, sender: 'bot', isTyping: true, content: '' }]);
                 if (child.props?.duration) {
                   await new Promise(resolve => setTimeout(resolve, child.props.duration * 1000));
@@ -228,7 +229,7 @@ export function TypebotPublicViewer() {
         if (!waitingForInput) return;
         const clickedButton = waitingForInput.props.buttons[buttonIndex];
         if (!clickedButton) return;
-        setPreviewMessages((prev) => [ ...prev, { id: Date.now(), sender: 'user', content: clickedButton.text }, ]);
+        setPreviewMessages((prev) => [ ...prev, { id: Date.now() + Math.random(), sender: 'user', content: clickedButton.text }, ]);
         const parentId = waitingForInput.id;
         setWaitingForInput(null);
         processFlow(parentId, buttonIndex);
@@ -243,7 +244,7 @@ export function TypebotPublicViewer() {
 
     const handleUserInput = () => {
         if (!userInput.trim() || !waitingForInput) return;
-        setPreviewMessages((prev) => [ ...prev, { id: Date.now(), sender: 'user', content: userInput }, ]);
+        setPreviewMessages((prev) => [ ...prev, { id: Date.now() + Math.random(), sender: 'user', content: userInput }, ]);
         if (waitingForInput.props.variable) {
             previewVariablesRef.current[waitingForInput.props.variable] = userInput;
         }

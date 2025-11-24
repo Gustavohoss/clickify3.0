@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -1178,7 +1179,7 @@ export function TypebotEditor({
       }
   
       if (child.type === 'logic-wait') {
-        const typingId = Date.now();
+        const typingId = Date.now() + Math.random();
         setPreviewMessages((prev) => [...prev, { id: typingId, sender: 'bot', isTyping: true, content: '' }]);
         
         if (child.props?.duration) {
@@ -1246,7 +1247,7 @@ export function TypebotEditor({
 
     setPreviewMessages((prev) => [
         ...prev,
-        { id: Date.now(), sender: 'user', content: clickedButton.text },
+        { id: Date.now() + Math.random(), sender: 'user', content: clickedButton.text },
     ]);
     
     const parentId = waitingForInput.id;
@@ -1268,7 +1269,7 @@ export function TypebotEditor({
   
     setPreviewMessages((prev) => [
       ...prev,
-      { id: Date.now(), sender: 'user', content: userInput },
+      { id: Date.now() + Math.random(), sender: 'user', content: userInput },
     ]);
   
     if (waitingForInput.props.variable) {
