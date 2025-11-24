@@ -105,7 +105,7 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
 
           {chartData.map((point: CartesianChartDataPoint, index: number) => (
             <ReferenceDot
-              key={`${index}-${point.indicatorLabel}`}
+              key={`${index}-${point.id}`}
               x={point.name}
               y={point.value}
               r={8}
@@ -113,9 +113,9 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
               stroke={point.isFeatured ? '#000000' : '#A0AEC0'}
               strokeWidth={2}
               ifOverflow="extendDomain"
-            >
-              <CustomLabel value={point.indicatorLabel} isFeatured={point.isFeatured} />
-            </ReferenceDot>
+              // Pass props to CustomLabel through the label prop of ReferenceDot
+              label={<CustomLabel value={point.indicatorLabel} isFeatured={point.isFeatured} />}
+            />
           ))}
         </AreaChart>
       </ResponsiveContainer>
