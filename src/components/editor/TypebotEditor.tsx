@@ -127,7 +127,7 @@ import { RedirectBlockSettings } from './typebot/settings/RedirectSettings.tsx';
 import { TimeBlockSettings } from './typebot/settings/TimeSettings.tsx';
 import { ABTestSettings } from './typebot/settings/ABTestSettings.tsx';
 import { JumpToBlockSettings } from './typebot/settings/JumpToSettings.tsx';
-import { ConnectionHandle } from './typebot/ui/ConnectionHandle.tsx';
+import { ConnectionHandle } from '../ui/ConnectionHandle.tsx';
 import Image from 'next/image';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion.tsx';
 import { useToast } from '@/hooks/use-toast.ts';
@@ -340,28 +340,6 @@ export function TypebotEditor({
       setIsPublished(funnel.isPublished || false);
     }
   }, [funnel, isPublished]);
-
-  const updateFunnelState = useCallback((newBlocks: CanvasBlock[], newConnections: CanvasConnection[]) => {
-    setFunnel(prev => {
-      if (!prev) return null;
-      // This is a simplified check. A deep equality check would be better.
-      const blocksChanged = JSON.stringify(prev.steps) !== JSON.stringify(newBlocks);
-      const connectionsChanged = JSON.stringify((prev as any).connections) !== JSON.stringify(newConnections);
-
-      if (blocksChanged || connectionsChanged) {
-        return {
-          ...prev,
-          steps: newBlocks,
-          connections: newConnections
-        } as Funnel & { connections: CanvasConnection[] };
-      }
-      return prev;
-    });
-  }, [setFunnel]);
-
-  useEffect(() => {
-    updateFunnelState(canvasBlocks, connections);
-  }, [canvasBlocks, connections, updateFunnelState]);
   
 
   const addBlock = (type: string) => {
