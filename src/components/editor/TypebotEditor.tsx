@@ -99,6 +99,9 @@ import {
   Construction,
   MessageSquare,
   Palette,
+  Rocket,
+  ClipboardCopy,
+  EyeOff,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -127,6 +130,8 @@ import { JumpToBlockSettings } from './typebot/settings/JumpToSettings.tsx';
 import { ConnectionHandle } from './typebot/ui/ConnectionHandle.tsx';
 import Image from 'next/image';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion.tsx';
+import { useToast } from '@/hooks/use-toast.ts';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu.tsx';
 
 
 const getSmoothStepPath = (x1: number, y1: number, x2: number, y2: number) => {
@@ -280,6 +285,7 @@ export function TypebotEditor({
   debouncedUpdateFunnel: any;
 }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<EditorTab>('Fluxo');
   const [isPanning, setIsPanning] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -303,6 +309,8 @@ export function TypebotEditor({
     number | 'start' | null
   >(null);
   const [userInput, setUserInput] = useState('');
+
+  const [isPublished, setIsPublished] = useState(funnel.isPublished || false);
 
   const [waitingForInput, setWaitingForInput] = useState<CanvasBlock | null>(
     null
@@ -333,7 +341,10 @@ export function TypebotEditor({
     if ((funnel as any).connections) {
       setConnections((funnel as any).connections);
     }
-  }, [funnel.id]);
+     if (funnel.isPublished !== isPublished) {
+      setIsPublished(funnel.isPublished || false);
+    }
+  }, [funnel, isPublished]);
 
   const updateFunnelState = (newBlocks: CanvasBlock[], newConnections: CanvasConnection[]) => {
     setFunnel(prev => {
@@ -486,6 +497,27 @@ export function TypebotEditor({
     }
     setContextMenu({ visible: false, x: 0, y: 0, blockId: null });
   };
+
+  const handlePublishToggle = (publish: boolean) => {
+    setFunnel(prev => prev ? ({ ...prev, isPublished: publish }) : null);
+    setIsPublished(publish);
+    debouncedUpdateFunnel.flush();
+    toast({
+      title: publish ? 'Funil Publicado!' : 'Funil agora é um rascunho.',
+      description: publish ? 'Seu funil agora está ativo.' : 'Seu funil não está mais visível publicamente.',
+    });
+  };
+  
+  const handleCopyUrl = () => {
+    if (!funnel) return;
+    const funnelSlug = funnel.slug || funnel.name.toLowerCase().trim().replace(/[^a-z0-9\\s-]/g, '').replace(/[\\s-]+/g, '-');
+    const publicUrl = `${window.location.origin}/funil/${funnelSlug}/${funnel.id}`;
+    navigator.clipboard.writeText(publicUrl);
+    toast({
+      title: 'URL Copiada!',
+      description: `O link do funil foi copiado para a área de transferência.`,
+    });
+  }
 
   const blocks = {
     Bolhas: [
@@ -1381,9 +1413,34 @@ export function TypebotEditor({
           >
             <TestTube2 size={16} /> Testar
           </Button>
-          <Button className="h-9 bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700">
-            Publicar
-          </Button>
+          {isPublished ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="secondary">
+                  <span className="relative mr-2 flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+                  </span>
+                  Publicado
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleCopyUrl}>
+                  <ClipboardCopy className="mr-2 h-4 w-4" />
+                  Copiar Link
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handlePublishToggle(false)}>
+                  <EyeOff className="mr-2 h-4 w-4" />
+                  Deixar Offline
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button size="sm" onClick={() => handlePublishToggle(true)}>
+              <Rocket className="mr-2 h-4 w-4" />
+              Publicar
+            </Button>
+          )}
         </div>
       </header>
 
@@ -1655,6 +1712,7 @@ export function TypebotEditor({
     </div>
   );
 }
+
 
 
 
