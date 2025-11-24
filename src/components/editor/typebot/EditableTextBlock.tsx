@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -10,6 +9,7 @@ export const EditableTextBlock = React.memo(
   ({ initialContent, onSave, onVariableInsert, variables }: { initialContent: string, onSave: (content: string) => void, onVariableInsert: (variable: string) => void, variables: string[] }) => {
     const editorRef = useRef<HTMLDivElement>(null);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+    const lastSelectionRef = useRef<Range | null>(null);
 
     useEffect(() => {
       if (editorRef.current && editorRef.current.innerHTML !== initialContent) {
@@ -18,6 +18,11 @@ export const EditableTextBlock = React.memo(
     }, [initialContent]);
 
     const handleBlur = () => {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        lastSelectionRef.current = selection.getRangeAt(0).cloneRange();
+      }
+      
       if (editorRef.current && editorRef.current.innerHTML !== initialContent) {
         onSave(editorRef.current.innerHTML);
       }
@@ -28,8 +33,16 @@ export const EditableTextBlock = React.memo(
       if (!editor) return;
     
       editor.focus();
+      
+      const selection = window.getSelection();
+      if (selection && lastSelectionRef.current) {
+        selection.removeAllRanges();
+        selection.addRange(lastSelectionRef.current);
+      }
     
       document.execCommand('insertHTML', false, `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`);
+      
+      lastSelectionRef.current = null; // Clear selection after use
       
       onSave(editor.innerHTML);
       setIsPopoverOpen(false);
@@ -51,7 +64,13 @@ export const EditableTextBlock = React.memo(
           <PopoverTrigger asChild>
             <button
               className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]"
-              onMouseDown={(e) => e.preventDefault()}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                const selection = window.getSelection();
+                if (selection && selection.rangeCount > 0) {
+                  lastSelectionRef.current = selection.getRangeAt(0).cloneRange();
+                }
+              }}
             >
               <Braces size={14} />
             </button>
