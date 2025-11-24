@@ -41,7 +41,7 @@ export function QuizPublicViewer({ funnel }: { funnel: Funnel }) {
 
   return (
     <div 
-      className="flex min-h-screen w-full items-center justify-center p-4"
+      className="flex min-h-screen w-full items-start justify-center p-4"
       style={{ backgroundColor: backgroundColor }}
     >
       <div className="w-full max-w-sm">
