@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -16,7 +17,7 @@ import { WavingHandIcon } from './WavingHandIcon';
 
 
 const CustomLabel = (props: any) => {
-  const { x, y, value, isFeatured } = props;
+  const { cx, cy, value, isFeatured } = props;
   
   if (!value) return null;
 
@@ -30,7 +31,7 @@ const CustomLabel = (props: any) => {
 
 
   return (
-    <g transform={`translate(${x - boxWidth / 2}, ${y - 45})`}>
+    <g transform={`translate(${cx - boxWidth / 2}, ${cy - 45})`}>
       <rect x="0" y="0" width={boxWidth} height="28" rx="8" fill={bgColor} stroke={borderColor} strokeWidth="1" />
       <text x={boxWidth/2} y="18" textAnchor="middle" fill={textColor} fontSize="12">
         {value}
@@ -113,8 +114,14 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
               stroke={point.isFeatured ? '#000000' : '#A0AEC0'}
               strokeWidth={2}
               ifOverflow="extendDomain"
-              // Pass props to CustomLabel through the label prop of ReferenceDot
-              label={<CustomLabel value={point.indicatorLabel} isFeatured={point.isFeatured} />}
+              label={({ cx, cy }) => (
+                <CustomLabel
+                  cx={cx}
+                  cy={cy}
+                  value={point.indicatorLabel}
+                  isFeatured={point.isFeatured}
+                />
+              )}
             />
           ))}
         </AreaChart>
