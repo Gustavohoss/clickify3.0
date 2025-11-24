@@ -36,14 +36,6 @@ const GeneralSettings = ({ funnel }: { funnel: Funnel }) => (
                     </div>
                     <Button variant="outline" className="text-gray-300 border-gray-600 hover:bg-gray-700">Tornar rascunho</Button>
                 </div>
-                 <div>
-                    <label htmlFor="funnel-slug" className="text-sm font-medium text-gray-400">URL</label>
-                    <div className="flex items-center mt-1">
-                        <span className="px-3 py-2 bg-gray-700 border border-r-0 border-gray-600 rounded-l-md text-sm text-gray-400">clickify.com/</span>
-                        <Input id="funnel-slug" defaultValue="meu-funil" className="bg-gray-900 border-gray-600 rounded-l-none"/>
-                        <Button variant="ghost" size="icon" className="ml-2 text-gray-400"><Pencil size={16}/></Button>
-                    </div>
-                </div>
                 <div className="flex items-center gap-2 text-sm text-gray-400">
                     <Bot size={16}/>
                     <p>Este funil foi feito na Clickify</p>
