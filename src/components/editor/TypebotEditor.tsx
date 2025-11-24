@@ -152,7 +152,7 @@ const PreviewButtons = ({ buttons, onButtonClick, sender }: { buttons: ButtonIte
     return (
         <div className={cn("flex gap-2 my-2 flex-wrap", sender === 'user' ? 'justify-end' : 'justify-start')}>
             {buttons.map((button, index) => (
-                <Button 
+                <Button
                     key={index}
                     className="bg-orange-500 hover:bg-orange-600 text-white"
                     onClick={() => onButtonClick(index)}
@@ -272,8 +272,8 @@ TypebotPreview.displayName = "TypebotPreview";
 
 
 export function TypebotEditor({
-  funnel,
-  setFunnel,
+  funnel: initialFunnel,
+  setFunnel: setFunnelProp,
   debouncedUpdateFunnel,
 }: {
   funnel: Funnel;
@@ -287,7 +287,6 @@ export function TypebotEditor({
   const [zoom, setZoom] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const startPanPosition = useRef({ x: 0, y: 0 });
-  const [canvasBlocks, setCanvasBlocks] = useState<CanvasBlock[]>([]);
   const canvasRef = useRef<HTMLDivElement>(null);
   const [selectedBlockId, setSelectedBlockId] = useState<number | null>(null);
   const [contextMenu, setContextMenu] = useState<{
@@ -297,7 +296,6 @@ export function TypebotEditor({
     blockId: number | null;
   }>({ visible: false, x: 0, y: 0, blockId: null });
   const [variables, setVariables] = useState<string[]>([]);
-  const [connections, setConnections] = useState<CanvasConnection[]>([]);
   const [drawingConnection, setDrawingConnection] = useState<any>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewMessages, setPreviewMessages] = useState<PreviewMessage[]>([]);
@@ -306,7 +304,8 @@ export function TypebotEditor({
   >(null);
   const [userInput, setUserInput] = useState('');
 
-  const [isPublished, setIsPublished] = useState(funnel.isPublished || false);
+  const [funnel, setFunnel] = useState<Funnel>(initialFunnel);
+  const isPublished = funnel.isPublished || false;
 
   const [waitingForInput, setWaitingForInput] = useState<CanvasBlock | null>(
     null
@@ -330,18 +329,22 @@ export function TypebotEditor({
 
   const previewVariablesRef = useRef<{ [key: string]: any }>({});
   
+  const canvasBlocks = (funnel.steps || []) as CanvasBlock[];
+  const connections = (funnel as any).connections || [];
+
   useEffect(() => {
-    if (funnel.steps) {
-      setCanvasBlocks((funnel.steps as CanvasBlock[]).filter(b => b.type)); // Basic validation
+    setFunnel(initialFunnel);
+  }, [initialFunnel]);
+
+  useEffect(() => {
+    if (funnel) {
+      debouncedUpdateFunnel(funnel);
     }
-    if ((funnel as any).connections) {
-      setConnections((funnel as any).connections);
-    }
-     if (funnel.isPublished !== isPublished) {
-      setIsPublished(funnel.isPublished || false);
-    }
-  }, [funnel, isPublished]);
-  
+  }, [funnel, debouncedUpdateFunnel]);
+
+  const updateFunnelState = (updater: (prev: Funnel) => Funnel) => {
+    setFunnel(updater);
+  }
 
   const addBlock = (type: string) => {
     if (!canvasRef.current) return;
@@ -351,37 +354,41 @@ export function TypebotEditor({
       y: (canvasRect.height / 2 - panOffset.y) / zoom - 50,
     };
 
-    if (type === 'group') {
-      const newBlock: CanvasBlock = {
-        id: Date.now(),
-        type: 'group',
-        position: basePosition,
-        children: [],
-        props: {},
-      };
-      setCanvasBlocks((prev) => [...prev, newBlock]);
-    } else {
-      const childBlockId = Date.now();
-      const groupBlockId = childBlockId + 1;
+    updateFunnelState(prev => {
+        const newBlocks = [...(prev.steps as CanvasBlock[])];
+        if (type === 'group') {
+            const newBlock: CanvasBlock = {
+                id: Date.now(),
+                type: 'group',
+                position: basePosition,
+                children: [],
+                props: {},
+            };
+            newBlocks.push(newBlock);
+        } else {
+            const childBlockId = Date.now();
+            const groupBlockId = childBlockId + 1;
 
-      const childBlock: CanvasBlock = {
-        id: childBlockId,
-        type,
-        position: { x: 0, y: 0 },
-        parentId: groupBlockId,
-        props: {},
-      };
+            const childBlock: CanvasBlock = {
+                id: childBlockId,
+                type,
+                position: { x: 0, y: 0 },
+                parentId: groupBlockId,
+                props: {},
+            };
 
-      const groupBlock: CanvasBlock = {
-        id: groupBlockId,
-        type: 'group',
-        position: basePosition,
-        children: [childBlock],
-        props: {},
-      };
+            const groupBlock: CanvasBlock = {
+                id: groupBlockId,
+                type: 'group',
+                position: basePosition,
+                children: [childBlock],
+                props: {},
+            };
 
-      setCanvasBlocks((prev) => [...prev, groupBlock]);
-    }
+            newBlocks.push(groupBlock);
+        }
+        return {...prev, steps: newBlocks};
+    });
   };
 
   const duplicateBlock = (blockId: number) => {
@@ -398,27 +405,29 @@ export function TypebotEditor({
       children: blockToDuplicate.children ? [] : undefined,
       props: {},
     };
-    setCanvasBlocks((prev) => [...prev, newBlock]);
+    
+    updateFunnelState(prev => ({
+        ...prev,
+        steps: [...(prev.steps as CanvasBlock[]), newBlock]
+    }));
   };
 
   const deleteBlock = (blockId: number) => {
-    setCanvasBlocks((prev) => {
-      const newBlocks = prev
-        .map((parent) => {
-          if (!parent.children) return parent;
-          const newChildren = parent.children.filter(
-            (child) => child.id !== blockId
-          );
-          // If the group becomes empty after deleting the child, remove the group
-          if (parent.children.length > 0 && newChildren.length === 0) {
-            return null;
-          }
-          return { ...parent, children: newChildren };
-        })
-        .filter((b) => b !== null) as CanvasBlock[];
+    updateFunnelState(prev => {
+        const newBlocks = (prev.steps as CanvasBlock[])
+            .map((parent) => {
+            if (!parent.children) return parent;
+            const newChildren = parent.children.filter(
+                (child) => child.id !== blockId
+            );
+            if (parent.children.length > 0 && newChildren.length === 0) {
+                return null;
+            }
+            return { ...parent, children: newChildren };
+            })
+            .filter((b) => b !== null) as CanvasBlock[];
 
-      // Also filter out top-level blocks
-      return newBlocks.filter((b) => b.id !== blockId);
+        return { ...prev, steps: newBlocks.filter((b) => b.id !== blockId) };
     });
 
     if (selectedBlockId === blockId) {
@@ -426,16 +435,19 @@ export function TypebotEditor({
     }
   };
 
-  const updateBlockProps = (blockId: number, props: any) => {
+  const updateBlockProps = (blockId: number, newProps: any) => {
     const updateRecursively = (blocks: CanvasBlock[]): CanvasBlock[] => {
       return blocks.map((block) => {
         if (block.id === blockId) {
-           const newBlock = { ...block, props: { ...block.props, ...props } };
-           if (newBlock.type === 'logic-jump' && props.targetGroupId !== undefined) {
-             setConnections(prev => [
-               ...prev.filter(c => c.from !== blockId),
-               { from: blockId, to: props.targetGroupId }
-             ]);
+           const newBlock = { ...block, props: { ...block.props, ...newProps } };
+           if (newBlock.type === 'logic-jump' && newProps.targetGroupId !== undefined) {
+             updateFunnelState(prev => ({
+                 ...prev,
+                 connections: [
+                     ...(prev as any).connections.filter((c: any) => c.from !== blockId),
+                     { from: blockId, to: newProps.targetGroupId }
+                 ]
+             }));
            }
           return newBlock;
         }
@@ -445,7 +457,7 @@ export function TypebotEditor({
         return block;
       });
     };
-    setCanvasBlocks(updateRecursively);
+    updateFunnelState(prev => ({...prev, steps: updateRecursively((prev.steps as CanvasBlock[]))}));
   };
 
   const handleContextMenu = (e: React.MouseEvent, block: CanvasBlock) => {
@@ -480,9 +492,7 @@ export function TypebotEditor({
   };
 
   const handlePublishToggle = (publish: boolean) => {
-    setFunnel(prev => prev ? ({ ...prev, isPublished: publish }) : null);
-    setIsPublished(publish);
-    debouncedUpdateFunnel.flush();
+    updateFunnelState(prev => ({ ...prev, isPublished: publish }));
     toast({
       title: publish ? 'Funil Publicado!' : 'Funil agora é um rascunho.',
       description: publish ? 'Seu funil agora está ativo.' : 'Seu funil não está mais visível publicamente.',
@@ -619,10 +629,13 @@ export function TypebotEditor({
       if (toBlockId !== undefined) {
         const fromBlockId = drawingConnection.fromBlockId;
         if (fromBlockId !== toBlockId) {
-          setConnections((prev) => [
-            ...prev.filter((c) => c.from !== fromBlockId || c.buttonIndex !== drawingConnection.buttonIndex),
-            { from: fromBlockId, to: toBlockId, buttonIndex: drawingConnection.buttonIndex },
-          ]);
+          updateFunnelState(prev => ({
+            ...prev,
+            connections: [
+              ...((prev as any).connections || []).filter((c: any) => c.from !== fromBlockId || c.buttonIndex !== drawingConnection.buttonIndex),
+              { from: fromBlockId, to: toBlockId, buttonIndex: drawingConnection.buttonIndex },
+            ]
+          }));
         }
       }
       setDrawingConnection(null);
@@ -637,58 +650,57 @@ export function TypebotEditor({
       if (!draggedBlock) return;
 
       let isDroppedOnTarget = false;
-      let updatedBlocks = [...canvasBlocks];
+      
+      updateFunnelState(prev => {
+        let updatedBlocks = [...(prev.steps as CanvasBlock[])];
+        if (dropIndicator) {
+            isDroppedOnTarget = true;
+            const targetGroupIndex = updatedBlocks.findIndex(
+            (b) => b.id === dropIndicator.groupId
+            );
 
-      if (dropIndicator) {
-        isDroppedOnTarget = true;
-        const targetGroupIndex = updatedBlocks.findIndex(
-          (b) => b.id === dropIndicator.groupId
-        );
+            if (targetGroupIndex > -1) {
+            const targetGroup = { ...updatedBlocks[targetGroupIndex] };
 
-        if (targetGroupIndex > -1) {
-          const targetGroup = { ...updatedBlocks[targetGroupIndex] };
+            const blockToInsert: CanvasBlock = {
+                ...draggingState.originalBlock!,
+                id: draggedBlock.id,
+                parentId: targetGroup.id,
+                position: { x: 0, y: 0 },
+                props: draggedBlock.props,
+            };
 
-          const blockToInsert: CanvasBlock = {
-            ...draggingState.originalBlock,
-            id: draggedBlock.id,
-            parentId: targetGroup.id,
-            position: { x: 0, y: 0 },
-            props: draggedBlock.props,
-          };
+            const newChildren = [...(targetGroup.children || [])];
+            newChildren.splice(dropIndicator.index, 0, blockToInsert);
+            targetGroup.children = newChildren;
 
-          const newChildren = [...(targetGroup.children || [])];
-          newChildren.splice(dropIndicator.index, 0, blockToInsert);
-          targetGroup.children = newChildren;
-
-          updatedBlocks[targetGroupIndex] = targetGroup;
-          updatedBlocks = updatedBlocks.filter((b) => b.id !== draggedBlock.id);
+            updatedBlocks[targetGroupIndex] = targetGroup;
+            updatedBlocks = updatedBlocks.filter((b) => b.id !== draggedBlock.id);
+            }
+        } else {
+            if (draggedBlock.type !== 'group') {
+            isDroppedOnTarget = true;
+            const newGroupId = Date.now();
+            const blockToMove: CanvasBlock = {
+                ...draggingState.originalBlock!,
+                id: draggedBlock.id,
+                parentId: newGroupId,
+                position: { x: 0, y: 0 },
+                props: draggedBlock.props,
+            };
+            const newGroup: CanvasBlock = {
+                id: newGroupId,
+                type: 'group',
+                position: draggedBlock.position,
+                children: [blockToMove],
+                props: {},
+            };
+            updatedBlocks = updatedBlocks.filter((b) => b.id !== draggedBlock.id);
+            updatedBlocks.push(newGroup);
+            }
         }
-      } else {
-        if (draggedBlock.type !== 'group') {
-          isDroppedOnTarget = true;
-          const newGroupId = Date.now();
-          const blockToMove: CanvasBlock = {
-            ...draggingState.originalBlock,
-            id: draggedBlock.id,
-            parentId: newGroupId,
-            position: { x: 0, y: 0 },
-            props: draggedBlock.props,
-          };
-          const newGroup: CanvasBlock = {
-            id: newGroupId,
-            type: 'group',
-            position: draggedBlock.position,
-            children: [blockToMove],
-            props: {},
-          };
-          updatedBlocks = updatedBlocks.filter((b) => b.id !== draggedBlock.id);
-          updatedBlocks.push(newGroup);
-        }
-      }
-
-      if (isDroppedOnTarget) {
-        setCanvasBlocks(updatedBlocks);
-      }
+        return {...prev, steps: updatedBlocks};
+      });
     } else if (
       !draggingState.isDragging &&
       draggingState.blockId &&
@@ -726,8 +738,8 @@ export function TypebotEditor({
         const currentDraggedBlock = findBlock(currentState.blockId);
 
         if (!currentDraggedBlock) {
-          setCanvasBlocks((prevBlocks) => {
-            let restoredBlocks = [...prevBlocks];
+          updateFunnelState((prev) => {
+            let restoredBlocks = [...(prev.steps as CanvasBlock[])];
 
             restoredBlocks = restoredBlocks.filter(
               (b) => b.id !== currentState.blockId
@@ -748,7 +760,7 @@ export function TypebotEditor({
                 restoredBlocks[parentIndex] = parent;
               }
             }
-            return restoredBlocks;
+            return {...prev, steps: restoredBlocks};
           });
         }
       }
@@ -823,7 +835,7 @@ export function TypebotEditor({
               zoom,
             y:
               ((parentRect?.top ?? 0) +
-                (blockRect?.top - (parentRect?.top ?? 0)) -
+                (blockRect.top - (parentRect?.top ?? 0)) -
                 canvasRect.top -
                 panOffset.y) /
               zoom,
@@ -838,28 +850,30 @@ export function TypebotEditor({
           };
 
           const groupIsNowEmpty = parentGroup.children?.length === 1;
+          
+          updateFunnelState(prev => {
+            const newSteps = (prev.steps as CanvasBlock[]).map((p) =>
+                    p.id === draggingState.originalBlock!.parentId
+                    ? {
+                        ...p,
+                        children: p.children?.filter(
+                            (c) => c.id !== draggingState.originalBlock!.id
+                        ),
+                        }
+                    : p
+                ).filter(
+                    (p) =>
+                    !(
+                        p.id === draggingState.originalBlock!.parentId &&
+                        groupIsNowEmpty
+                    )
+                );
+            return {
+                ...prev,
+                steps: [...newSteps, detachedBlock]
+            }
+          });
 
-          setCanvasBlocks((prevBlocks) => [
-            ...prevBlocks
-              .map((p) =>
-                p.id === draggingState.originalBlock!.parentId
-                  ? {
-                      ...p,
-                      children: p.children?.filter(
-                        (c) => c.id !== draggingState.originalBlock!.id
-                      ),
-                    }
-                  : p
-              )
-              .filter(
-                (p) =>
-                  !(
-                    p.id === draggingState.originalBlock!.parentId &&
-                    groupIsNowEmpty
-                  )
-              ),
-            detachedBlock,
-          ]);
 
           setDraggingState((prev) => ({
             ...prev,
@@ -886,13 +900,14 @@ export function TypebotEditor({
         (e.clientY - canvasRect.top - panOffset.y) / zoom -
         draggingState.dragStartOffset.y;
 
-      setCanvasBlocks((prevBlocks) =>
-        prevBlocks.map((block) =>
-          block.id === draggingState.blockId
-            ? { ...block, position: { x: newX, y: newY } }
-            : block
-        )
-      );
+      updateFunnelState(prev => ({
+          ...prev,
+          steps: (prev.steps as CanvasBlock[]).map((block) =>
+            block.id === draggingState.blockId
+                ? { ...block, position: { x: newX, y: newY } }
+                : block
+          )
+      }));
 
       const dropX = (e.clientX - canvasRect.left) / zoom;
       const dropY = (e.clientY - canvasRect.top) / zoom;
@@ -1129,7 +1144,7 @@ export function TypebotEditor({
         if (parentBlock && startBlock) {
             if (buttonIndex !== undefined) {
                 // It's a button click from within a group
-                nextGroupId = connectionsRef.current.find(c => c.from === startBlock.id && c.buttonIndex === buttonIndex)?.to;
+                nextGroupId = connectionsRef.current.find((c: any) => c.from === startBlock.id && c.buttonIndex === buttonIndex)?.to;
             } else {
                  // Continuing inside a group
                  const currentIndex = parentBlock.children?.findIndex(c => c.id === startId) ?? -1;
@@ -1140,15 +1155,15 @@ export function TypebotEditor({
                     return;
                 } else {
                     // End of group, find next connection from the group
-                    nextGroupId = connectionsRef.current.find(c => c.from === parentBlock.id && c.buttonIndex === undefined)?.to;
+                    nextGroupId = connectionsRef.current.find((c: any) => c.from === parentBlock.id && c.buttonIndex === undefined)?.to;
                 }
             }
         } else { // It's a group
-           nextGroupId = connectionsRef.current.find(c => c.from === startId && c.buttonIndex === buttonIndex)?.to;
+           nextGroupId = connectionsRef.current.find((c: any) => c.from === startId && c.buttonIndex === buttonIndex)?.to;
         }
 
     } else { // startId is 'start'
-      nextGroupId = connectionsRef.current.find(c => c.from === 'start')?.to;
+      nextGroupId = connectionsRef.current.find((c: any) => c.from === 'start')?.to;
     }
 
 
@@ -1168,7 +1183,6 @@ export function TypebotEditor({
 
   const processGroup = async (group: CanvasBlock, startIndex: number) => {
     const childrenToProcess = group.children?.slice(startIndex) || [];
-    let currentMessages = [...previewMessages];
   
     for (let i = 0; i < childrenToProcess.length; i++) {
       const child = childrenToProcess[i];
@@ -1204,7 +1218,7 @@ export function TypebotEditor({
     // If we've processed all children in the group without waiting for input,
     // find the next connected group and continue the flow.
     const nextConnection = connectionsRef.current.find(
-      (c) => c.from === group.id && c.buttonIndex === undefined
+      (c: any) => c.from === group.id && c.buttonIndex === undefined
     );
   
     if (nextConnection) {
@@ -1287,7 +1301,7 @@ export function TypebotEditor({
       if (childIndex !== -1 && childIndex + 1 < (parentGroup.children?.length ?? 0)) {
          processGroup(parentGroup, childIndex + 1);
       } else {
-         const nextConnection = connectionsRef.current.find(c => c.from === parentGroup.id);
+         const nextConnection = connectionsRef.current.find((c: any) => c.from === parentGroup.id);
          if (nextConnection?.to) {
            const nextGroup = canvasBlocksRef.current.find(g => g.id === nextConnection.to);
            if (nextGroup) {
@@ -1532,7 +1546,7 @@ export function TypebotEditor({
                   </marker>
                 </defs>
                 <g>
-                  {connections.map((conn, index) => {
+                  {connections.map((conn: CanvasConnection, index: number) => {
                     const fromHandleId =
                       conn.buttonIndex !== undefined
                         ? `output-${conn.from}-${conn.buttonIndex}`
