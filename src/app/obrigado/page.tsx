@@ -26,7 +26,7 @@ export default function ObrigadoPage() {
         
         <div className="aspect-video w-full overflow-hidden rounded-lg shadow-2xl shadow-primary/20 border-2 border-primary/30">
           <ReactPlayer
-            url="https://www.youtube.com/watch?v=hTA0eop-OeM"
+            url="https://www.youtube.com/watch?v=HWjCStB6k4o"
             width="100%"
             height="100%"
             controls={true}
