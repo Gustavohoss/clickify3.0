@@ -136,6 +136,10 @@ export type ButtonItem = {
   text: string;
 }
 
+export type ImageChoice = {
+    imageUrl: string;
+}
+
 export type ComponentProps = {
   [key: string]: any;
   title?: string;
@@ -288,6 +292,9 @@ export type Funnel = {
   backgroundColor?: string;
   headerLogoType?: 'image' | 'emoji';
   headerLogoValue?: string;
+  props?: { [key: string]: any };
+  connections?: CanvasConnection[];
+  variables?: string[];
 };
 
 export type EditorView = 'construtor' | 'fluxo' | 'design' | 'leads' | 'configuracoes';

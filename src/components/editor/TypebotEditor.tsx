@@ -324,6 +324,9 @@ const ThemeSettings = ({ funnel, onUpdate }: { funnel: Funnel, onUpdate: (props:
 
     return (
         <div className="space-y-4 p-4">
+            <h3 className="mb-2 px-1 text-xs font-semibold uppercase text-white/40">
+                Customizar
+            </h3>
             <div>
                 <Label className="text-sm text-white/70">Nome do Header</Label>
                 <Input
@@ -387,7 +390,6 @@ export function TypebotEditor({
     y: number;
     blockId: number | null;
   }>({ visible: false, x: 0, y: 0, blockId: null });
-  const [variables, setVariables] = useState<string[]>([]);
   const [drawingConnection, setDrawingConnection] = useState<any>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewMessages, setPreviewMessages] = useState<PreviewMessage[]>([]);
@@ -1474,11 +1476,11 @@ export function TypebotEditor({
       case 'input-buttons':
         return <ButtonsBlockSettings {...props} />;
       case 'input-text':
-        return <TextBlockSettings {...props} variables={variables} onAddVariable={(v) => setVariables(p => [...p, v])}/>;
+        return <TextBlockSettings {...props} variables={funnel.variables || []} onAddVariable={(v) => updateFunnelState(p => ({...p, variables: [...(p.variables || []), v]}))}/>;
       case 'input-email':
-        return <EmailBlockSettings {...props} variables={variables} onAddVariable={(v) => setVariables(p => [...p, v])}/>;
+        return <EmailBlockSettings {...props} variables={funnel.variables || []} onAddVariable={(v) => updateFunnelState(p => ({...p, variables: [...(p.variables || []), v]}))}/>;
       case 'input-website':
-        return <WebsiteBlockSettings {...props} variables={variables} onAddVariable={(v) => setVariables(p => [...p, v])}/>;
+        return <WebsiteBlockSettings {...props} variables={funnel.variables || []} onAddVariable={(v) => updateFunnelState(p => ({...p, variables: [...(p.variables || []), v]}))}/>;
       case 'input-pic':
         return <ImageChoiceSettings {...props} />;
       default:
@@ -1740,7 +1742,7 @@ export function TypebotEditor({
                       setSelectedBlockId={setSelectedBlockId}
                       dropIndicator={dropIndicator}
                       updateBlockProps={updateBlockProps}
-                      variables={variables}
+                      variables={funnel.variables || []}
                       onConnectionStart={onConnectionStart}
                       selectedBlockId={selectedBlockId}
                     />
@@ -1859,3 +1861,4 @@ export function TypebotEditor({
     </div>
   );
 }
+
