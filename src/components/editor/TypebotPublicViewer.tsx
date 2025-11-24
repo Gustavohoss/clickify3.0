@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -266,12 +265,12 @@ export function TypebotPublicViewer() {
     }
 
     return (
-        <div className="flex h-screen w-screen items-center justify-center bg-[#1d1d1d]">
-            <div className="w-[360px] h-[640px] rounded-2xl shadow-2xl overflow-hidden bg-[#111111] flex flex-col">
-                <ScrollArea className="flex-1 p-4">
-                    <div className="space-y-4">{previewMessages.map(renderPreviewMessage)}</div>
-                </ScrollArea>
-                <div className="p-4 border-t border-[#262626]">
+        <div className="flex h-screen w-screen flex-col bg-[#111111]">
+            <ScrollArea className="flex-1 p-4">
+                <div className="space-y-4 max-w-2xl mx-auto w-full">{previewMessages.map(renderPreviewMessage)}</div>
+            </ScrollArea>
+            <div className="p-4 border-t border-[#262626] bg-[#111111]">
+                <div className="max-w-2xl mx-auto w-full">
                     {waitingForInput?.type === 'input-buttons' ? (
                         <PreviewButtons buttons={waitingForInput.props.buttons || []} onButtonClick={handleUserButtonClick} sender="user" />
                     ) : waitingForInput?.type === 'input-pic' ? (
