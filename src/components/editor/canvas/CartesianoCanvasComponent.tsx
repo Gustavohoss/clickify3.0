@@ -16,32 +16,6 @@ import type { CanvasComponentData, CartesianChartDataPoint } from '../types';
 import { WavingHandIcon } from './WavingHandIcon';
 
 
-const CustomLabel = (props: any) => {
-  const { cx, cy, value, isFeatured } = props;
-  
-  if (!value) return null;
-
-  // Simple approximation for text width
-  const textWidth = value.length * 7;
-  const boxWidth = textWidth + 16;
-  
-  const bgColor = isFeatured ? '#000000' : '#FFFFFF';
-  const textColor = isFeatured ? '#FFFFFF' : '#000000';
-  const borderColor = isFeatured ? '#000000' : '#e5e7eb';
-
-
-  return (
-    <g transform={`translate(${cx - boxWidth / 2}, ${cy - 45})`}>
-      <rect x="0" y="0" width={boxWidth} height="28" rx="8" fill={bgColor} stroke={borderColor} strokeWidth="1" />
-      <text x={boxWidth/2} y="18" textAnchor="middle" fill={textColor} fontSize="12">
-        {value}
-      </text>
-      <path d={`M ${boxWidth/2 - 5} 28 L ${boxWidth/2} 33 L ${boxWidth/2 + 5} 28 Z`} fill={bgColor} stroke={borderColor} strokeWidth="1" />
-    </g>
-  );
-};
-
-
 export const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
   const {
     chartTitle = 'Cartesiano',
@@ -51,6 +25,30 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
     showArea = true,
     showGrid = true,
   } = component.props;
+  
+  const CustomLabel = (props: any) => {
+    const { cx, cy, value, isFeatured } = props;
+    
+    if (!value) return null;
+  
+    const textWidth = value.length * 7;
+    const boxWidth = textWidth + 16;
+    
+    const bgColor = isFeatured ? '#000000' : '#FFFFFF';
+    const textColor = isFeatured ? '#FFFFFF' : '#000000';
+    const borderColor = isFeatured ? '#000000' : '#e5e7eb';
+  
+  
+    return (
+      <g transform={`translate(${cx - boxWidth / 2}, ${cy - 45})`}>
+        <rect x="0" y="0" width={boxWidth} height="28" rx="8" fill={bgColor} stroke={borderColor} strokeWidth="1" />
+        <text x={boxWidth/2} y="18" textAnchor="middle" fill={textColor} fontSize="12">
+          {value}
+        </text>
+        <path d={`M ${boxWidth/2 - 5} 28 L ${boxWidth/2} 33 L ${boxWidth/2 + 5} 28 Z`} fill={bgColor} stroke={borderColor} strokeWidth="1" />
+      </g>
+    );
+  };
 
   if (chartData.length === 0) {
     return (
@@ -104,9 +102,9 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
             strokeWidth={2}
           />
           
-           {chartData.map((point: CartesianChartDataPoint, index: number) => (
+           {chartData.map((point: CartesianChartDataPoint) => (
              <ReferenceDot
-                key={point.id || index}
+                key={`dot-${point.id}`}
                 x={point.name}
                 y={point.value}
                 r={8}
@@ -115,16 +113,18 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
                 strokeWidth={2}
                 ifOverflow="extendDomain"
               >
-                 <Label 
+                {point.indicatorLabel && (
+                  <Label 
                     content={(props) => (
-                        <CustomLabel 
-                            value={point.indicatorLabel} 
-                            isFeatured={point.isFeatured}
-                            {...props} 
-                        />
-                    )} 
-                 />
-              </ReferenceDot>
+                      <CustomLabel
+                        value={point.indicatorLabel}
+                        isFeatured={point.isFeatured}
+                        {...props}
+                      />
+                    )}
+                  />
+                )}
+             </ReferenceDot>
           ))}
         </AreaChart>
       </ResponsiveContainer>
