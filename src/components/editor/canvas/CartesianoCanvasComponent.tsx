@@ -11,25 +11,15 @@ import {
   ResponsiveContainer,
   ReferenceDot,
   Label,
+  Customized,
 } from 'recharts';
 import type { CanvasComponentData, CartesianChartDataPoint } from '../types';
 import { WavingHandIcon } from './WavingHandIcon';
 
-
-export const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
-  const {
-    chartTitle = 'Cartesiano',
-    chartData = [],
-    gradientStartColor = '#000000',
-    gradientEndColor = '#000000',
-    showArea = true,
-    showGrid = true,
-  } = component.props;
-  
-  const CustomLabel = (props: any) => {
+const CustomLabel = (props: any) => {
     const { cx, cy, value, isFeatured } = props;
     
-    if (!value) return null;
+    if (!value || cx === undefined || cy === undefined) return null;
   
     const textWidth = value.length * 7;
     const boxWidth = textWidth + 16;
@@ -37,7 +27,6 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
     const bgColor = isFeatured ? '#000000' : '#FFFFFF';
     const textColor = isFeatured ? '#FFFFFF' : '#000000';
     const borderColor = isFeatured ? '#000000' : '#e5e7eb';
-  
   
     return (
       <g transform={`translate(${cx - boxWidth / 2}, ${cy - 45})`}>
@@ -49,6 +38,17 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
       </g>
     );
   };
+
+
+export const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const {
+    chartTitle = 'Cartesiano',
+    chartData = [],
+    gradientStartColor = '#000000',
+    gradientEndColor = '#000000',
+    showArea = true,
+    showGrid = true,
+  } = component.props;
 
   if (chartData.length === 0) {
     return (
@@ -112,20 +112,44 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
                 stroke={point.isFeatured ? '#000000' : '#A0AEC0'}
                 strokeWidth={2}
                 ifOverflow="extendDomain"
-              >
-                {point.indicatorLabel && (
-                  <Label 
-                    content={(props) => (
-                      <CustomLabel
-                        value={point.indicatorLabel}
-                        isFeatured={point.isFeatured}
-                        {...props}
-                      />
-                    )}
-                  />
-                )}
-             </ReferenceDot>
+              />
           ))}
+
+          <Customized 
+            // A key is needed here to force re-render when data changes
+            key={`customized-labels-${JSON.stringify(chartData)}`}
+            component={(props) => {
+              const { xAxis, yAxis, data } = props;
+              // These checks are important as the props might not be available on first render
+              if (!xAxis || !yAxis || !data) return null;
+
+              const { scale: xScale } = xAxis[0];
+              const { scale: yScale } = yAxis[0];
+
+              return (
+                <g>
+                  {data.map((entry, index) => {
+                    const point = chartData.find(p => p.name === entry.name && p.value === entry.value);
+                    if (!point || !point.indicatorLabel) return null;
+                    
+                    const cx = xScale(entry.name);
+                    const cy = yScale(entry.value);
+
+                    return (
+                        <CustomLabel 
+                          key={`label-${point.id}`}
+                          cx={cx} 
+                          cy={cy}
+                          value={point.indicatorLabel}
+                          isFeatured={point.isFeatured}
+                        />
+                    );
+                  })}
+                </g>
+              );
+            }} 
+          />
+
         </AreaChart>
       </ResponsiveContainer>
     </div>
