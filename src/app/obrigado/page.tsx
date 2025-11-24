@@ -1,13 +1,18 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactPlayer from 'react-player/youtube';
 import { Button } from '@/components/ui/button';
 import { Instagram } from 'lucide-react';
 
 export default function ObrigadoPage() {
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
   const handleFollowClick = () => {
-    // Replace with your actual Instagram profile URL
     window.open('https://instagram.com', '_blank');
   };
 
@@ -21,13 +26,15 @@ export default function ObrigadoPage() {
           Assista ao vídeo abaixo para os próximos passos e não se esqueça de nos seguir.
         </p>
         
-        <div className="aspect-video w-full overflow-hidden rounded-lg shadow-2xl shadow-primary/20 border-2 border-primary/30">
-          <ReactPlayer
-            url="https://www.youtube.com/watch?v=HWjCStB6k4o"
-            width="100%"
-            height="100%"
-            controls={true}
-          />
+        <div className="aspect-video w-full overflow-hidden rounded-lg shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-black">
+          {hasMounted && (
+            <ReactPlayer
+              url="https://www.youtube.com/watch?v=HWjCStB6k4o"
+              width="100%"
+              height="100%"
+              controls={true}
+            />
+          )}
         </div>
 
         <Button 
