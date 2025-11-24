@@ -27,9 +27,12 @@ function FunnelEditorContent() {
   const { data: funnelData, isLoading } = useDoc<Omit<Funnel, 'id'>>(funnelRef);
 
   const [funnel, setFunnel] = useState<Funnel | null>(null);
+  const [permissionChecked, setPermissionChecked] = useState(false);
 
   useEffect(() => {
-    if (funnelData && user) {
+    if (isLoading || !user) return; // Wait for data and user to be available
+
+    if (funnelData) {
       if (funnelData.userId !== user.uid) {
         toast({
             variant: "destructive",
@@ -39,6 +42,7 @@ function FunnelEditorContent() {
         router.push('/dashboard/funis');
         return;
       }
+      
       const initialFunnel: Funnel = {
         id: funnelId,
         ...funnelData,
@@ -46,7 +50,9 @@ function FunnelEditorContent() {
       };
       setFunnel(initialFunnel);
     }
-  }, [funnelData, funnelId, user, router, toast]);
+    setPermissionChecked(true); // Mark permission check as complete
+
+  }, [funnelData, funnelId, user, router, toast, isLoading]);
   
   const debouncedUpdateFunnel = useDebouncedCallback((updatedFunnel: Funnel) => {
     if (funnelRef) {
@@ -87,7 +93,7 @@ function FunnelEditorContent() {
     }
   }, [funnel, debouncedUpdateFunnel]);
 
-  if (isLoading || !funnel || !user) {
+  if (isLoading || !permissionChecked || !funnel || !user) {
     return (
       <div className="flex h-screen items-center justify-center">
         Carregando editor...
