@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -11,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.tsx';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Bot, ArrowRight } from 'lucide-react';
+import { Bot, ArrowRight, ArrowLeft, Video, Phone, MoreHorizontal } from 'lucide-react';
 import Image from 'next/image';
 import { TypingIndicator } from './typebot/ui/TypingIndicator.tsx';
 
@@ -62,16 +61,23 @@ const PreviewImageChoices = ({ choices, onImageClick }: { choices: ImageChoice[]
     );
 };
 
+const WhatsAppCheck = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 16 15" width="16" height="15" className={cn("text-blue-400", className)}>
+        <path fill="currentColor" d="M10.91 3.316l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.516.002l-.41.383a.365.365 0 0 0 .003.512l3.238 3.238a.32.32 0 0 0 .484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"></path>
+        <path fill="currentColor" d="M15.263 3.316l-.478-.372a.365.365 0 0 0-.51.063l-6.272 8.048a.32.32 0 0 1-.484.033l-.78-.78a.365.365 0 0 0-.513.512l1.218 1.218a.32.32 0 0 0 .484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"></path>
+    </svg>
+);
+
 
 const renderPreviewMessage = (message: PreviewMessage) => {
     if (message.sender === 'bot') {
       return (
         <div key={message.id} className="flex items-start gap-3">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="" alt="Bot" />
+            <AvatarImage src="https://s3.typebot.io/public/workspaces/clp160nbo0005l60g3e5x31y6/typebots/clp1615f70007l60gqovfh1m6/blocks/clp163q7o0009l60gnz4vbt41" alt="Bot" />
             <AvatarFallback>B</AvatarFallback>
           </Avatar>
-          <div className="bg-[#2D3748] rounded-lg rounded-tl-none p-3 max-w-[80%] text-white">
+          <div className="bg-[#202c33] rounded-lg rounded-tl-none p-3 max-w-[80%] text-white">
             {message.isTyping ? <TypingIndicator /> : message.content}
           </div>
         </div>
@@ -79,7 +85,7 @@ const renderPreviewMessage = (message: PreviewMessage) => {
     }
     return (
       <div key={message.id} className="flex justify-end">
-        <div className="bg-blue-600 text-white rounded-lg rounded-br-none p-3 max-w-[80%]">
+        <div className="bg-[#005c4b] text-white rounded-lg rounded-br-none p-3 max-w-[80%]">
           <p className="text-sm">{message.content as string}</p>
         </div>
       </div>
@@ -269,15 +275,33 @@ export function TypebotPublicViewer() {
     };
 
     if (isLoading || !funnel) {
-        return <div className="flex h-screen w-screen items-center justify-center bg-[#111111] text-white">Carregando Funil...</div>;
+        return <div className="flex h-screen w-screen items-center justify-center bg-[#111821] text-white">Carregando Funil...</div>;
     }
 
     return (
-        <div className="flex h-screen w-screen flex-col bg-[#111111]">
+        <div className="flex h-screen w-screen flex-col bg-[#111821]">
+            <div className="flex items-center p-2 bg-[#202c33] shrink-0">
+                <Button variant="ghost" size="icon" className="h-10 w-10 text-white"><ArrowLeft /></Button>
+                <Avatar className="h-10 w-10">
+                    <AvatarImage src="https://s3.typebot.io/public/workspaces/clp160nbo0005l60g3e5x31y6/typebots/clp1615f70007l60gqovfh1m6/blocks/clp163q7o0009l60gnz4vbt41" alt="Zé do Black"/>
+                    <AvatarFallback>ZB</AvatarFallback>
+                </Avatar>
+                <div className="ml-3">
+                    <div className="flex items-center gap-1.5">
+                        <p className="font-medium text-white">Zé do Black</p>
+                        <WhatsAppCheck className="w-4 h-3.5" />
+                    </div>
+                    <p className="text-xs text-white/70">Online</p>
+                </div>
+                <div className="flex-grow" />
+                <Button variant="ghost" size="icon" className="h-10 w-10 text-white"><Video /></Button>
+                <Button variant="ghost" size="icon" className="h-10 w-10 text-white"><Phone /></Button>
+                <Button variant="ghost" size="icon" className="h-10 w-10 text-white"><MoreHorizontal /></Button>
+            </div>
             <ScrollArea className="flex-1 p-4">
-                <div className="space-y-4 max-w-2xl mx-auto w-full">{previewMessages.map(renderPreviewMessage)}</div>
+                <div className="space-y-4">{previewMessages.map(renderPreviewMessage)}</div>
             </ScrollArea>
-            <div className="p-4 border-t border-[#262626] bg-[#111111]">
+            <div className="p-4 bg-[#202c33]">
                 <div className="max-w-2xl mx-auto w-full">
                     {waitingForInput?.type === 'input-buttons' ? (
                         <PreviewButtons buttons={waitingForInput.props.buttons || []} onButtonClick={handleUserButtonClick} sender="user" />
