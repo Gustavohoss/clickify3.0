@@ -325,6 +325,31 @@ export function TypebotEditor({
   const [dropIndicator, setDropIndicator] = useState<DropIndicator>(null);
 
   const previewVariablesRef = useRef<{ [key: string]: any }>({});
+  
+  useEffect(() => {
+    if (funnel.steps) {
+      setCanvasBlocks((funnel.steps as CanvasBlock[]).filter(b => b.type)); // Basic validation
+    }
+    if ((funnel as any).connections) {
+      setConnections((funnel as any).connections);
+    }
+  }, [funnel.id]);
+
+  const updateFunnelState = (newBlocks: CanvasBlock[], newConnections: CanvasConnection[]) => {
+    setFunnel(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        steps: newBlocks,
+        connections: newConnections
+      } as Funnel & { connections: CanvasConnection[] };
+    });
+  }
+
+  useEffect(() => {
+    updateFunnelState(canvasBlocks, connections);
+  }, [canvasBlocks, connections]);
+
 
   const addBlock = (type: string) => {
     if (!canvasRef.current) return;
@@ -447,6 +472,13 @@ export function TypebotEditor({
       blockId: block.id,
     });
   };
+
+  const handleDuplicateFromMenu = () => {
+    if(contextMenu.blockId) {
+      duplicateBlock(contextMenu.blockId);
+    }
+    setContextMenu({ visible: false, x: 0, y: 0, blockId: null });
+  }
 
   const handleDeleteFromMenu = () => {
     if (contextMenu.blockId) {
@@ -1554,8 +1586,8 @@ export function TypebotEditor({
             </div>
           </main>
           {activeTab === 'Tema' && (
-            <div className="w-full h-full bg-[#1d1d1d]">
-              <div className="w-full h-full rounded-2xl shadow-2xl overflow-hidden">
+            <div className="w-full h-full bg-[#1d1d1d] flex items-center justify-center p-4">
+              <div className="w-[360px] h-[640px] rounded-2xl shadow-2xl overflow-hidden">
                  <TypebotPreview 
                     previewMessages={previewMessages}
                     waitingForInput={waitingForInput}
@@ -1581,17 +1613,17 @@ export function TypebotEditor({
         )}
       </div>
       {isPreviewOpen && (
-        <div className="fixed inset-y-0 right-0 z-50 w-96 shrink-0 border-l border-[#262626] bg-white flex flex-col shadow-2xl">
-          <div className="flex h-14 items-center justify-between border-b border-gray-200 px-4 shrink-0">
+        <div className="fixed inset-y-0 right-0 z-50 w-96 shrink-0 border-l border-[#262626] bg-[#111111] flex flex-col shadow-2xl">
+          <div className="flex h-14 items-center justify-between border-b border-gray-800 px-4 shrink-0">
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="text-black border-gray-300">
+              <Button variant="outline" size="sm" className="text-white border-gray-700 bg-gray-800 hover:bg-gray-700">
                 <Globe size={14} className="mr-2" />
                 Web
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-gray-600"
+                className="text-gray-400 hover:text-white"
                 onClick={startPreview}
               >
                 <RefreshCw size={14} className="mr-2" />
@@ -1623,6 +1655,7 @@ export function TypebotEditor({
     </div>
   );
 }
+
 
 
 
