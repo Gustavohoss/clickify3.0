@@ -74,7 +74,7 @@ const WhatsAppCheck = ({ className }: { className?: string }) => (
 const renderPreviewMessage = (message: PreviewMessage) => {
     if (message.sender === 'bot') {
       return (
-        <div key={message.id + Math.random()} className="flex items-start gap-3">
+        <div key={message.id} className="flex items-start gap-3">
           <Avatar className="h-8 w-8">
             <AvatarImage src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/e8vsn1pelzr1o22gyvomkn6l?v=1763544631191" alt="Bot" />
             <AvatarFallback>C</AvatarFallback>
@@ -86,7 +86,7 @@ const renderPreviewMessage = (message: PreviewMessage) => {
       );
     }
     return (
-      <div key={message.id + Math.random()} className="flex justify-end">
+      <div key={message.id} className="flex justify-end">
         <div className="bg-[#005c4b] text-white rounded-lg rounded-br-none p-3 max-w-[80%]">
           <p className="text-sm">{message.content as string}</p>
         </div>
