@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -11,6 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceDot,
+  Label,
 } from 'recharts';
 import type { CanvasComponentData, CartesianChartDataPoint } from '../types';
 import { WavingHandIcon } from './WavingHandIcon';
@@ -103,26 +103,28 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
             fill={showArea ? `url(#colorGradient-${uniqueId})` : 'transparent'}
             strokeWidth={2}
           />
-
-          {chartData.map((point: CartesianChartDataPoint, index: number) => (
-            <ReferenceDot
-              key={`${index}-${point.id}`}
-              x={point.name}
-              y={point.value}
-              r={8}
-              fill="#FFFFFF"
-              stroke={point.isFeatured ? '#000000' : '#A0AEC0'}
-              strokeWidth={2}
-              ifOverflow="extendDomain"
-              label={({ cx, cy }) => (
-                <CustomLabel
-                  cx={cx}
-                  cy={cy}
-                  value={point.indicatorLabel}
-                  isFeatured={point.isFeatured}
-                />
-              )}
-            />
+          
+           {chartData.map((point: CartesianChartDataPoint, index: number) => (
+             <ReferenceDot
+                key={point.id || index}
+                x={point.name}
+                y={point.value}
+                r={8}
+                fill="#FFFFFF"
+                stroke={point.isFeatured ? '#000000' : '#A0AEC0'}
+                strokeWidth={2}
+                ifOverflow="extendDomain"
+              >
+                 <Label 
+                    content={(props) => (
+                        <CustomLabel 
+                            value={point.indicatorLabel} 
+                            isFeatured={point.isFeatured}
+                            {...props} 
+                        />
+                    )} 
+                 />
+              </ReferenceDot>
           ))}
         </AreaChart>
       </ResponsiveContainer>
