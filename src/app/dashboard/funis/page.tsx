@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -20,6 +21,7 @@ import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebas
 import { collection, query, where, doc, deleteDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { Badge } from '@/components/ui/badge';
 
 
 export default function FunisPage() {
@@ -118,12 +120,20 @@ export default function FunisPage() {
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-              <Link href={`/editor/${funnel.id}`} className="flex-grow">
+              <Link href={`/editor/${funnel.id}`} className="flex-grow flex flex-col">
                 <CardHeader>
                   <CardTitle>{funnel.name}</CardTitle>
-                  <CardDescription>{funnel.type}</CardDescription>
+                  <CardDescription className="flex items-center gap-2">
+                    <span>{funnel.type}</span>
+                    <span className="text-gray-500">•</span>
+                    {funnel.isPublished ? (
+                        <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Publicado</Badge>
+                    ) : (
+                        <Badge variant="secondary">Rascunho</Badge>
+                    )}
+                  </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex-grow">
                   <p className="text-sm text-muted-foreground">
                     Etapas: {funnel.steps?.length || 0}
                   </p>
