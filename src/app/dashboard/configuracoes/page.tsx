@@ -10,7 +10,7 @@ import { Webhook, PlusCircle, Copy, Trash2, Info } from 'lucide-react';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { collection, addDoc, deleteDoc, doc, query, where, updateDoc } from 'firebase/firestore';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type Gateway = {
@@ -40,12 +40,19 @@ export default function ConfiguracoesPage() {
 
   const handleAddGateway = async () => {
     if (newGatewayName.trim() && user && firestore) {
-      const newId = new Date().toISOString(); // Simple unique ID
-      const newWebhookUrl = `https://api.clickify.com/webhook/${user.uid}/${newId}`;
-
       try {
         const webhooksCol = collection(firestore, 'users', user.uid, 'webhooks');
-        await addDoc(webhooksCol, {
+        
+        // 1. Create a document first to get a unique ID
+        const newWebhookRef = doc(webhooksCol);
+        const newId = newWebhookRef.id;
+
+        // 2. Build the correct URL with the new ID
+        const newWebhookUrl = `${window.location.origin}/api/webhook/${user.uid}/${newId}`;
+        
+        // 3. Set the document data with the correct URL
+        await setDoc(newWebhookRef, {
+          id: newId,
           name: newGatewayName.trim(),
           webhookUrl: newWebhookUrl,
           userId: user.uid,
