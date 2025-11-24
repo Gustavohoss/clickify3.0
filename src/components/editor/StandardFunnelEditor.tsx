@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -620,7 +621,6 @@ export function StandardFunnelEditor({
     { id: 'construtor', label: 'Construtor', icon: <Wand2 /> },
     { id: 'fluxo', label: 'Fluxo', icon: <Combine /> },
     { id: 'design', label: 'Design', icon: <Brush /> },
-    { id: 'leads', label: 'Leads', icon: <Users /> },
     { id: 'configuracoes', label: 'Configurações', icon: <Settings /> },
   ];
   
