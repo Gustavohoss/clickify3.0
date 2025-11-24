@@ -224,7 +224,7 @@ type EditorTab = 'Fluxo' | 'Tema' | 'Compartilhar';
 const renderPreviewMessage = (message: PreviewMessage) => {
     if (message.sender === 'bot') {
       return (
-        <div key={message.id + Math.random()} className="flex items-start gap-3">
+        <div key={message.id} className="flex items-start gap-3">
           <Avatar className="h-8 w-8">
             <AvatarImage src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/e8vsn1pelzr1o22gyvomkn6l?v=1763544631191" alt="Bot" />
             <AvatarFallback>C</AvatarFallback>
@@ -236,7 +236,7 @@ const renderPreviewMessage = (message: PreviewMessage) => {
       );
     }
     return (
-      <div key={message.id + Math.random()} className="flex justify-end">
+      <div key={message.id} className="flex justify-end">
         <div className="bg-[#005c4b] text-white rounded-lg rounded-br-none p-3 max-w-[80%]">
           <p className="text-sm">{message.content as string}</p>
         </div>
@@ -398,8 +398,44 @@ export function TypebotEditor({
     number | 'start' | null
   >(null);
   const [userInput, setUserInput] = useState('');
+  
+  const [history, setHistory] = useState<{ past: Funnel[]; future: Funnel[] }>({ past: [], future: [] });
+  const funnel = initialFunnel;
 
-  const [funnel, setFunnel] = useState<Funnel>(initialFunnel);
+  const setFunnel = (updater: Funnel | ((prev: Funnel) => Funnel)) => {
+    const newFunnel = typeof updater === 'function' ? updater(funnel) : updater;
+    if (JSON.stringify(newFunnel) !== JSON.stringify(funnel)) {
+      setHistory(prev => ({
+        ...prev,
+        past: [...prev.past, funnel],
+        future: [],
+      }));
+      setFunnelProp(() => newFunnel);
+    }
+  };
+
+  const undo = useCallback(() => {
+    if (history.past.length === 0) return;
+    const previous = history.past[history.past.length - 1];
+    const newPast = history.past.slice(0, history.past.length - 1);
+    setHistory({
+      past: newPast,
+      future: [funnel, ...history.future],
+    });
+    setFunnelProp(() => previous);
+  }, [history, funnel, setFunnelProp]);
+
+  const redo = useCallback(() => {
+    if (history.future.length === 0) return;
+    const next = history.future[0];
+    const newFuture = history.future.slice(1);
+    setHistory({
+      past: [...history.past, funnel],
+      future: newFuture,
+    });
+    setFunnelProp(() => next);
+  }, [history, funnel, setFunnelProp]);
+
   
   const [waitingForInput, setWaitingForInput] = useState<CanvasBlock | null>(
     null
@@ -424,7 +460,9 @@ export function TypebotEditor({
   const previewVariablesRef = useRef<{ [key: string]: any }>({});
   
   useEffect(() => {
-    debouncedUpdateFunnel(funnel);
+    if(funnel) {
+      debouncedUpdateFunnel(funnel);
+    }
   }, [funnel, debouncedUpdateFunnel]);
 
   const updateFunnelState = (updater: (prev: Funnel) => Funnel) => {
@@ -1510,6 +1548,8 @@ export function TypebotEditor({
               variant="ghost"
               size="icon"
               className="h-8 w-8 hover:bg-[#262626]"
+              onClick={undo}
+              disabled={history.past.length === 0}
             >
               <Undo2 size={16} />
             </Button>
@@ -1517,6 +1557,8 @@ export function TypebotEditor({
               variant="ghost"
               size="icon"
               className="h-8 w-8 hover:bg-[#262626]"
+              onClick={redo}
+              disabled={history.future.length === 0}
             >
               <Redo2 size={16} />
             </Button>
@@ -1863,4 +1905,5 @@ export function TypebotEditor({
     </div>
   );
 }
+
 
