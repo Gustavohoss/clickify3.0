@@ -402,7 +402,7 @@ export function TypebotEditor({
   const [history, setHistory] = useState<{ past: Funnel[]; future: Funnel[] }>({ past: [], future: [] });
   const funnel = initialFunnel;
 
-  const setFunnel = (updater: Funnel | ((prev: Funnel) => Funnel)) => {
+  const setFunnel = useCallback((updater: Funnel | ((prev: Funnel) => Funnel)) => {
     const newFunnel = typeof updater === 'function' ? updater(funnel) : updater;
     if (JSON.stringify(newFunnel) !== JSON.stringify(funnel)) {
       setHistory(prev => ({
@@ -412,7 +412,7 @@ export function TypebotEditor({
       }));
       setFunnelProp(() => newFunnel);
     }
-  };
+  }, [funnel, setFunnelProp]);
 
   const undo = useCallback(() => {
     if (history.past.length === 0) return;
@@ -509,25 +509,7 @@ export function TypebotEditor({
                 children: [childBlock],
                 props: {},
             };
-
             newBlocks.push(groupBlock);
-
-            const lastGroup = newBlocks.filter(b => b.type === 'group' && b.id !== groupBlockId).pop();
-            if (lastGroup) {
-              const fromId = lastGroup.children && lastGroup.children.length > 0 && lastGroup.children.slice(-1)[0].type.startsWith('input-') 
-                ? lastGroup.id 
-                : lastGroup.id;
-                
-              const existingConnection = newConnections.find(c => c.from === fromId);
-              if (!existingConnection) {
-                 newConnections.push({ from: fromId, to: groupBlockId });
-              }
-            } else {
-                const startConnection = newConnections.find(c => c.from === 'start');
-                if(!startConnection) {
-                    newConnections.push({ from: 'start', to: groupBlockId });
-                }
-            }
         }
         return {...prev, steps: newBlocks, connections: newConnections};
     });
@@ -1905,5 +1887,6 @@ export function TypebotEditor({
     </div>
   );
 }
+
 
 
