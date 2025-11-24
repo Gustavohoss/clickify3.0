@@ -586,7 +586,7 @@ export function TypebotEditor({
                      ...(prev.connections || []).filter((c: any) => c.from !== blockId),
                      { from: blockId, to: newProps.targetGroupId }
                  ]
-             }));
+             }), true);
            }
           return newBlock;
         }
@@ -596,7 +596,7 @@ export function TypebotEditor({
         return block;
       });
     };
-    updateFunnelState(prev => ({...prev, steps: updateRecursively((prev.steps as CanvasBlock[]))}));
+    updateFunnelState(prev => ({...prev, steps: updateRecursively((prev.steps as CanvasBlock[]))}), true);
   };
   
   const updateFunnelProps = (newProps: any) => {
@@ -1058,9 +1058,14 @@ export function TypebotEditor({
       const dropY = (e.clientY - canvasRect.top) / zoom;
 
       let foundTarget = false;
-
+      const draggedBlock = findBlock(draggingState.blockId, canvasBlocks);
+      
       for (const block of canvasBlocks) {
-        if (block.type === 'group' && block.id !== draggingState.blockId) {
+        if (
+          block.type === 'group' &&
+          block.id !== draggingState.blockId &&
+          draggedBlock?.type !== 'group' // Prevent dropping a group into another group
+        ) {
           const groupEl = document.getElementById(`block-${block.id}`);
           if (!groupEl) continue;
 
@@ -1884,6 +1889,7 @@ export function TypebotEditor({
     </div>
   );
 }
+
 
 
 
