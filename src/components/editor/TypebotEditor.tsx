@@ -142,9 +142,9 @@ type PreviewMessage = {
   content: React.ReactNode;
 };
 
-const PreviewButtons = ({ buttons, onButtonClick }: { buttons: ButtonItem[], onButtonClick: (buttonIndex: number) => void }) => {
+const PreviewButtons = ({ buttons, onButtonClick, sender }: { buttons: ButtonItem[], onButtonClick: (buttonIndex: number) => void, sender: 'bot' | 'user' }) => {
     return (
-        <div className="flex justify-end gap-2 my-2 flex-wrap">
+        <div className={cn("flex gap-2 my-2 flex-wrap", sender === 'user' ? 'justify-end' : 'justify-start')}>
             {buttons.map((button, index) => (
                 <Button 
                     key={index}
@@ -192,7 +192,7 @@ const renderPreviewMessage = (message: PreviewMessage) => {
             <AvatarImage src="" alt="Bot" />
             <AvatarFallback>B</AvatarFallback>
           </Avatar>
-          <div className="bg-gray-100 rounded-lg rounded-tl-none p-3 max-w-[80%] text-black">
+          <div className="bg-[#2D3748] rounded-lg rounded-tl-none p-3 max-w-[80%] text-white">
             {message.content}
           </div>
         </div>
@@ -217,15 +217,16 @@ const TypebotPreview = memo(function TypebotPreview({
     handleUserInput
 }: any) {
     return (
-        <div className="w-full h-full bg-white flex flex-col">
+        <div className="w-full h-full bg-[#111111] flex flex-col">
             <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4">{previewMessages.map(renderPreviewMessage)}</div>
             </ScrollArea>
-            <div className="border-t border-gray-200 p-4">
+            <div className="p-4">
                 {waitingForInput?.type === 'input-buttons' ? (
                     <PreviewButtons
                         buttons={waitingForInput.props.buttons || []}
                         onButtonClick={handleUserButtonClick}
+                        sender="user"
                     />
                 ) : waitingForInput?.type === 'input-pic' ? (
                     <PreviewImageChoices
@@ -238,11 +239,11 @@ const TypebotPreview = memo(function TypebotPreview({
                             e.preventDefault();
                             handleUserInput();
                         }}
-                        className="relative"
+                        className="flex items-center gap-2"
                     >
                         <Input
                             placeholder="Digite sua resposta..."
-                            className="bg-white text-black border-gray-300 pr-12"
+                            className="bg-[#2D3748] text-white border-[#3f3f46] focus:border-green-500 focus-visible:ring-0 placeholder:text-gray-500"
                             value={userInput}
                             onChange={(e) => setUserInput(e.target.value)}
                             disabled={!waitingForInput}
@@ -250,7 +251,7 @@ const TypebotPreview = memo(function TypebotPreview({
                         <Button
                             type="submit"
                             size="icon"
-                            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 bg-orange-500 hover:bg-orange-600"
+                            className="h-10 w-10 bg-green-500 hover:bg-green-600 flex-shrink-0"
                             disabled={!waitingForInput}
                         >
                             <ArrowRight size={16} className="text-white" />
@@ -258,8 +259,8 @@ const TypebotPreview = memo(function TypebotPreview({
                     </form>
                 )}
                 <div className="text-center mt-3">
-                    <Button variant="link" size="sm" className="text-gray-400">
-                        Feito com Typebot
+                    <Button variant="link" size="sm" className="text-gray-600 hover:no-underline">
+                       <Bot size={14} className="mr-2"/> Feito com Typebot
                     </Button>
                 </div>
             </div>
@@ -445,13 +446,6 @@ export function TypebotEditor({
       y: y,
       blockId: block.id,
     });
-  };
-
-  const handleDuplicateFromMenu = () => {
-    if (contextMenu.blockId) {
-      duplicateBlock(contextMenu.blockId);
-    }
-    setContextMenu({ visible: false, x: 0, y: 0, blockId: null });
   };
 
   const handleDeleteFromMenu = () => {
@@ -1142,7 +1136,6 @@ export function TypebotEditor({
         if (child.props?.duration) {
           await new Promise(resolve => setTimeout(resolve, child.props.duration * 1000));
         }
-        // Don't render a message for a wait block
         continue;
       }
   
@@ -1240,9 +1233,17 @@ export function TypebotEditor({
 
     if (parentGroup) {
       const childIndex = parentGroup.children?.findIndex(c => c.id === lastInputBlockId) ?? -1;
-      processFlow(parentGroup.id, childIndex);
-    } else {
-       processFlow(lastInputBlockId, 0);
+      if (childIndex !== -1 && childIndex + 1 < (parentGroup.children?.length ?? 0)) {
+         processGroup(parentGroup, childIndex + 1);
+      } else {
+         const nextConnection = connectionsRef.current.find(c => c.from === parentGroup.id);
+         if (nextConnection?.to) {
+           const nextGroup = canvasBlocksRef.current.find(g => g.id === nextConnection.to);
+           if (nextGroup) {
+             processGroup(nextGroup, 0);
+           }
+         }
+      }
     }
   };
 
@@ -1553,8 +1554,8 @@ export function TypebotEditor({
             </div>
           </main>
           {activeTab === 'Tema' && (
-            <div className="w-full h-full p-8 bg-[#1d1d1d]">
-              <div className="w-full h-full rounded-2xl shadow-2xl overflow-hidden border-8 border-black">
+            <div className="w-full h-full bg-[#1d1d1d]">
+              <div className="w-full h-full rounded-2xl shadow-2xl overflow-hidden">
                  <TypebotPreview 
                     previewMessages={previewMessages}
                     waitingForInput={waitingForInput}
@@ -1622,6 +1623,7 @@ export function TypebotEditor({
     </div>
   );
 }
+
 
 
 
