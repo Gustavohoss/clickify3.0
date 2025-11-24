@@ -3,12 +3,9 @@
 import React from 'react';
 import ReactPlayer from 'react-player/youtube';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
 import { Instagram } from 'lucide-react';
 
 export default function ObrigadoPage() {
-  const router = useRouter();
-
   const handleFollowClick = () => {
     // Replace with your actual Instagram profile URL
     window.open('https://instagram.com', '_blank');
