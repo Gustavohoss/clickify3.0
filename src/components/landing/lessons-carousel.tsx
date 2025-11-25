@@ -1,9 +1,8 @@
+
 'use client';
 
 import React from 'react';
 import Image from 'next/image';
-import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay';
 import { cn } from '@/lib/utils';
 
 const lessons = [
@@ -25,9 +24,7 @@ const lessons = [
 ];
 
 export const LessonsCarousel = () => {
-  const [emblaRef] = useEmblaCarousel({ loop: true, align: 'start' }, [
-    Autoplay({ delay: 2000, stopOnInteraction: false, stopOnMouseEnter: true }),
-  ]);
+  const duplicatedLessons = [...lessons, ...lessons];
 
   return (
     <section className="relative py-20 overflow-hidden">
@@ -35,20 +32,34 @@ export const LessonsCarousel = () => {
         <h1 className="md:text-5xl text-3xl lg:text-6xl text-white font-body mb-10" style={{ textShadow: '0 0 8px hsla(var(--primary), 0.5)' }}>
           Aulas <span className="text-primary">premium</span> e <span className="text-primary"> exclusivas! </span>
         </h1>
-        <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex -ml-4">
-            {[...lessons, ...lessons, ...lessons, ...lessons].map((lesson, index) => (
-              <div key={`${lesson.id}-${index}`} className="relative flex-[0_0_200px] pl-4">
+        <div
+          className="w-full inline-flex flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-200px),transparent_100%)]">
+          <ul className="flex items-center justify-center md:justify-start [&_li]:mx-4 [&_img]:max-w-none animate-infinite-scroll">
+            {duplicatedLessons.map((lesson, index) => (
+              <li key={`${lesson.id}-${index}`}>
                 <Image
                   src={lesson.imageUrl}
                   alt={lesson.description}
-                  width={200}
-                  height={300}
-                  className={cn("rounded-xl object-cover h-[300px]")}
+                  width={150}
+                  height={225}
+                  className={cn("rounded-xl object-cover h-[225px] w-[150px]")}
                 />
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
+           <ul className="flex items-center justify-center md:justify-start [&_li]:mx-4 [&_img]:max-w-none animate-infinite-scroll" aria-hidden="true">
+            {duplicatedLessons.map((lesson, index) => (
+              <li key={`${lesson.id}-clone-${index}`}>
+                <Image
+                  src={lesson.imageUrl}
+                  alt={lesson.description}
+                  width={150}
+                  height={225}
+                  className={cn("rounded-xl object-cover h-[225px] w-[150px]")}
+                />
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>
