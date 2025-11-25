@@ -7,7 +7,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Clickify',
-  description: 'Crie seu produto, monte seu funil e construa sua presença online em minutos com a ajuda da IA.',
+  description: 'Monte seu funil e construa sua presença online em minutos com a ajuda da Clickify.',
   icons: {
     icon: 'https://s3.typebot.io/public/workspaces/cmid1t4zs0000ic0473zbqapx/typebots/cmid1tdnt0004l804cklj945q/blocks/poqi4kahp3t4knz7kheug2ps?v=1763985732213',
   },
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     description: 'Crie seu produto, monte seu funil e construa sua presença online em minutos com a ajuda da IA.',
     images: [
       {
-        url: 'https://picsum.photos/seed/og-image/1200/630',
+        url: 'https://s3.typebot.io/public/workspaces/cmid1t4zs0000ic0473zbqapx/typebots/cmid1tdnt0004l804cklj945q/blocks/poqi4kahp3t4knz7kheug2ps?v=1763985732213',
         width: 1200,
         height: 630,
         alt: 'Clickify Mockup',
