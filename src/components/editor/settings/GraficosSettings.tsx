@@ -32,6 +32,7 @@ export const GraficosSettings = ({
   const handleAddItem = () => {
     const newItem: GraficosItem = {
       id: Date.now(),
+      title: `Título ${graficosItems.length + 1}`,
       label: `Item ${graficosItems.length + 1}`,
       value: Math.floor(Math.random() * 100),
     };
@@ -64,22 +65,30 @@ export const GraficosSettings = ({
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <div className="grid grid-cols-2 gap-2 pt-8">
+                <div className="space-y-2 pt-8">
                   <Input
-                    value={item.label}
-                    onChange={(e) => handleUpdateItem(item.id, 'label', e.target.value)}
+                    value={item.title || ''}
+                    onChange={(e) => handleUpdateItem(item.id, 'title', e.target.value)}
                     className="h-9"
-                    placeholder="Rótulo"
+                    placeholder="Título"
                   />
-                  <Input
-                    type="number"
-                    value={item.value}
-                    onChange={(e) => handleUpdateItem(item.id, 'value', Number(e.target.value))}
-                    className="h-9"
-                    placeholder="Valor"
-                    max={100}
-                    min={0}
-                  />
+                   <div className="grid grid-cols-2 gap-2">
+                    <Input
+                      value={item.label}
+                      onChange={(e) => handleUpdateItem(item.id, 'label', e.target.value)}
+                      className="h-9"
+                      placeholder="Rótulo"
+                    />
+                    <Input
+                      type="number"
+                      value={item.value}
+                      onChange={(e) => handleUpdateItem(item.id, 'value', Number(e.target.value))}
+                      className="h-9"
+                      placeholder="Valor"
+                      max={100}
+                      min={0}
+                    />
+                  </div>
                 </div>
               </Card>
             ))}

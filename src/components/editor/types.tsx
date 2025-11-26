@@ -99,6 +99,7 @@ export type FaqItem = {
 
 export type GraficosItem = {
   id: number;
+  title?: string;
   label: string;
   value: number;
 };
@@ -129,6 +130,7 @@ export type OpcaoItem = {
   iconType?: 'emoji' | 'image';
   icon: string;
   imageUrl?: string;
+  imageSize?: 'small' | 'medium' | 'large';
   text: string;
 };
 
@@ -228,6 +230,7 @@ export type ComponentProps = {
   imageUrl?: string;
   altText?: string;
   borderRadius?: 'none' | 'sm' | 'md' | 'lg' | 'full';
+  imageSize?: 'small' | 'medium' | 'large' | 'full';
   listItems?: ListItem[];
   lista2Items?: Lista2Item[];
   marquiseItems?: MarquiseItem[];

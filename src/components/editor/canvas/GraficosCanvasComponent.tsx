@@ -42,11 +42,12 @@ export const GraficosCanvasComponent = ({ component }: { component: CanvasCompon
         <div
           key={item.id}
           className={cn(
-            'flex gap-4 p-4',
+            'flex gap-2 p-4',
             dispositionClass,
             disposition === 'top' && 'items-center'
           )}
         >
+          {item.title && <h4 className="text-sm font-semibold text-center mb-1" style={{ color: textColor }}>{item.title}</h4>}
           <div
             className={cn(
               'relative flex justify-end overflow-hidden rounded-lg border',
@@ -75,7 +76,7 @@ export const GraficosCanvasComponent = ({ component }: { component: CanvasCompon
               {item.value}%
             </div>
           </div>
-          <p className="text-center text-sm text-black" style={{ color: textColor }}>
+          <p className="text-center text-sm text-black mt-1" style={{ color: textColor }}>
             {item.label}
           </p>
         </div>
