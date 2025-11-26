@@ -18,7 +18,7 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Milestone, MoreVertical, Trash2, Copy } from 'lucide-react';
+import { PlusCircle, Milestone, MoreVertical, Trash2, Copy, ClipboardCopy } from 'lucide-react';
 import Link from 'next/link';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where, doc, deleteDoc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -134,6 +134,14 @@ export default function FunisPage() {
     }
   }
 
+  const handleCopyCode = (funnelId: string) => {
+    navigator.clipboard.writeText(funnelId);
+    toast({
+      title: 'Código Copiado!',
+      description: 'O código do funil foi copiado para a área de transferência.',
+    });
+  };
+
 
   return (
     <div className="space-y-8">
@@ -204,6 +212,10 @@ export default function FunisPage() {
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => router.push(`/editor/${funnel.id}`)}>
                             Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleCopyCode(funnel.id)}>
+                            <ClipboardCopy className="mr-2 h-4 w-4" />
+                            Copiar Código
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                             className="text-destructive"
