@@ -59,6 +59,7 @@ export const EditableTextBlock = React.memo(
           onMouseDown={(e) => e.stopPropagation()}
           data-placeholder="Digite sua mensagem..."
           className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8 min-h-[20px] [&[data-placeholder]]:before:content-[attr(data-placeholder)] [&[data-placeholder]]:before:text-white/40 [&:not(:empty)]:before:hidden"
+          style={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}
         />
         <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger asChild>
