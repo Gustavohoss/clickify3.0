@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -20,6 +20,17 @@ type ShowcaseFunnelItem = {
   type: 'typebot' | 'quiz';
 };
 
+const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
+  {
+    id: 'hvnSJgleQly13ArWja6f',
+    name: 'TREINO PMT',
+    description: 'Funil de Quiz para produto de emagrecimento.',
+    imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/ujd4w49j8fky7x5q2kdx2y3a?v=1764124317079',
+    type: 'quiz',
+  },
+];
+
+
 export default function VitrineFunisPage() {
   const { user } = useUser();
   const firestore = useFirestore();
@@ -34,7 +45,23 @@ export default function VitrineFunisPage() {
     () => (firestore ? collection(firestore, 'showcaseFunnels') : null),
     [firestore]
   );
-  const { data: showcaseFunnels, isLoading } = useCollection<ShowcaseFunnelItem>(showcaseFunnelsQuery);
+  const { data: dynamicShowcaseFunnels, isLoading } = useCollection<ShowcaseFunnelItem>(showcaseFunnelsQuery);
+
+  const [allFunnels, setAllFunnels] = useState<ShowcaseFunnelItem[]>(staticShowcaseFunnels);
+
+  useEffect(() => {
+    if (dynamicShowcaseFunnels) {
+      const combined = [...staticShowcaseFunnels];
+      const staticIds = new Set(staticShowcaseFunnels.map(p => p.id));
+      dynamicShowcaseFunnels.forEach(df => {
+        if (!staticIds.has(df.id)) {
+          combined.push(df);
+        }
+      });
+      setAllFunnels(combined);
+    }
+  }, [dynamicShowcaseFunnels]);
+
 
   const generateSlug = (name: string) => {
     return name
@@ -110,9 +137,9 @@ export default function VitrineFunisPage() {
 
       {isLoading && <p>Carregando vitrine...</p>}
 
-      {!isLoading && showcaseFunnels && showcaseFunnels.length > 0 ? (
+      {!isLoading && allFunnels && allFunnels.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {showcaseFunnels.map((funnel) => (
+          {allFunnels.map((funnel) => (
             <Card key={funnel.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
               <div className="relative w-full h-48 bg-muted">
                 <Image src={funnel.imageUrl} alt={funnel.name} layout="fill" objectFit="cover" />
