@@ -5,13 +5,14 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Copy, Gift, Milestone } from 'lucide-react';
+import { Copy, Gift, Milestone, Eye } from 'lucide-react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, doc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { staticShowcaseFunnels, type ShowcaseFunnelItem } from '@/lib/showcase-funnels-data';
+import Link from 'next/link';
 
 
 export default function VitrineFunisPage() {
@@ -147,10 +148,16 @@ export default function VitrineFunisPage() {
                 <CardTitle>{funnel.name}</CardTitle>
                 <CardDescription>{funnel.description}</CardDescription>
               </CardHeader>
-              <CardFooter className="mt-auto">
+              <CardFooter className="mt-auto grid grid-cols-2 gap-2">
+                 <Button variant="outline" asChild>
+                    <Link href={`/funil/${generateSlug(funnel.name)}/${funnel.id}`} target="_blank">
+                        <Eye className="mr-2 h-4 w-4" />
+                        Ver Funil
+                    </Link>
+                </Button>
                 <Button className="w-full" onClick={() => openCloneDialog(funnel)}>
                   <Copy className="mr-2 h-4 w-4" />
-                  Clonar Funil
+                  Clonar
                 </Button>
               </CardFooter>
             </Card>
