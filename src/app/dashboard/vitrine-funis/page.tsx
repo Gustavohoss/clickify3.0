@@ -169,7 +169,7 @@ export default function VitrineFunisPage() {
                   Clonar
                 </Button>
                  {funnel.exampleUrl && (
-                  <Button asChild variant="destructive" className="col-span-2">
+                  <Button asChild className="col-span-2">
                     <Link href={funnel.exampleUrl} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="mr-2 h-4 w-4" />
                       Ver exemplo de conteúdo
