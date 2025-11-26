@@ -120,7 +120,9 @@ export type MarquiseItem = {
 
 export type OpcaoItem = {
   id: number;
+  iconType?: 'emoji' | 'image';
   icon: string;
+  imageUrl?: string;
   text: string;
 };
 

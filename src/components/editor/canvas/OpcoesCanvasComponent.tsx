@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -7,6 +6,7 @@ import { ArrowRight, Check } from 'lucide-react';
 import type { CanvasComponentData } from '../types';
 import { WavingHandIcon } from './WavingHandIcon';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 export const OpcoesCanvasComponent = ({ component, onOptionClick }: { component: CanvasComponentData, onOptionClick?: () => void; }) => {
   const {
@@ -75,6 +75,8 @@ export const OpcoesCanvasComponent = ({ component, onOptionClick }: { component:
     <div className={cn('w-full', spacingClasses[spacingStyle])}>
       {opcoesItems.map((item) => {
         const isSelected = selectedItems.includes(item.id);
+        const iconIsImage = item.iconType === 'image' && item.imageUrl;
+
         return (
           <button
             key={item.id}
@@ -87,7 +89,11 @@ export const OpcoesCanvasComponent = ({ component, onOptionClick }: { component:
             )}
             onClick={() => handleClick(item.id)}
           >
-            <span className="mr-3 text-2xl">{item.icon}</span>
+            {iconIsImage ? (
+              <Image src={item.imageUrl!} alt={item.text} width={24} height={24} className="mr-3 rounded-full" />
+            ) : (
+              <span className="mr-3 text-2xl">{item.icon}</span>
+            )}
             <span className="flex-grow font-medium text-black">{item.text}</span>
             {detailStyle === 'seta' && !isSelected && <ArrowRight className="h-5 w-5 text-gray-400" />}
             {detailStyle === 'confirmacao' && (

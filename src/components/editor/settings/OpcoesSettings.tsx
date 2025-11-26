@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Input } from '@/components/ui/input';
@@ -23,7 +22,7 @@ export const OpcoesSettings = ({
   const handleUpdateItem = (
     itemId: number,
     key: keyof OpcaoItem,
-    value: string
+    value: string | undefined
   ) => {
     const newItems = opcoesItems.map((item) =>
       item.id === itemId ? { ...item, [key]: value } : item
@@ -34,6 +33,7 @@ export const OpcoesSettings = ({
   const handleAddItem = () => {
     const newItem: OpcaoItem = {
       id: Date.now(),
+      iconType: 'emoji',
       icon: '💬',
       text: `Opção ${opcoesItems.length + 1}`,
     };
@@ -69,27 +69,56 @@ export const OpcoesSettings = ({
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <div className="grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-2 pt-8">
-                  <UILabel htmlFor={`icon-${item.id}`} className="text-xs">
-                    Ícone
-                  </UILabel>
-                  <Input
-                    id={`icon-${item.id}`}
-                    value={item.icon}
-                    onChange={(e) => handleUpdateItem(item.id, 'icon', e.target.value)}
-                    className="h-8"
-                    maxLength={3}
-                  />
+                <div className="space-y-2 pt-8">
+                  <div>
+                    <UILabel className="text-xs">Tipo de Ícone</UILabel>
+                    <Select
+                      value={item.iconType || 'emoji'}
+                      onValueChange={(value: 'emoji' | 'image') => handleUpdateItem(item.id, 'iconType', value)}
+                    >
+                      <SelectTrigger className="mt-1 h-8"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="emoji">Emoji</SelectItem>
+                        <SelectItem value="image">Imagem</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                  <UILabel htmlFor={`text-${item.id}`} className="text-xs">
-                    Texto
-                  </UILabel>
-                  <Input
-                    id={`text-${item.id}`}
-                    value={item.text}
-                    onChange={(e) => handleUpdateItem(item.id, 'text', e.target.value)}
-                    className="h-8"
-                  />
+                  {(item.iconType === 'emoji' || !item.iconType) && (
+                    <div>
+                      <UILabel htmlFor={`icon-${item.id}`} className="text-xs">Ícone</UILabel>
+                      <Input
+                        id={`icon-${item.id}`}
+                        value={item.icon}
+                        onChange={(e) => handleUpdateItem(item.id, 'icon', e.target.value)}
+                        className="mt-1 h-8"
+                        maxLength={3}
+                      />
+                    </div>
+                  )}
+
+                  {item.iconType === 'image' && (
+                     <div>
+                      <UILabel htmlFor={`imageUrl-${item.id}`} className="text-xs">URL da Imagem</UILabel>
+                      <Input
+                        id={`imageUrl-${item.id}`}
+                        value={item.imageUrl || ''}
+                        onChange={(e) => handleUpdateItem(item.id, 'imageUrl', e.target.value)}
+                        className="mt-1 h-8"
+                        placeholder="https://"
+                      />
+                    </div>
+                  )}
+
+                  <div>
+                    <UILabel htmlFor={`text-${item.id}`} className="text-xs">Texto</UILabel>
+                    <Input
+                      id={`text-${item.id}`}
+                      value={item.text}
+                      onChange={(e) => handleUpdateItem(item.id, 'text', e.target.value)}
+                      className="mt-1 h-8"
+                    />
+                  </div>
                 </div>
               </Card>
             ))}
