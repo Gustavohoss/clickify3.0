@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -115,7 +114,7 @@ export const PreviewCanvasComponent = ({
 };
 
 
-function QuizPreview({ funnel, activeStepId, onNextStep, backgroundColor }: { funnel: Funnel, activeStepId: number | null, onNextStep: () => void, backgroundColor: string }) {
+function QuizPreview({ funnel, activeStepId, onNextStep, backgroundColor, primaryColor }: { funnel: Funnel, activeStepId: number | null, onNextStep: () => void, backgroundColor: string, primaryColor: string }) {
     const steps = funnel.steps as Step[];
     const activeStep = steps.find(step => step.id === activeStepId);
 
@@ -148,7 +147,11 @@ function QuizPreview({ funnel, activeStepId, onNextStep, backgroundColor }: { fu
         >
             <header className="flex flex-col items-center p-4 space-y-4">
               {renderLogo()}
-              <Progress value={progressValue} className="w-full h-2 bg-gray-300" />
+              <Progress 
+                value={progressValue} 
+                className="w-full h-2 bg-gray-300"
+                style={{'--progress-indicator-color': primaryColor} as React.CSSProperties}
+              />
             </header>
             <div className="flex-1 p-4 overflow-y-auto">
                 <div className="flex flex-col gap-4">
@@ -680,6 +683,7 @@ export function StandardFunnelEditor({
                           activeStepId={activeStepId} 
                           onNextStep={handleNextStepPreview}
                           backgroundColor={backgroundColor}
+                          primaryColor={primaryColor}
                         />
                     </DialogContent>
                 </Dialog>
@@ -889,7 +893,11 @@ export function StandardFunnelEditor({
               <div className="mx-auto w-full max-w-sm">
                 <header className="flex flex-col items-center p-4 space-y-4 rounded-t-lg bg-transparent">
                   {renderLogo()}
-                  <Progress value={progressValue} className="w-full mt-4 h-2" />
+                  <Progress 
+                    value={progressValue} 
+                    className="w-full mt-4 h-2" 
+                    style={{'--progress-indicator-color': primaryColor} as React.CSSProperties}
+                  />
                 </header>
               </div>
             )}
