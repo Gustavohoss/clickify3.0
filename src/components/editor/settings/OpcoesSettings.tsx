@@ -78,7 +78,7 @@ export const OpcoesSettings = ({
                     value={item.icon}
                     onChange={(e) => handleUpdateItem(item.id, 'icon', e.target.value)}
                     className="h-8"
-                    maxLength={1}
+                    maxLength={3}
                   />
 
                   <UILabel htmlFor={`text-${item.id}`} className="text-xs">
