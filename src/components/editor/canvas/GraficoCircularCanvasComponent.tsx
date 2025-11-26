@@ -54,7 +54,7 @@ export const GraficoCircularCanvasComponent = ({ component }: { component: Canva
                 fill={textColor}
                 fontSize="36px"
                 fontWeight="bold"
-                dy={10}
+                dominantBaseline="middle"
               />
             </Pie>
           </PieChart>
