@@ -90,9 +90,9 @@ export const OpcoesCanvasComponent = ({ component, onOptionClick }: { component:
             onClick={() => handleClick(item.id)}
           >
             {iconIsImage ? (
-              <Image src={item.imageUrl!} alt={item.text} width={24} height={24} className="mr-3 rounded-full" />
+              <Image src={item.imageUrl!} alt={item.text} width={48} height={48} className="mr-4 rounded-full" />
             ) : (
-              <span className="mr-3 text-2xl">{item.icon}</span>
+              <span className="mr-4 text-4xl">{item.icon}</span>
             )}
             <span className="flex-grow font-medium text-black">{item.text}</span>
             {detailStyle === 'seta' && !isSelected && <ArrowRight className="h-5 w-5 text-gray-400" />}
