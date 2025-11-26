@@ -7,7 +7,7 @@ export const TextoCanvasComponent = ({ component }: { component: CanvasComponent
 
   return (
     <div
-      className="prose prose-sm w-full max-w-none text-black dark:prose-invert lg:prose-base"
+      className="w-full max-w-none text-black"
       dangerouslySetInnerHTML={{ __html: content }}
     />
   );

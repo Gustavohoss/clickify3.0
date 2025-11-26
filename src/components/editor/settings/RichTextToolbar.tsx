@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { ReactNode } from 'react';
@@ -9,7 +8,7 @@ import {
 } from 'lucide-react';
 
 
-export const RichTextToolbar = ({ onFormat }: { onFormat: (command: string, value?: string) => void }) => {
+export const RichTextToolbar = ({ onFormat, currentBlockType }: { onFormat: (command: string, value?: string) => void; currentBlockType: string; }) => {
   const ToolbarButton = ({ icon, command, value }: { icon: ReactNode; command: string; value?: string; }) => (
     <Button
       variant="ghost"
@@ -60,12 +59,12 @@ export const RichTextToolbar = ({ onFormat }: { onFormat: (command: string, valu
 
   return (
     <div className="flex flex-wrap items-center gap-1 rounded-t-md border-b border-white/10 bg-transparent p-1">
-      <Select defaultValue="p" onValueChange={handleFormatBlockChange}>
-        <SelectTrigger 
+      <Select value={currentBlockType} onValueChange={handleFormatBlockChange}>
+        <SelectTrigger
           className="h-7 w-[120px] border-none bg-transparent text-xs text-gray-300 focus:ring-0"
           onMouseDown={(e) => e.preventDefault()}
         >
-          <SelectValue />
+          <SelectValue placeholder="Normal" />
         </SelectTrigger>
         <SelectContent className='bg-gray-800 text-white border-gray-700'>
           <SelectItem value="h1">Heading 1</SelectItem>
