@@ -8,10 +8,11 @@ import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Plus, Trash2, Grip } from 'lucide-react';
+import { Plus, Trash2, Grip, Smile } from 'lucide-react';
 import type { CanvasComponentData, ComponentProps, OpcaoItem } from '../types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import React from 'react';
+import Image from 'next/image';
 
 const emojis = [
   // Smileys & People
@@ -107,6 +108,7 @@ export const OpcoesSettings = ({
   onUpdate: (props: ComponentProps) => void;
 }) => {
   const opcoesItems = component.props.opcoesItems || [];
+  const [isPickerOpen, setIsPickerOpen] = React.useState<number | null>(null);
 
   const handleUpdateItem = (
     itemId: number,
@@ -176,29 +178,41 @@ export const OpcoesSettings = ({
                   {(item.iconType === 'emoji' || !item.iconType) && (
                     <div>
                       <UILabel htmlFor={`icon-${item.id}`} className="text-xs">Ícone</UILabel>
-                       <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" className="w-full justify-start mt-1 h-8 font-normal">
-                            {item.icon || 'Selecione...'}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                            <ScrollArea className="h-72">
-                                <div className="grid grid-cols-8 gap-1 p-2">
-                                    {emojis.map((emoji, index) => (
-                                    <Button
-                                        key={`${emoji}-${index}`}
-                                        variant="ghost"
-                                        className="text-lg p-1 h-8 w-8"
-                                        onClick={() => handleUpdateItem(item.id, 'icon', emoji)}
-                                    >
-                                        {emoji}
-                                    </Button>
-                                    ))}
-                                </div>
-                            </ScrollArea>
-                        </PopoverContent>
-                      </Popover>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Input
+                          id={`icon-${item.id}`}
+                          value={item.icon}
+                          onChange={(e) => handleUpdateItem(item.id, 'icon', e.target.value)}
+                          className="h-8"
+                          maxLength={3}
+                        />
+                        <Popover open={isPickerOpen === item.id} onOpenChange={(open) => setIsPickerOpen(open ? item.id : null)}>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" size="icon" className="h-8 w-8">
+                                    <Smile className="h-4 w-4" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <ScrollArea className="h-72">
+                                    <div className="grid grid-cols-8 gap-1 p-2">
+                                        {emojis.map((emoji, index) => (
+                                        <Button
+                                            key={`${emoji}-${index}`}
+                                            variant="ghost"
+                                            className="text-lg p-1 h-8 w-8"
+                                            onClick={() => {
+                                                handleUpdateItem(item.id, 'icon', emoji)
+                                                setIsPickerOpen(null)
+                                            }}
+                                        >
+                                            {emoji}
+                                        </Button>
+                                        ))}
+                                    </div>
+                                </ScrollArea>
+                            </PopoverContent>
+                        </Popover>
+                      </div>
                     </div>
                   )}
 
