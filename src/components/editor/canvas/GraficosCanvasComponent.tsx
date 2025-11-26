@@ -76,9 +76,16 @@ export const GraficosCanvasComponent = ({ component }: { component: CanvasCompon
               {item.value}%
             </div>
           </div>
-          <p className="text-center text-sm text-black mt-1" style={{ color: textColor }}>
-            {item.label}
-          </p>
+          <div className="text-center mt-1">
+            <p className="text-sm text-black" style={{ color: textColor }}>
+              {item.label}
+            </p>
+            {item.subtitle && (
+              <p className="text-xs" style={{ color: textColor, opacity: 0.7 }}>
+                {item.subtitle}
+              </p>
+            )}
+          </div>
         </div>
       ))}
     </div>

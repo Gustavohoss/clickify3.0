@@ -34,6 +34,7 @@ export const GraficosSettings = ({
       id: Date.now(),
       title: `Título ${graficosItems.length + 1}`,
       label: `Item ${graficosItems.length + 1}`,
+      subtitle: '',
       value: Math.floor(Math.random() * 100),
     };
     onUpdate({ ...component.props, graficosItems: [...graficosItems, newItem] });
@@ -89,6 +90,12 @@ export const GraficosSettings = ({
                       min={0}
                     />
                   </div>
+                   <Input
+                    value={item.subtitle || ''}
+                    onChange={(e) => handleUpdateItem(item.id, 'subtitle', e.target.value)}
+                    className="h-9"
+                    placeholder="Subtítulo (opcional)"
+                  />
                 </div>
               </Card>
             ))}

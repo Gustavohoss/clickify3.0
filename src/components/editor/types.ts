@@ -63,7 +63,9 @@ export type FaqItem = {
 
 export type GraficosItem = {
   id: number;
+  title?: string;
   label: string;
+  subtitle?: string;
   value: number;
 };
 
