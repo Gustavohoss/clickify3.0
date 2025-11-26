@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ReactNode } from 'react';
@@ -343,6 +342,5 @@ export const components: ComponentType[] = [
   { name: 'Preço', icon: <DollarSign />, isNew: true },
   { name: 'Termos', icon: <FileTextIcon />, isNew: true },
   { name: 'Texto', icon: <TextIcon /> },
-  { name: 'Título', icon: <Heading1 /> },
   { name: 'Video', icon: <Video /> },
 ];
