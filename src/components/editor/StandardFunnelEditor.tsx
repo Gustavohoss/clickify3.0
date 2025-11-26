@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -410,11 +411,11 @@ export function StandardFunnelEditor({
 
      if (component.name === 'Lista 2.0') {
       defaultProps = {
-        title: 'Com o Treinos PMT, você terá:',
+        title: 'Com o Funciona?',
         lista2Items: [
-          { id: Date.now() + 1, text: 'Resultados Rápidos e Duradouros' },
-          { id: Date.now() + 2, text: 'Maior Confiança e Autoestima' },
-          { id: Date.now() + 3, text: 'Treinos Adaptáveis ao Seu Estilo de Vida' },
+          { id: Date.now() + 1, text: 'Opção 1' },
+          { id: Date.now() + 2, text: 'Opção 2' },
+          { id: Date.now() + 3, text: 'Opção 3' },
         ],
       };
     }
