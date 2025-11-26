@@ -1243,28 +1243,26 @@ export function TypebotEditor({
   const getBlockPosition = (id: number | null): { x: number; y: number } => {
     const canvasBlocks = (funnel.steps || []) as CanvasBlock[];
     if (id === null || !canvasRef.current) return { x: 0, y: 0 };
-
+  
     const block = findBlock(id, canvasBlocks);
-    if (!block) return {x: 0, y: 0};
-    
+    if (!block) return { x: 0, y: 0 };
+  
     if (block.parentId) {
       const parent = findBlock(block.parentId, canvasBlocks);
-      if (parent) {
-        const blockElement = document.getElementById(`block-${id}`);
-        const parentElement = document.getElementById(`block-${block.parentId}`);
-        if(blockElement && parentElement) {
-            const blockRect = blockElement.getBoundingClientRect();
-            const parentRect = parentElement.getBoundingClientRect();
-             const canvasRect = canvasRef.current.getBoundingClientRect();
-             return {
-                 x: (parentRect.left - canvasRect.left - panOffset.x) / zoom,
-                 y: (blockRect.top - canvasRect.top - panOffset.y) / zoom
-             }
-        }
-        return parent.position;
+      const blockElement = document.getElementById(`block-${id}`);
+      if (parent && blockElement) {
+        const parentRect = document.getElementById(`block-${parent.id}`)!.getBoundingClientRect();
+        const blockRect = blockElement.getBoundingClientRect();
+        const canvasRect = canvasRef.current.getBoundingClientRect();
+  
+        const x = (blockRect.left - canvasRect.left - panOffset.x) / zoom;
+        const y = (blockRect.top - canvasRect.top - panOffset.y) / zoom;
+        
+        return { x: parent.position.x, y: parent.position.y + ((blockRect.top - parentRect.top) / zoom) };
       }
+      return parent?.position || { x: 0, y: 0 };
     }
-
+  
     return block.position;
   };
 
@@ -1889,6 +1887,7 @@ export function TypebotEditor({
     </div>
   );
 }
+
 
 
 
