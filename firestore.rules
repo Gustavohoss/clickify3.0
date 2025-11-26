@@ -80,6 +80,10 @@ service cloud.firestore {
       allow get, list: if isSignedIn();
       allow create, update, delete: if false; // Managed via Firebase Console
     }
+
+    match /showcaseFunnels/{funnelId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if false; // Managed via Firebase Console
+    }
   }
 }
-
