@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -261,7 +260,7 @@ export const CanvasTextBlock = React.memo(
                 <div key={index} className="relative">
                   <Button
                     variant="outline"
-                    className="w-full justify-start bg-[#2a2a2a] border-[#3f3f46] text-white h-8"
+                    className="w-full justify-start bg-[#2a2a2a] border-[#3f3f46] text-white h-auto min-h-8 py-1.5 whitespace-normal"
                   >
                     {button.text}
                   </Button>
