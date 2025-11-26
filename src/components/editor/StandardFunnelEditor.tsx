@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -60,6 +59,7 @@ import { FaqCanvasComponent } from './canvas/FaqCanvasComponent';
 import { GraficosCanvasComponent } from './canvas/GraficosCanvasComponent';
 import { ImagemCanvasComponent } from './canvas/ImagemCanvasComponent';
 import { ListaCanvasComponent } from './canvas/ListaCanvasComponent';
+import { Lista2CanvasComponent } from './canvas/Lista2CanvasComponent';
 import { MarquiseCanvasComponent } from './canvas/MarquiseCanvasComponent';
 import { NivelCanvasComponent } from './canvas/NivelCanvasComponent';
 import { OpcoesCanvasComponent } from './canvas/OpcoesCanvasComponent';
@@ -100,6 +100,7 @@ export const PreviewCanvasComponent = ({
       case 'Gráficos': return <GraficosCanvasComponent component={component} />;
       case 'Imagem': return <ImagemCanvasComponent component={component} />;
       case 'Lista': return <ListaCanvasComponent component={component} />;
+      case 'Lista 2.0': return <Lista2CanvasComponent component={component} />;
       case 'Marquise': return <MarquiseCanvasComponent component={component} />;
       case 'Nível': return <NivelCanvasComponent component={component} />;
       case 'Opções': return <OpcoesCanvasComponent component={component} onOptionClick={onNextStep} />;
@@ -403,6 +404,17 @@ export function StandardFunnelEditor({
           { id: Date.now() + 2, icon: '✅', iconBgColor: '#10B981', title: 'Item 2', subtitle: 'Descrição do item 2' },
           { id: Date.now() + 3, icon: '✅', iconBgColor: '#10B981', title: 'Item 3', subtitle: 'Descrição do item 3' },
           { id: Date.now() + 4, icon: '✅', iconBgColor: '#10B981', title: 'Item 4', subtitle: 'Descrição do item 4' },
+        ],
+      };
+    }
+
+     if (component.name === 'Lista 2.0') {
+      defaultProps = {
+        title: 'Com o Treinos PMT, você terá:',
+        lista2Items: [
+          { id: Date.now() + 1, text: 'Resultados Rápidos e Duradouros' },
+          { id: Date.now() + 2, text: 'Maior Confiança e Autoestima' },
+          { id: Date.now() + 3, text: 'Treinos Adaptáveis ao Seu Estilo de Vida' },
         ],
       };
     }

@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { CanvasComponentData, ComponentProps, Step } from '../types';
@@ -18,6 +17,7 @@ import { FaqSettings } from './FaqSettings';
 import { GraficosSettings } from './GraficosSettings';
 import { ImagemSettings } from './ImagemSettings';
 import { ListaSettings } from './ListaSettings';
+import { Lista2Settings } from './Lista2Settings';
 import { MarquiseSettings } from './MarquiseSettings';
 import { NivelSettings } from './NivelSettings';
 import { OpcoesSettings } from './OpcoesSettings';
@@ -85,6 +85,8 @@ export const ComponentSettings = ({
         return <ImagemSettings component={component} onUpdate={handleUpdate} />;
       case 'Lista':
         return <ListaSettings component={component} onUpdate={handleUpdate} />;
+      case 'Lista 2.0':
+        return <Lista2Settings component={component} onUpdate={handleUpdate} />;
       case 'Marquise':
         return <MarquiseSettings component={component} onUpdate={handleUpdate} />;
       case 'Nível':

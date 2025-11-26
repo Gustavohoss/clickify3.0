@@ -110,6 +110,11 @@ export type ListItem = {
   subtitle: string;
 };
 
+export type Lista2Item = {
+  id: number;
+  text: string;
+};
+
 export type MarquiseItem = {
   id: number;
   name: string;
@@ -223,6 +228,7 @@ export type ComponentProps = {
   altText?: string;
   borderRadius?: 'none' | 'sm' | 'md' | 'lg' | 'full';
   listItems?: ListItem[];
+  lista2Items?: Lista2Item[];
   marquiseItems?: MarquiseItem[];
   speed?: number;
   direction?: 'left' | 'right';
@@ -339,6 +345,7 @@ export const components: ComponentType[] = [
   { name: 'Gráficos', icon: <BarChart2 /> },
   { name: 'Imagem', icon: <ImageIcon /> },
   { name: 'Lista', icon: <ListIcon />, isNew: true },
+  { name: 'Lista 2.0', icon: <ListIcon />, isNew: true },
   { name: 'Marquise', icon: <ChevronsRight />, isNew: true },
   { name: 'Nível', icon: <SlidersHorizontal />, isNew: true },
   { name: 'Opções', icon: <CheckSquare /> },

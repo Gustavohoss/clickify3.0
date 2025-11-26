@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -23,6 +22,7 @@ import { FaqCanvasComponent } from './FaqCanvasComponent';
 import { GraficosCanvasComponent } from './GraficosCanvasComponent';
 import { ImagemCanvasComponent } from './ImagemCanvasComponent';
 import { ListaCanvasComponent } from './ListaCanvasComponent';
+import { Lista2CanvasComponent } from './Lista2CanvasComponent';
 import { MarquiseCanvasComponent } from './MarquiseCanvasComponent';
 import { NivelCanvasComponent } from './NivelCanvasComponent';
 import { OpcoesCanvasComponent } from './OpcoesCanvasComponent';
@@ -88,6 +88,8 @@ export const CanvasComponent = ({
         return <ImagemCanvasComponent component={component} />;
       case 'Lista':
         return <ListaCanvasComponent component={component} />;
+      case 'Lista 2.0':
+        return <Lista2CanvasComponent component={component} />;
       case 'Marquise':
         return <MarquiseCanvasComponent component={component} />;
       case 'Nível':
