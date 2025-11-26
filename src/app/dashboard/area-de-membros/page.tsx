@@ -125,7 +125,7 @@ export default function AreaDeMembrosPage() {
                     <Image src={area.headerImageUrl} alt={area.name} layout="fill" objectFit="cover" />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-muted">
-                      <Image src="https://cdn.xquiz.co/images/16de8a3e-71f4-47ed-9ca0-9598012496c8" alt="Imagem Padrão" layout="fill" objectFit="cover" />
+                      <Image src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/vq3dlad75ysvpgjpvjtqwuxl?v=1764147033314" alt="Imagem Padrão" layout="fill" objectFit="cover" />
                     </div>
                   )}
                 </div>
