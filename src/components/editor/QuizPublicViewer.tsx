@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -17,15 +18,16 @@ export function QuizPublicViewer({ funnel }: { funnel: Funnel }) {
   const progressValue = ((currentIndex + 1) / steps.length) * 100;
   
   const backgroundColor = funnel.backgroundColor || '#FFFFFF';
+  const primaryColor = funnel.primaryColor || '#000000';
 
   const renderLogo = () => {
     if (funnel.headerLogoType === 'emoji') {
-      return <span className="text-4xl">{funnel.headerLogoValue}</span>;
+      return <span className="text-6xl">{funnel.headerLogoValue}</span>;
     }
     if (funnel.headerLogoType === 'image' && funnel.headerLogoValue && (funnel.headerLogoValue.startsWith('http') || funnel.headerLogoValue.startsWith('/'))) {
-      return <Image src={funnel.headerLogoValue} alt="Logo" width={40} height={40} className="rounded-md" />;
+      return <Image src={funnel.headerLogoValue} alt="Logo" width={80} height={80} className="rounded-md" />;
     }
-    return <ImageIcon size={40} className="rounded-md text-gray-400" />;
+    return <ImageIcon size={80} className="rounded-md text-gray-400" />;
   };
   
   const handleNextStep = () => {
@@ -47,7 +49,11 @@ export function QuizPublicViewer({ funnel }: { funnel: Funnel }) {
       <div className="w-full max-w-sm">
         <header className="flex flex-col items-center p-4 space-y-4 rounded-t-lg bg-transparent">
           {renderLogo()}
-          <Progress value={progressValue} className="w-full mt-4 h-2" />
+          <Progress 
+            value={progressValue} 
+            className="w-full mt-4 h-2" 
+            style={{'--progress-indicator-color': primaryColor} as React.CSSProperties}
+          />
         </header>
         <div className="flex flex-col gap-4 p-4">
           {activeStep?.components.map(comp => (
