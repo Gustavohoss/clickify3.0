@@ -82,7 +82,7 @@ export const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
           id: 1764133244127,
           name: "Etapa 7",
           components: [
-            { id: 1764130626940, name: "Texto", props: { content: `<h3 style="text-align: center;">O que lhe motiva a fazer exercício? </h3><div style="text-align: center;">Toque na opção abaixo</div><div> </div><div> </div><div> </div><div> </div>` } },
+            { id: 1764130626940, name: "Texto", props: { content: `<h3 style="text-align: center;">O que lhe motiva a fazer exercício? </h3><div style="text-align: center;">Toque na opção abaixo</div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
             { id: 1764132302121, name: "Opções", props: { shadowStyle: "grande", opcoesItems: [ { id: 1764132302122, icon: "🩺", iconType: "emoji", imageUrl: "https://cdn.xquiz.co/images/ebdb9b66-d726-438f-a07d-839e023ea232", text: "Melhor Saúde " }, { id: 1764132302123, icon: "🛡️", iconType: "emoji", imageUrl: "https://cdn.xquiz.co/images/acac4e7f-5130-44e7-962b-143ba50cf42f", text: "Fortalecimento do Sistema Imunológico " }, { id: 1764132344258, icon: "💁‍", iconType: "emoji", imageUrl: "https://cdn.xquiz.co/images/bfbc5a6d-d7e1-4ba2-a428-45ba73333ca3", text: "Melhorar a Aparência " }, { id: 1764133078244, icon: "💪", iconType: "emoji", imageUrl: "https://cdn.xquiz.co/images/a731f5e2-8941-413e-9f7d-20406be329a7", text: "Aumentar sua Força e Resistência " }, { id: 1764133286612, icon: "🔥", iconType: "emoji", text: "Aumentar sua Libido" } ] } }
           ]
         },
@@ -197,7 +197,7 @@ export const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
           id: 1764137107989,
           name: "Etapa 21",
           components: [
-            { id: 1764130626940, name: "Texto", props: { content: `<h3 style="text-align: center;">O que é o Treinos PMT? </h3><div style="text-align: center;">O Treinos PMT é o seu passaporte para alcançar o corpo dos seus sonhos! Este protocolo de treinos foi cuidadosamente elaborado para atender as necessidades únicas de cada mulher, proporcionando uma experiência de treino totalmente personalizada e eficaz. </div><div style="text-align: center;"><br></div><div style="text-align: center;">Como Funciona: Avaliação Personalizada; Entendemos suas metas, nível de condicionamento físico e preferências para criar um plano de treino exclusivo. </div><div style="text-align: center;"><br></div><div style="text-align: center;">Treinos Únicos: Cada sessão é desenhada para maximizar resultados, combinando exercícios inovadores e tradicionais que se ajustam ao seu ritmo e estilo de vida. </div><div style="text-align: center;"><br></div><div style="text-align: center;">Resultados Visíveis: Com consistência e dedicação, você verá e sentirá a transformação no seu corpo e autoestima.</div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
+            { id: 1764130626940, name: "Texto", props: { content: `<h3 style="text-align: center;">O que é o Treinos PMT? </h3><div style="text-align: center;">O Treinos PMT é o seu passaporte para alcançar o corpo dos seus sonhos! Este protocolo de treinos foi cuidadosamente elaborado para atender as necessidades únicas de cada mulher, proporcionando uma experiência de treino totalmente personalizada e eficaz. </div><div style="text-align: center;"><br></div><div style="text-align: center;">Como Funciona: Avaliação Personalizada; Entendemos suas metas, nível de condicionamento físico e preferências para criar um plano de treino exclusivo. </div><div style="text-align: center;"><br></div><div style="text-align: center;">Treinos Únicos: Cada sessão é desenhada para maximizar resultados, combinando exercícios inovadores e tradicionais que se ajustam ao seu ritmo e estilo de vida. </div><div style="text-align: center;"><br></div><div style="text-align: center;">Resultados Visíveis: Com consistência e dedicação, você verá e sentirá a transformação no seu corpo e autoestima.</div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
             { id: 1764137218908, name: "Texto", props: { content: `<h3 style="text-align: center;">Por que devo seguir o Treinos PMT? </h3><div style="text-align: center;">Nosso protocolo de Treinos vai além dos treinos comuns. Ele é uma jornada de autodescoberta e empoderamento, onde cada mulher é guiada para alcançar o seu máximo potencial físico.</div><div> </div>` } },
             { id: 1764138072103, name: "Lista 2.0", isNew: true, props: { title: "Com o Treinos PMT, você terá:", lista2Items: [ { id: 1764138072104, text: "Resultados Rápidos e Duradouros" }, { id: 1764138072105, text: "Maior Confiança e Autoestima" }, { id: 1764138072106, text: "Treinos Adaptáveis ao Seu Estilo de Vida" } ] } },
             { id: 1764138274477, name: "Imagem", props: { imageUrl: "https://cdn.xquiz.co/images/0c18d317-76da-4c04-a9ec-04d3f0d78e02" } },
@@ -244,7 +244,7 @@ export const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
           id: 1764139607613,
           name: "Etapa 26",
           components: [
-            { id: 1764139520183, name: "Texto", props: { content: `<h3 style="text-align: center;">Quanto você anda diariamente? </h3><div style="text-align: center;">Toque na opção abaixo </div><div style="text-align: center;">Menos de 30 minutos </div><div style="text-align: center;">Menos de 1 hora </div><div style="text-align: center;">Mais de 1 hora</div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
+            { id: 1764139520183, name: "Texto", props: { content: `<h3 style="text-align: center;">Quanto você anda diariamente? </h3><div style="text-align: center;">Toque na opção abaixo </div><div style="text-align: center;">Menos de 30 minutos </div><div style="text-align: center;">Menos de 1 hora </div><div style="text-align: center;">Mais de 1 hora</div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
             { id: 1764139558313, name: "Opções", props: { shadowStyle: "grande", opcoesItems: [ { id: 1764139558314, icon: "", iconType: "emoji", text: "Menos de 30 minutos" }, { id: 1764139558315, icon: "", iconType: "emoji", text: "Menos de 1 hora" }, { id: 1764139564261, icon: "", iconType: "emoji", text: "Mais de 1 hora" } ] } }
           ]
         },
@@ -268,7 +268,7 @@ export const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
           id: 1764139901943,
           name: "Etapa 29",
           components: [
-            { id: 1764139520183, name: "Texto", props: { content: `<h3 style="text-align: center;">Seu Protocolo de Treinos Personalizados está quase pronto... </h3><div style="text-align: center;">Mas antes, me diga qual é a sua altura?</div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
+            { id: 1764139520183, name: "Texto", props: { content: `<h3 style="text-align: center;">Seu Protocolo de Treinos Personalizados está quase pronto... </h3><div style="text-align: center;">Mas antes, me diga qual é a sua altura?</div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
             { id: 1764139558313, name: "Opções", props: { shadowStyle: "grande", opcoesItems: [ { id: 1764139948318, icon: "", iconType: "emoji", text: "Menos de 1 metro" }, { id: 1764139948796, icon: "", iconType: "emoji", text: "Entre 1 metro e 1 metro e meio" }, { id: 1764139949274, icon: "", iconType: "emoji", text: "Entre 1 metro e meio e 2 metros" }, { id: 1764139949773, icon: "", iconType: "emoji", text: " Mais de 2 metros" } ] } }
           ]
         },
@@ -276,7 +276,7 @@ export const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
           id: 1764140017686,
           name: "Etapa 30",
           components: [
-            { id: 1764139520183, name: "Texto", props: { content: `<h3 style="text-align: center;">Estamos quase lá... </h3><div style="text-align: center;">Porém eu gostaria de saber, você Realmente está disposta a aplicar os Treinos PMT e daqui a 30 dias ver seu corpo mudar completamente? </div><div><br></div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
+            { id: 1764139520183, name: "Texto", props: { content: `<h3 style="text-align: center;">Estamos quase lá... </h3><div style="text-align: center;">Porém eu gostaria de saber, você Realmente está disposta a aplicar os Treinos PMT e daqui a 30 dias ver seu corpo mudar completamente? </div><div><br></div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
             { id: 1764139558313, name: "Opções", props: { shadowStyle: "grande", opcoesItems: [ { id: 1764139949773, icon: " 🔥", iconType: "emoji", text: "Sim, estou pronta" }, { id: 1764140065655, icon: "😍", iconType: "emoji", text: "Com certeza" } ] } }
           ]
         },
@@ -284,7 +284,7 @@ export const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
           id: 1764140120024,
           name: "Etapa 31",
           components: [
-            { id: 1764139520183, name: "Texto", props: { content: `<h3 style="text-align: center;">Você está pronta para seguir nosso Protocolo de Treinos Personalizado? </h3><div style="text-align: center;">Toque na opção abaixo.</div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
+            { id: 1764139520183, name: "Texto", props: { content: `<h3 style="text-align: center;">Você está pronta para seguir nosso Protocolo de Treinos Personalizado? </h3><div style="text-align: center;">Toque na opção abaixo.</div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
             { id: 1764139558313, name: "Opções", props: { shadowStyle: "grande", opcoesItems: [ { id: 1764139949773, icon: " 🔥", iconType: "emoji", text: "Sim, estou pronta" }, { id: 1764140065655, icon: "😍", iconType: "emoji", text: "Quero, Saber mais" } ] } }
           ]
         },
@@ -313,7 +313,7 @@ export const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
     id: 'persuasao-typebot',
     name: 'Manual da persuasão',
     description: 'Técnicas reais de persuasão, influência e manipulação estratégica.',
-    imageUrl: 'https://s3.typebot.io/public/workspaces/cma6gh1r00000wo0nne89p289/typebots/w3uutbahqxqiryefgp29v7zw/blocks/wefmams0gbe7dw9o2w8g9usd?v=1746642298063',
+    imageUrl: 'https://s3.typebot.io/public/workspaces/cma6gh1r00000wo0nne89p289/typebots/w3uutbahqxqiryefgp29v7zw/blocks/uqhagxtkix836yabhfratrvv?v=1764151628641',
     type: 'typebot',
     funnelData: {
         name: "Manual da persuasão",
