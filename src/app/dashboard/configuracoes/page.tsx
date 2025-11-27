@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Webhook, PlusCircle, Copy, Trash2, Info, LineChart } from 'lucide-react';
+import { Webhook, PlusCircle, Copy, Trash2, Info } from 'lucide-react';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCollection, useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
@@ -20,16 +20,6 @@ type Gateway = {
   userId: string;
 };
 
-type SimulationData = {
-    day1: number,
-    day2: number,
-    day3: number,
-    day4: number,
-    day5: number,
-    day6: number,
-    day7: number,
-};
-
 export default function ConfiguracoesPage() {
   const { user } = useUser();
   const firestore = useFirestore();
@@ -40,16 +30,6 @@ export default function ConfiguracoesPage() {
   
   const userDocRef = useMemoFirebase(() => (user ? doc(firestore, 'users', user.uid) : null), [user, firestore]);
   const { data: userData } = useDoc(userDocRef);
-
-  const [simulationData, setSimulationData] = useState<SimulationData>({
-    day1: 0, day2: 0, day3: 0, day4: 0, day5: 0, day6: 0, day7: 0
-  });
-
-  useEffect(() => {
-    if (userData?.simulateRevenue) {
-        setSimulationData(userData.simulateRevenue);
-    }
-  }, [userData]);
 
   const webhooksQuery = useMemoFirebase(
     () =>
@@ -66,14 +46,11 @@ export default function ConfiguracoesPage() {
       try {
         const webhooksCol = collection(firestore, 'users', user.uid, 'webhooks');
         
-        // 1. Create a document first to get a unique ID
         const newWebhookRef = doc(webhooksCol);
         const newId = newWebhookRef.id;
 
-        // 2. Build the correct URL with the new ID
         const newWebhookUrl = `${window.location.origin}/api/webhook/${user.uid}/${newId}`;
         
-        // 3. Set the document data with the correct URL
         await setDoc(newWebhookRef, {
           id: newId,
           name: newGatewayName.trim(),
@@ -118,31 +95,6 @@ export default function ConfiguracoesPage() {
     }
   }
 
-  const handleSimulationDataChange = (day: keyof SimulationData, value: string) => {
-    setSimulationData(prev => ({ ...prev, [day]: Number(value) }));
-  }
-
-  const handleSaveSimulation = async () => {
-    if(user && firestore) {
-        try {
-            await updateDoc(userDocRef, {
-                simulateRevenue: simulationData
-            });
-            toast({
-                title: "Simulação salva!",
-                description: "Os dados de simulação de ganhos foram atualizados.",
-            });
-        } catch(error) {
-            console.error("Error saving simulation data:", error);
-            toast({
-                variant: "destructive",
-                title: "Erro ao salvar",
-                description: "Não foi possível salvar os dados de simulação.",
-            });
-        }
-    }
-  }
-
   const handleCopy = (url: string) => {
     navigator.clipboard.writeText(url);
     toast({
@@ -161,39 +113,6 @@ export default function ConfiguracoesPage() {
           Gerencie as integrações e configurações da sua conta.
         </p>
       </div>
-
-       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <LineChart className="h-6 w-6" />
-                Simulação de Ganhos
-              </CardTitle>
-              <CardDescription>
-                Defina valores para simular os ganhos no gráfico do dashboard. Ideal para vídeos.
-              </CardDescription>
-            </div>
-             <Button onClick={handleSaveSimulation}>Salvar Simulação</Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                {Object.keys(simulationData).map((day, index) => (
-                    <div key={day}>
-                        <Label htmlFor={`day-${index + 1}`}>{`Dia ${index + 1}`}</Label>
-                        <Input
-                            id={`day-${index + 1}`}
-                            type="number"
-                            value={simulationData[day as keyof SimulationData]}
-                            onChange={(e) => handleSimulationDataChange(day as keyof SimulationData, e.target.value)}
-                            className="mt-1"
-                        />
-                    </div>
-                ))}
-            </div>
-        </CardContent>
-      </Card>
 
       <Card>
         <CardHeader>
@@ -288,5 +207,3 @@ export default function ConfiguracoesPage() {
     </div>
   );
 }
-
-    
