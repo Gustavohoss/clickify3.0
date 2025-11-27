@@ -43,6 +43,12 @@ service cloud.firestore {
         // Only backend processes can create/update/delete sales records via webhooks
         allow create, update, delete: if false; 
       }
+
+      match /earnings/{earningId} {
+        allow read, list: if isOwner(userId);
+        // Only backend processes can create/update/delete earnings records
+        allow create, update, delete: if false;
+      }
     }
 
     match /plans/{planId} {

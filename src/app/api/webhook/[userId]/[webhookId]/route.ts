@@ -10,6 +10,15 @@ if (!getApps().length) {
 
 const db = getFirestore();
 
+// Helper to get date in YYYY-MM-DD format
+const getFormattedDate = () => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 export async function POST(
   req: NextRequest,
   { params }: { params: { userId: string; webhookId: string } }
@@ -48,7 +57,7 @@ export async function POST(
      if (!transactionId) {
       return NextResponse.json({ error: 'Missing transactionId' }, { status: 400 });
     }
-     if (!status || !['paid', 'pending'].includes(status)) {
+     if (!status || !['paid', 'pending', 'refunded', 'failed'].includes(status)) {
       return NextResponse.json({ error: 'Invalid or missing status' }, { status: 400 });
     }
 
@@ -63,14 +72,27 @@ export async function POST(
     }, { merge: true });
 
 
-    // 3. If payment is successful, atomically update the user's balance
+    // 3. If payment is successful, atomically update the user's balance and daily earnings
     if (status === 'paid') {
         const saleDoc = await saleRef.get();
         const saleData = saleDoc.data();
         // Check if it was pending before to avoid double counting
         if (saleData && saleData.status !== 'paid') {
-           await userRef.update({
-                balance: FieldValue.increment(price)
+           const today = getFormattedDate();
+           const earningRef = userRef.collection('earnings').doc(today);
+
+           await db.runTransaction(async (transaction) => {
+               const earningDoc = await transaction.get(earningRef);
+
+               // Update user's total balance
+               transaction.update(userRef, { balance: FieldValue.increment(price) });
+
+               // Update daily earnings
+               if (earningDoc.exists) {
+                   transaction.update(earningRef, { amount: FieldValue.increment(price) });
+               } else {
+                   transaction.set(earningRef, { date: today, amount: price });
+               }
            });
         }
     }
@@ -82,4 +104,3 @@ export async function POST(
     return NextResponse.json({ error: 'Internal Server Error', details: error.message }, { status: 500 });
   }
 }
-

@@ -89,6 +89,23 @@
       },
       "required": ["id", "price", "status", "receivedAt"]
     },
+    "Earning": {
+        "title": "Earning",
+        "type": "object",
+        "description": "Represents the total earnings for a specific day.",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "The date for which the earnings are recorded (YYYY-MM-DD)."
+          },
+          "amount": {
+            "type": "number",
+            "description": "The total amount earned on this day."
+          }
+        },
+        "required": ["date", "amount"]
+    },
     "Plan": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Plan",
@@ -462,6 +479,26 @@
                     "description": "The unique identifier of the sale (transaction ID)."
                 }
             ]
+        }
+      },
+      {
+        "path": "/users/{userId}/earnings/{earningId}",
+        "definition": {
+          "entityName": "Earning",
+          "schema": {
+            "$ref": "#/backend/entities/Earning"
+          },
+          "description": "Stores a user's daily earnings.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "earningId",
+              "description": "The date of the earning (YYYY-MM-DD)."
+            }
+          ]
         }
       },
       {
