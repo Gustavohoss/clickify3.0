@@ -27,7 +27,6 @@ const navLinks = [
   { href: '/dashboard/area-de-membros', label: 'Área de Membros', icon: BookUser },
   { href: '/dashboard/funis', label: 'Funis', icon: Milestone },
   { href: '/dashboard/remover-meta-dados', label: 'Remover metadados', icon: FileX },
-  { href: '/dashboard/baixar-video', label: 'Baixar Vídeo', icon: Download },
   { href: '/dashboard/configuracoes', label: 'Configurações', icon: Settings },
 ];
 
