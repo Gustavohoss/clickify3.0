@@ -23,7 +23,16 @@ type Earning = {
 
 type UserData = {
   balance: number;
-}
+  simulateRevenue?: {
+    day1: number;
+    day2: number;
+    day3: number;
+    day4: number;
+    day5: number;
+    day6: number;
+    day7: number;
+  };
+};
 
 const chartConfig = {
   revenue: {
@@ -42,7 +51,7 @@ export default function DashboardPage() {
   const { data: userData } = useDoc<UserData>(userDocRef);
   const totalRevenue = userData?.balance || 0;
 
-  const sevenDaysAgo = useMemo(() => subDays(new Date(), 7), []);
+  const sevenDaysAgo = useMemo(() => subDays(new Date(), 6), []); // Corrected to 6 days ago for 7 day period
 
   const earningsQuery = useMemoFirebase(
     () =>
@@ -73,17 +82,29 @@ export default function DashboardPage() {
       };
     }).reverse();
 
-    const newChartData = last7Days.map(day => {
+    let newChartData;
+
+    if (userData?.simulateRevenue) {
+      newChartData = last7Days.map((day, index) => {
+        const dayKey = `day${index + 1}` as keyof UserData['simulateRevenue'];
+        return {
+          date: day.displayDate,
+          revenue: userData.simulateRevenue![dayKey] || 0,
+        };
+      });
+    } else {
+      newChartData = last7Days.map(day => {
         const earningForDay = earningsData?.find(e => e.date === day.fullDate);
         return {
-            date: day.displayDate,
-            revenue: earningForDay?.amount || 0,
+          date: day.displayDate,
+          revenue: earningForDay?.amount || 0,
         };
-    });
-
+      });
+    }
+    
     setChartData(newChartData);
     
-  }, [earningsData]);
+  }, [earningsData, userData]);
 
 
   const funnelsQuery = useMemoFirebase(
@@ -239,3 +260,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
