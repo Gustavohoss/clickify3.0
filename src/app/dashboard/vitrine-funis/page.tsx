@@ -5,7 +5,9 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Copy, Gift, Milestone, Eye, ExternalLink } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Copy, Gift, Milestone, Eye, ExternalLink, Link as LinkIcon } from 'lucide-react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, doc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -23,8 +25,8 @@ export default function VitrineFunisPage() {
   const { toast } = useToast();
   const router = useRouter();
 
-  const [isCloneDialogOpen, setIsCloneDialogOpen] = useState(false);
   const [funnelToClone, setFunnelToClone] = useState<ShowcaseFunnelItem | null>(null);
+  const [checkoutUrl, setCheckoutUrl] = useState('');
   const [isCloning, setIsCloning] = useState(false);
   const [previewFunnel, setPreviewFunnel] = useState<ShowcaseFunnelItem | null>(null);
 
@@ -69,20 +71,21 @@ export default function VitrineFunisPage() {
       });
       return;
     }
+     if (!checkoutUrl) {
+      toast({ variant: "destructive", title: "Erro", description: "Por favor, insira um link de checkout." });
+      return;
+    }
+
     setIsCloning(true);
     
     try {
         let originalFunnelData;
 
-        // **THE FIX IS HERE**
-        // Check if the funnel to clone is one of our static, independent models
         const staticFunnel = staticShowcaseFunnels.find(f => f.id === funnelToClone.id);
 
         if (staticFunnel && staticFunnel.funnelData) {
-            // If it's a static funnel, use its embedded data directly
-            originalFunnelData = staticFunnel.funnelData;
+            originalFunnelData = JSON.parse(JSON.stringify(staticFunnel.funnelData));
         } else {
-            // Otherwise, fetch it from the 'funnels' collection (for user-shared funnels)
             const originalFunnelRef = doc(firestore, 'funnels', funnelToClone.id);
             const originalFunnelSnap = await getDoc(originalFunnelRef);
             
@@ -91,8 +94,34 @@ export default function VitrineFunisPage() {
                  setIsCloning(false);
                  return;
             }
-            originalFunnelData = originalFunnelSnap.data();
+            originalFunnelData = JSON.parse(JSON.stringify(originalFunnelSnap.data()));
         }
+
+        // ---- INSERT CHECKOUT URL LOGIC ----
+        if (originalFunnelData.type === 'quiz') {
+            const lastStep = originalFunnelData.steps[originalFunnelData.steps.length - 1];
+            if (lastStep && lastStep.components) {
+                lastStep.components.forEach((component: any) => {
+                    if (component.name === 'Botão') {
+                        component.props.action = 'open_url';
+                        component.props.url = checkoutUrl;
+                    }
+                });
+            }
+        } else if (originalFunnelData.type === 'typebot') {
+            const redirectBlock = originalFunnelData.steps.find((step: any) => step.type === 'logic-redirect' || (step.children && step.children.some((child:any) => child.type === 'logic-redirect')));
+            if(redirectBlock) {
+                 if (redirectBlock.children) {
+                    const childRedirect = redirectBlock.children.find((child: any) => child.type === 'logic-redirect');
+                    if (childRedirect) {
+                        childRedirect.props = { ...childRedirect.props, url: checkoutUrl, openInNewTab: true };
+                    }
+                } else {
+                    redirectBlock.props = { ...redirectBlock.props, url: checkoutUrl, openInNewTab: true };
+                }
+            }
+        }
+        // ---- END LOGIC ----
 
         const newFunnelName = `${originalFunnelData.name} (Clonado)`;
         
@@ -100,8 +129,8 @@ export default function VitrineFunisPage() {
             ...originalFunnelData,
             name: newFunnelName,
             slug: generateSlug(newFunnelName),
-            userId: user.uid, // Assign to the current user
-            isPublished: false, // Start as a draft
+            userId: user.uid,
+            isPublished: false,
             createdAt: serverTimestamp(),
         };
 
@@ -116,14 +145,18 @@ export default function VitrineFunisPage() {
         toast({ variant: 'destructive', title: 'Erro ao clonar', description: 'Ocorreu um problema inesperado. Tente novamente.' });
     } finally {
         setIsCloning(false);
-        setIsCloneDialogOpen(false);
         setFunnelToClone(null);
+        setCheckoutUrl('');
     }
   }
 
   const openCloneDialog = (funnel: ShowcaseFunnelItem) => {
     setFunnelToClone(funnel);
-    setIsCloneDialogOpen(true);
+  }
+  
+  const closeCloneDialog = () => {
+    setFunnelToClone(null);
+    setCheckoutUrl('');
   }
 
   const openPreviewDialog = (funnel: ShowcaseFunnelItem) => {
@@ -169,7 +202,7 @@ export default function VitrineFunisPage() {
                   Clonar
                 </Button>
                  {funnel.exampleUrl && (
-                  <Button asChild className="col-span-2">
+                  <Button asChild className="col-span-2" variant="default">
                     <Link href={funnel.exampleUrl} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="mr-2 h-4 w-4" />
                       Ver exemplo de conteúdo
@@ -194,18 +227,30 @@ export default function VitrineFunisPage() {
         </Card>
       )}
 
-       <Dialog open={isCloneDialogOpen} onOpenChange={setIsCloneDialogOpen}>
+       <Dialog open={!!funnelToClone} onOpenChange={(open) => !open && closeCloneDialog()}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Clonar Funil: {funnelToClone?.name}</DialogTitle>
                     <DialogDescription>
-                        Isto criará uma cópia editável deste funil na sua conta. Tem certeza que deseja continuar?
+                        Para finalizar, insira seu link de checkout. Ele será adicionado automaticamente ao final do funil.
                     </DialogDescription>
                 </DialogHeader>
+                 <div className="space-y-2 py-4">
+                    <Label htmlFor="checkout-url">Link de Checkout</Label>
+                    <div className="flex items-center gap-2">
+                        <LinkIcon size={16} className="text-gray-500" />
+                        <Input
+                            id="checkout-url"
+                            placeholder="https://seu-checkout.com/produto"
+                            value={checkoutUrl}
+                            onChange={(e) => setCheckoutUrl(e.target.value)}
+                        />
+                    </div>
+                </div>
                 <DialogFooter>
-                    <Button variant="ghost" onClick={() => setIsCloneDialogOpen(false)}>Cancelar</Button>
+                    <Button variant="ghost" onClick={closeCloneDialog}>Cancelar</Button>
                     <Button onClick={handleCloneFunnel} disabled={isCloning}>
-                        {isCloning ? 'Clonando...' : 'Sim, clonar'}
+                        {isCloning ? 'Clonando...' : 'Clonar Agora'}
                     </Button>
                 </DialogFooter>
             </DialogContent>
