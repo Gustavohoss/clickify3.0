@@ -11,7 +11,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { Area, AreaChart as RechartsAreaChart, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { useCollection, useFirestore, useUser, useMemoFirebase, useDoc, doc } from '@/firebase';
 import { collection, query, where, orderBy, startAt } from 'firebase/firestore';
 import { subDays, format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -20,6 +20,10 @@ type Earning = {
   date: string; // YYYY-MM-DD
   amount: number;
 };
+
+type UserData = {
+  balance: number;
+}
 
 const chartConfig = {
   revenue: {
@@ -33,7 +37,10 @@ export default function DashboardPage() {
   const firestore = useFirestore();
   
   const [chartData, setChartData] = useState<{ date: string; revenue: number }[]>([]);
-  const [totalRevenue, setTotalRevenue] = useState(0);
+  
+  const userDocRef = useMemoFirebase(() => (user ? doc(firestore, 'users', user.uid) : null), [user, firestore]);
+  const { data: userData } = useDoc<UserData>(userDocRef);
+  const totalRevenue = userData?.balance || 0;
 
   const sevenDaysAgo = useMemo(() => subDays(new Date(), 7), []);
 
@@ -75,9 +82,6 @@ export default function DashboardPage() {
     });
 
     setChartData(newChartData);
-
-    const newTotalRevenue = earningsData?.reduce((sum, earning) => sum + earning.amount, 0) || 0;
-    setTotalRevenue(newTotalRevenue);
     
   }, [earningsData]);
 
