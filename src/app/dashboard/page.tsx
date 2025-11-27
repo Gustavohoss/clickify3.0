@@ -51,7 +51,7 @@ export default function DashboardPage() {
   const { data: userData } = useDoc<UserData>(userDocRef);
   const totalRevenue = userData?.balance || 0;
 
-  const sevenDaysAgo = useMemo(() => subDays(new Date(), 6), []); // Corrected to 6 days ago for 7 day period
+  const sevenDaysAgo = useMemo(() => subDays(new Date(), 6), []); 
 
   const earningsQuery = useMemoFirebase(
     () =>
@@ -86,7 +86,7 @@ export default function DashboardPage() {
 
     if (userData?.simulateRevenue) {
       newChartData = last7Days.map((day, index) => {
-        const dayKey = `day${index + 1}` as keyof UserData['simulateRevenue'];
+        const dayKey = `day${index + 1}` as keyof NonNullable<UserData['simulateRevenue']>;
         return {
           date: day.displayDate,
           revenue: userData.simulateRevenue![dayKey] || 0,
@@ -260,5 +260,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
