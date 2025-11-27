@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -11,22 +10,15 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { Area, AreaChart as RechartsAreaChart, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { useCollection, useFirestore, useUser, useMemoFirebase, useDoc, doc } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query, where, orderBy, startAt } from 'firebase/firestore';
+import { subDays, format, parseISO } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
-const initialChartData = [
-    { date: '19 out', revenue: 0 },
-    { date: '22 out', revenue: 0 },
-    { date: '25 out', revenue: 0 },
-    { date: '28 out', revenue: 0 },
-    { date: '31 out', revenue: 0 },
-    { date: '03 nov', revenue: 0 },
-    { date: '06 nov', revenue: 0 },
-    { date: '09 nov', revenue: 0 },
-    { date: '12 nov', revenue: 0 },
-    { date: '15 nov', revenue: 0 },
-    { date: '18 nov', revenue: 0 },
-];
+type Earning = {
+  date: string; // YYYY-MM-DD
+  amount: number;
+};
 
 const chartConfig = {
   revenue: {
@@ -38,45 +30,55 @@ const chartConfig = {
 export default function DashboardPage() {
   const { user } = useUser();
   const firestore = useFirestore();
-  const [chartData, setChartData] = useState(initialChartData);
+  
+  const [chartData, setChartData] = useState<{ date: string; revenue: number }[]>([]);
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
-  const userDocRef = useMemoFirebase(
-    () => (user && firestore ? doc(firestore, 'users', user.uid) : null),
-    [firestore, user]
+  const thirtyDaysAgo = useMemo(() => subDays(new Date(), 30), []);
+
+  const earningsQuery = useMemoFirebase(
+    () =>
+      user && firestore
+        ? query(
+            collection(firestore, 'users', user.uid, 'earnings'),
+            orderBy('date', 'desc'),
+            where('date', '>=', format(thirtyDaysAgo, 'yyyy-MM-dd'))
+          )
+        : null,
+    [firestore, user, thirtyDaysAgo]
   );
-  const { data: userData } = useDoc(userDocRef);
+  const { data: earningsData } = useCollection<Earning>(earningsQuery);
 
   const salesQuery = useMemoFirebase(
-    () => (user && firestore ? query(collection(firestore, 'users', user.uid, 'sales')) : null),
+    () => (user && firestore ? query(collection(firestore, 'users', user.uid, 'sales'), where('status', '==', 'pending')) : null),
     [firestore, user]
   );
-  const { data: sales } = useCollection(salesQuery);
-
-  const pendingSales = sales?.filter(s => s.status === 'pending') || [];
-  const pendingRevenue = pendingSales.reduce((sum, sale) => sum + sale.price, 0);
-
+  const { data: pendingSales } = useCollection(salesQuery);
+  const pendingRevenue = pendingSales?.reduce((sum, sale) => sum + sale.price, 0) || 0;
 
   useEffect(() => {
-    if (userData && userData.simulateRevenue && userData.balance > 0) {
-      const balance = userData.balance;
-      const days = initialChartData.length;
-      
-      let randomFactors = Array.from({ length: days }, () => Math.random());
-      const totalFactor = randomFactors.reduce((sum, factor) => sum + factor, 0);
-      
-      const newChartData = initialChartData.map((dataPoint, index) => {
-        const share = (randomFactors[index] / totalFactor) * balance;
+    const last30Days = Array.from({ length: 30 }, (_, i) => {
+      const date = subDays(new Date(), i);
+      return {
+        fullDate: format(date, 'yyyy-MM-dd'),
+        displayDate: format(date, 'dd MMM', { locale: ptBR }),
+      };
+    }).reverse();
+
+    const newChartData = last30Days.map(day => {
+        const earningForDay = earningsData?.find(e => e.date === day.fullDate);
         return {
-          ...dataPoint,
-          revenue: parseFloat(share.toFixed(2)),
+            date: day.displayDate,
+            revenue: earningForDay?.amount || 0,
         };
-      });
-      
-      setChartData(newChartData);
-    } else {
-      setChartData(initialChartData.map(d => ({...d, revenue: 0})));
-    }
-  }, [userData]);
+    });
+
+    setChartData(newChartData);
+
+    const newTotalRevenue = earningsData?.reduce((sum, earning) => sum + earning.amount, 0) || 0;
+    setTotalRevenue(newTotalRevenue);
+    
+  }, [earningsData]);
 
 
   const funnelsQuery = useMemoFirebase(
@@ -108,8 +110,6 @@ export default function DashboardPage() {
     }).format(balance);
   }
 
-  const totalRevenue = chartData.reduce((sum, item) => sum + item.revenue, 0);
-
   return (
     <div className="space-y-8">
       <div>
@@ -129,8 +129,8 @@ export default function DashboardPage() {
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{userData ? formatBalance(userData.balance) : 'R$0,00'}</div>
-                <p className="text-xs text-muted-foreground">{userData ? 'Faturamento total da sua conta.' : 'Conecte sua plataforma para ver seus ganhos.'}</p>
+                <div className="text-2xl font-bold">{formatBalance(totalRevenue)}</div>
+                <p className="text-xs text-muted-foreground">Faturamento total da sua conta.</p>
             </CardContent>
             </Card>
             <Card>
@@ -140,7 +140,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
                 <div className="text-2xl font-bold">{formatBalance(pendingRevenue)}</div>
-                <p className="text-xs text-muted-foreground">{pendingSales.length} PIX gerados aguardando pagamento.</p>
+                <p className="text-xs text-muted-foreground">{pendingSales?.length || 0} PIX gerados aguardando pagamento.</p>
             </CardContent>
             </Card>
         </div>
@@ -203,7 +203,6 @@ export default function DashboardPage() {
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
-                  tickFormatter={(value) => value.slice(0, 5)}
                 />
                 <ChartTooltip
                   cursor={false}
