@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -9,8 +8,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { Area, AreaChart as RechartsAreaChart, XAxis } from 'recharts';
-import { useCollection, useFirestore, useUser, useMemoFirebase, useDoc, doc } from '@/firebase';
+import { AreaChart as RechartsAreaChart, XAxis, CartesianGrid } from 'recharts';
+import { useCollection, useFirestore, useUser, useMemoFirebase, doc, useDoc } from '@/firebase';
 import { collection, query, where, orderBy } from 'firebase/firestore';
 import { subDays, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -84,16 +83,15 @@ export default function DashboardPage() {
     let newChartData;
 
     if (userData?.simulateRevenue) {
-      // Se simulateRevenue existe, usa os dados dele exclusivamente.
       newChartData = last7Days.map((day, index) => {
+        // Map day1-day7 relative to today (day7=today, day6=yesterday, etc.)
         const dayKey = `day${index + 1}` as keyof NonNullable<UserData['simulateRevenue']>;
         return {
           date: day.displayDate,
-          revenue: userData.simulateRevenue?.[dayKey] || 0, // Usa 0 se o dia específico não estiver definido
+          revenue: userData.simulateRevenue?.[dayKey] || 0,
         };
       });
     } else {
-      // Caso contrário, usa os dados reais de ganhos.
       newChartData = last7Days.map((day) => {
         const earningForDay = earningsData?.find(e => e.date === day.fullDate);
         return {
@@ -245,7 +243,7 @@ export default function DashboardPage() {
                     />
                   }
                 />
-                <Area
+                <RechartsPrimitive.Area
                   dataKey="revenue"
                   type="natural"
                   fill="var(--color-revenue)"
