@@ -24,13 +24,13 @@ type Earning = {
 type UserData = {
   balance: number;
   simulateRevenue?: {
-    day1: number;
-    day2: number;
-    day3: number;
-    day4: number;
-    day5: number;
-    day6: number;
-    day7: number;
+    day1?: number;
+    day2?: number;
+    day3?: number;
+    day4?: number;
+    day5?: number;
+    day6?: number;
+    day7?: number;
   };
 };
 
@@ -82,25 +82,26 @@ export default function DashboardPage() {
       };
     }).reverse();
 
-    let newChartData;
-
-    if (userData?.simulateRevenue) {
-      newChartData = last7Days.map((day, index) => {
-        const dayKey = `day${index + 1}` as keyof NonNullable<UserData['simulateRevenue']>;
+    const newChartData = last7Days.map((day, index) => {
+      const dayKey = `day${index + 1}` as keyof NonNullable<UserData['simulateRevenue']>;
+      
+      const simulatedValue = userData?.simulateRevenue?.[dayKey];
+      
+      if (simulatedValue !== undefined && simulatedValue !== null) {
+        // Use o valor simulado se ele existir
         return {
           date: day.displayDate,
-          revenue: userData.simulateRevenue![dayKey] || 0,
+          revenue: simulatedValue,
         };
-      });
-    } else {
-      newChartData = last7Days.map(day => {
+      } else {
+        // Caso contrário, use os dados de ganhos reais
         const earningForDay = earningsData?.find(e => e.date === day.fullDate);
         return {
           date: day.displayDate,
           revenue: earningForDay?.amount || 0,
         };
-      });
-    }
+      }
+    });
     
     setChartData(newChartData);
     
