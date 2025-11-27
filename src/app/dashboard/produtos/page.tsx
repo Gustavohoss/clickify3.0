@@ -59,6 +59,15 @@ const staticProducts: Product[] = [
     price: 'de R$ 19,90 a R$ 37,00',
     commission: 'Até R$ 27,00',
     affiliateLink: 'https://app.pepper.com.br/invite/affiliate/n1mdilesdw'
+  },
+  {
+    id: 'static-5',
+    name: 'Psicologia sombria',
+    description: 'Aprenda as técnicas de psicologia sombria e como se proteger.',
+    imageUrl: 'https://s3.typebot.io/public/workspaces/cmgf6qe8j0003l104pr1kqgiz/typebots/cmih14zxp0001lk0470hkp0xq/blocks/kl961lf5wmc5j2jrpyp5fxr3?v=1764223537020',
+    price: 'de R$ 19,90 a R$ 47,90',
+    commission: 'Até 70%',
+    affiliateLink: 'https://app.pepper.com.br/invite/affiliate/fi2lbigx5s'
   }
 ];
 
