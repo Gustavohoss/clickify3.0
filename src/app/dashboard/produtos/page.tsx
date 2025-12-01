@@ -7,7 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { Copy, Gift, Info } from 'lucide-react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { collection, query, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
@@ -21,6 +21,7 @@ type Product = {
   price: number | string;
   commission: string;
   affiliateLink: string;
+  status: 'pending' | 'approved' | 'rejected';
 };
 
 const staticProducts: Product[] = [
@@ -31,7 +32,8 @@ const staticProducts: Product[] = [
     imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/m7r3o42acz47md2cn2iqc4bh?v=1763451610688',
     price: 'de R$ 19,90 a R$ 59,90',
     commission: 'de R$ 13,93 à R$ 41,93',
-    affiliateLink: 'https://app.cakto.com.br/affiliate/invite/e588af5d-cccd-40f8-9b01-42111409ebc8'
+    affiliateLink: 'https://app.cakto.com.br/affiliate/invite/e588af5d-cccd-40f8-9b01-42111409ebc8',
+    status: 'approved'
   },
   {
     id: 'static-2',
@@ -40,7 +42,8 @@ const staticProducts: Product[] = [
     imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/djtlfvgpii2rpwwlodj3bqn9?v=1763468291681',
     price: 'de R$ 19,90 a R$ 99,90',
     commission: 'de R$ 13,93 à R$ 69,93',
-    affiliateLink: 'https://app.cakto.com.br/affiliate/invite/530e985b-9cef-4fc0-98e8-b8270db222fe'
+    affiliateLink: 'https://app.cakto.com.br/affiliate/invite/530e985b-9cef-4fc0-98e8-b8270db222fe',
+    status: 'approved'
   },
   {
     id: 'static-3',
@@ -49,7 +52,8 @@ const staticProducts: Product[] = [
     imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/x6dsg8g9f5lvz77xobhk9p73?v=1763469556980',
     price: 'de R$ 19,90 a R$ 99,90',
     commission: 'de R$ 13,93 à R$ 69,93',
-    affiliateLink: '#'
+    affiliateLink: '#',
+    status: 'approved'
   },
   {
     id: 'static-4',
@@ -58,7 +62,8 @@ const staticProducts: Product[] = [
     imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/gd325kcyp1gf6pou81oowpji?v=1763949891132',
     price: 'de R$ 19,90 a R$ 37,00',
     commission: 'Até R$ 27,00',
-    affiliateLink: 'https://app.pepper.com.br/invite/affiliate/n1mdilesdw'
+    affiliateLink: 'https://app.pepper.com.br/invite/affiliate/n1mdilesdw',
+    status: 'approved'
   },
   {
     id: 'static-5',
@@ -67,7 +72,8 @@ const staticProducts: Product[] = [
     imageUrl: 'https://s3.typebot.io/public/workspaces/cmgf6qe8j0003l104pr1kqgiz/typebots/cmih14zxp0001lk0470hkp0xq/blocks/kl961lf5wmc5j2jrpyp5fxr3?v=1764223537020',
     price: 'de R$ 19,90 a R$ 47,90',
     commission: 'Até 70%',
-    affiliateLink: 'https://app.pepper.com.br/invite/affiliate/fi2lbigx5s'
+    affiliateLink: 'https://app.pepper.com.br/invite/affiliate/fi2lbigx5s',
+    status: 'approved'
   }
 ];
 
@@ -76,7 +82,7 @@ export default function ProdutosPage() {
   const { toast } = useToast();
 
   const productsQuery = useMemoFirebase(
-    () => (firestore ? collection(firestore, 'affiliateProducts') : null),
+    () => (firestore ? query(collection(firestore, 'affiliateProducts'), where('status', '==', 'approved')) : null),
     [firestore]
   );
 
@@ -86,7 +92,6 @@ export default function ProdutosPage() {
 
   useEffect(() => {
     if (dynamicProducts) {
-      // Combine static and dynamic products, ensuring no duplicates if IDs ever match
       const combined = [...staticProducts];
       const staticIds = new Set(staticProducts.map(p => p.id));
       dynamicProducts.forEach(dp => {
@@ -200,7 +205,7 @@ export default function ProdutosPage() {
                   <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{product.description}</p>
                  )}
                 <p className="text-sm text-muted-foreground">
-                  Preço: {formatPrice(product.price)}
+                  Preço: {typeof product.price === 'number' ? formatPrice(product.price) : product.price}
                 </p>
               </CardContent>
               <CardFooter>
@@ -223,7 +228,7 @@ export default function ProdutosPage() {
                       </div>
                        <div className="flex justify-between items-center text-sm">
                           <span className="text-muted-foreground">Preço do Produto</span>
-                          <span className="font-semibold">{formatPrice(product.price)}</span>
+                          <span className="font-semibold">{typeof product.price === 'number' ? formatPrice(product.price) : product.price}</span>
                        </div>
                        <div className="flex justify-between items-center text-sm">
                           <span className="text-muted-foreground">Sua Comissão</span>
