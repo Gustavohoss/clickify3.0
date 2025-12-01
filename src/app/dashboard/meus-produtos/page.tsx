@@ -33,7 +33,6 @@ type Product = {
 };
 
 const productCategories = [
-  "HOT",
   "Administração e Negócios",
   "Animais de Estimação",
   "Arquitetura e Engenharia",
@@ -51,6 +50,7 @@ const productCategories = [
   "Filmes e Cinema",
   "Geral",
   "Histórias em Quadrinhos",
+  "HOT",
   "Idiomas",
   "Informática",
   "Internet Marketing",
