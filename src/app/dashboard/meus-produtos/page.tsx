@@ -117,13 +117,13 @@ export default function MeusProdutosPage() {
       setIsDeleteDialogOpen(false);
       setProductToDelete(null);
     }
-  }
+  };
   
   const statusInfo = {
     pending: { text: "Em Verificação", icon: Hourglass, color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
     approved: { text: "Aprovado", icon: CheckCircle, color: "bg-green-500/20 text-green-400 border-green-500/30" },
     rejected: { text: "Rejeitado", icon: XCircle, color: "bg-red-500/20 text-red-400 border-red-500/30" },
-  }
+  };
 
   return (
     <div className="space-y-8">
