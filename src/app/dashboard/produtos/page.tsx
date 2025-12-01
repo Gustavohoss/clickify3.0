@@ -18,7 +18,9 @@ type Product = {
   name: string;
   description?: string;
   imageUrl: string;
-  price: number | string;
+  priceFrom?: number;
+  priceTo?: number;
+  price?: number | string; // Keep for static products
   commission: string;
   affiliateLink: string;
   status: 'pending' | 'approved' | 'rejected';
@@ -133,11 +135,22 @@ export default function ProdutosPage() {
     });
   };
   
-  const formatPrice = (price: number | string) => {
-    if (typeof price === 'string') {
-        return price;
+  const formatPrice = (product: Product) => {
+    const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+    
+    if (typeof product.price === 'string') {
+        return product.price;
     }
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price);
+
+    if (product.priceFrom && product.priceTo) {
+      return `de ${formatter.format(product.priceFrom)} a ${formatter.format(product.priceTo)}`;
+    }
+    
+    if (product.priceFrom) {
+      return formatter.format(product.priceFrom);
+    }
+    
+    return 'Consulte';
   }
 
   return (
@@ -212,7 +225,7 @@ export default function ProdutosPage() {
                   <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{product.description}</p>
                  )}
                 <p className="text-sm text-muted-foreground">
-                  Preço: {typeof product.price === 'number' ? formatPrice(product.price) : product.price}
+                  Preço: {formatPrice(product)}
                 </p>
               </CardContent>
               <CardFooter>
@@ -235,7 +248,7 @@ export default function ProdutosPage() {
                       </div>
                        <div className="flex justify-between items-center text-sm">
                           <span className="text-muted-foreground">Preço do Produto</span>
-                          <span className="font-semibold">{typeof product.price === 'number' ? formatPrice(product.price) : product.price}</span>
+                          <span className="font-semibold">{formatPrice(product)}</span>
                        </div>
                        <div className="flex justify-between items-center text-sm">
                           <span className="text-muted-foreground">Sua Comissão</span>

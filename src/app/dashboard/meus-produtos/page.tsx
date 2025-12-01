@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,7 +23,8 @@ type Product = {
   name: string;
   description?: string;
   imageUrl: string;
-  price: number;
+  priceFrom?: number;
+  priceTo?: number;
   commission: string;
   affiliateLink: string;
   quizId?: string;
@@ -97,7 +98,7 @@ export default function MeusProdutosPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Partial<Product>>({ price: 0 });
+  const [formData, setFormData] = useState<Partial<Product>>({ priceFrom: 0, priceTo: 0 });
   const [isSaving, setIsSaving] = useState(false);
 
   const productsQuery = useMemoFirebase(
@@ -112,7 +113,7 @@ export default function MeusProdutosPage() {
       setFormData({ ...product });
     } else {
       setProductToEdit(null);
-      setFormData({ price: 0, commission: '', name: '', description: '', imageUrl: '', affiliateLink: '', quizId: '', category: '' });
+      setFormData({ commission: '', name: '', description: '', imageUrl: '', affiliateLink: '', quizId: '', category: '' });
     }
     setIsFormOpen(true);
   };
@@ -125,7 +126,8 @@ export default function MeusProdutosPage() {
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: name === 'price' ? Number(value) : value }));
+    const isPriceField = name === 'priceFrom' || name === 'priceTo';
+    setFormData(prev => ({ ...prev, [name]: isPriceField ? Number(value) : value }));
   };
   
   const handleCategoryChange = (value: string) => {
@@ -184,6 +186,17 @@ export default function MeusProdutosPage() {
       setProductToDelete(null);
     }
   };
+
+  const formatPriceRange = (from?: number, to?: number) => {
+    const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+    if (from && to && from > 0 && to > 0) {
+      return `De ${formatter.format(from)} a ${formatter.format(to)}`;
+    }
+    if (from && from > 0) {
+      return formatter.format(from);
+    }
+    return 'Preço não definido';
+  }
 
   return (
     <div className="space-y-8">
@@ -246,9 +259,9 @@ export default function MeusProdutosPage() {
                 <CardContent className="flex-grow">
                   <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
                 </CardContent>
-                <CardFooter className="flex justify-between text-sm">
-                  <span>Comissão: <span className="font-bold">{product.commission}</span></span>
-                  <span>Preço: <span className="font-bold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}</span></span>
+                <CardFooter className="flex flex-col items-start text-sm gap-2">
+                    <span>Comissão: <span className="font-bold">{product.commission}</span></span>
+                    <span>Preço: <span className="font-bold">{formatPriceRange(product.priceFrom, product.priceTo)}</span></span>
                 </CardFooter>
               </Card>
             );
@@ -303,8 +316,11 @@ export default function MeusProdutosPage() {
               <Input id="imageUrl" name="imageUrl" value={formData.imageUrl || ''} onChange={handleFormChange} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="price" className="text-right">Preço (R$)</Label>
-              <Input id="price" name="price" type="number" value={formData.price || 0} onChange={handleFormChange} className="col-span-3" />
+              <Label className="text-right">Preço (R$)</Label>
+              <div className="col-span-3 grid grid-cols-2 gap-2">
+                 <Input name="priceFrom" type="number" value={formData.priceFrom || ''} onChange={handleFormChange} placeholder="De" />
+                 <Input name="priceTo" type="number" value={formData.priceTo || ''} onChange={handleFormChange} placeholder="Até"/>
+              </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="commission" className="text-right">Comissão</Label>
