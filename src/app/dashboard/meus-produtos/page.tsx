@@ -6,15 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from '@/components/ui/alert-dialog';
-import { PlusCircle, MoreVertical, Trash2, Edit, UploadCloud, Hourglass, CheckCircle, XCircle } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PlusCircle, MoreVertical, Trash2, Edit, UploadCloud, Hourglass, CheckCircle, XCircle, Tag } from 'lucide-react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where, doc, deleteDoc, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 
@@ -29,14 +29,63 @@ type Product = {
   quizId?: string;
   userId: string;
   status: 'pending' | 'approved' | 'rejected';
+  category: string;
 };
+
+const productCategories = [
+  "Administração e Negócios",
+  "Animais de Estimação",
+  "Arquitetura e Engenharia",
+  "Artes e Música",
+  "Auto-ajuda e Desenvolvimento Pessoal",
+  "Automóveis",
+  "Blogs e Redes Sociais",
+  "Casa e Jardinagem",
+  "Culinária, Gastronomia, Receitas",
+  "Design e Templates PSD, PPT ou HTML",
+  "Edição de Áudio, Vídeo ou Imagens",
+  "Educacional, Cursos Técnicos e Profissionalizantes",
+  "Entretenimento, Lazer e Diversão",
+  "Esportes e Fitness",
+  "Filmes e Cinema",
+  "Geral",
+  "Histórias em Quadrinhos",
+  "Idiomas",
+  "Informática",
+  "Internet Marketing",
+  "Investimentos e Finanças",
+  "Jogos de Cartas, Poker, Loterias",
+  "Jogos de Computador, Jogos Online",
+  "Jurídico",
+  "Literatura e Poesia",
+  "Marketing de Rede",
+  "Marketing e Comunicação",
+  "Meio Ambiente",
+  "Moda e vestuário",
+  "Música, Bandas e Shows",
+  "Paquera, Sedução e Relacionamentos",
+  "Pessoas com deficiência",
+  "Plugins, Widgets e Extensões",
+  "Produtividade e Organização Pessoal",
+  "Produtos infantis",
+  "Relatórios, Artigos e Pesquisas",
+  "Religião e Crenças",
+  "Romances, Dramas, Estórias e Contos",
+  "RPG e Jogos de Mesa",
+  "Saúde, Bem-estar e Beleza",
+  "Scripts",
+  "Segurança do Trabalho",
+  "Sexologia e Sexualidade",
+  "Snippets (Trechos de Vídeo)",
+  "Turismo",
+];
+
 
 const statusInfo = {
   pending: { text: "Em Verificação", icon: Hourglass, color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
   approved: { text: "Aprovado", icon: CheckCircle, color: "bg-green-500/20 text-green-400 border-green-500/30" },
   rejected: { text: "Rejeitado", icon: XCircle, color: "bg-red-500/20 text-red-400 border-red-500/30" },
 };
-
 
 export default function MeusProdutosPage() {
   const { user } = useUser();
@@ -62,7 +111,7 @@ export default function MeusProdutosPage() {
       setFormData({ ...product });
     } else {
       setProductToEdit(null);
-      setFormData({ price: 0, commission: '', name: '', description: '', imageUrl: '', affiliateLink: '', quizId: '' });
+      setFormData({ price: 0, commission: '', name: '', description: '', imageUrl: '', affiliateLink: '', quizId: '', category: '' });
     }
     setIsFormOpen(true);
   };
@@ -77,10 +126,14 @@ export default function MeusProdutosPage() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: name === 'price' ? Number(value) : value }));
   };
+  
+  const handleCategoryChange = (value: string) => {
+    setFormData(prev => ({ ...prev, category: value }));
+  };
 
   const handleSaveProduct = async () => {
-    if (!user || !firestore || !formData.name || !formData.imageUrl || !formData.affiliateLink) {
-      toast({ variant: 'destructive', title: 'Erro', description: 'Por favor, preencha todos os campos obrigatórios.' });
+    if (!user || !firestore || !formData.name || !formData.imageUrl || !formData.affiliateLink || !formData.category) {
+      toast({ variant: 'destructive', title: 'Erro', description: 'Por favor, preencha todos os campos obrigatórios, incluindo a categoria.' });
       return;
     }
 
@@ -178,10 +231,14 @@ export default function MeusProdutosPage() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="flex items-center gap-2 flex-wrap">
                     <Badge className={statusInfo[product.status].color}>
                       <StatusIcon className="mr-1 h-3 w-3" />
                       {statusInfo[product.status].text}
+                    </Badge>
+                     <Badge variant="outline" className="gap-1">
+                      <Tag className="h-3 w-3" />
+                      {product.category}
                     </Badge>
                   </CardDescription>
                 </CardHeader>
@@ -222,6 +279,19 @@ export default function MeusProdutosPage() {
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">Nome</Label>
               <Input id="name" name="name" value={formData.name || ''} onChange={handleFormChange} className="col-span-3" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="category" className="text-right">Categoria</Label>
+               <Select value={formData.category} onValueChange={handleCategoryChange}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {productCategories.map(cat => (
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="description" className="text-right">Descrição</Label>
@@ -275,3 +345,5 @@ export default function MeusProdutosPage() {
     </div>
   );
 }
+
+    

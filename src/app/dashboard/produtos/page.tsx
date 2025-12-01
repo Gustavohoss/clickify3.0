@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Copy, Gift, Info } from 'lucide-react';
+import { Copy, Gift, Tag } from 'lucide-react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -22,6 +22,7 @@ type Product = {
   commission: string;
   affiliateLink: string;
   status: 'pending' | 'approved' | 'rejected';
+  category?: string;
 };
 
 const staticProducts: Product[] = [
@@ -33,7 +34,8 @@ const staticProducts: Product[] = [
     price: 'de R$ 19,90 a R$ 59,90',
     commission: 'de R$ 13,93 à R$ 41,93',
     affiliateLink: 'https://app.cakto.com.br/affiliate/invite/e588af5d-cccd-40f8-9b01-42111409ebc8',
-    status: 'approved'
+    status: 'approved',
+    category: 'Saúde, Bem-estar e Beleza'
   },
   {
     id: 'static-2',
@@ -43,7 +45,8 @@ const staticProducts: Product[] = [
     price: 'de R$ 19,90 a R$ 99,90',
     commission: 'de R$ 13,93 à R$ 69,93',
     affiliateLink: 'https://app.cakto.com.br/affiliate/invite/530e985b-9cef-4fc0-98e8-b8270db222fe',
-    status: 'approved'
+    status: 'approved',
+    category: 'Investimentos e Finanças'
   },
   {
     id: 'static-3',
@@ -53,7 +56,8 @@ const staticProducts: Product[] = [
     price: 'de R$ 19,90 a R$ 99,90',
     commission: 'de R$ 13,93 à R$ 69,93',
     affiliateLink: '#',
-    status: 'approved'
+    status: 'approved',
+    category: 'Educacional, Cursos Técnicos e Profissionalizantes'
   },
   {
     id: 'static-4',
@@ -63,7 +67,8 @@ const staticProducts: Product[] = [
     price: 'de R$ 19,90 a R$ 37,00',
     commission: 'Até R$ 27,00',
     affiliateLink: 'https://app.pepper.com.br/invite/affiliate/n1mdilesdw',
-    status: 'approved'
+    status: 'approved',
+    category: 'Saúde, Bem-estar e Beleza'
   },
   {
     id: 'static-5',
@@ -73,7 +78,8 @@ const staticProducts: Product[] = [
     price: 'de R$ 19,90 a R$ 47,90',
     commission: 'Até 70%',
     affiliateLink: 'https://app.pepper.com.br/invite/affiliate/fi2lbigx5s',
-    status: 'approved'
+    status: 'approved',
+    category: 'Auto-ajuda e Desenvolvimento Pessoal'
   }
 ];
 
@@ -194,8 +200,9 @@ export default function ProdutosPage() {
                     <Badge className="bg-green-500/10 text-green-500 border-green-500/20 w-fit">
                       Comissão: {product.commission}
                     </Badge>
-                    <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 w-fit">
-                      70% de comissão
+                    <Badge variant="outline" className="gap-1">
+                      <Tag className="h-3 w-3" />
+                      {product.category}
                     </Badge>
                   </div>
                 </div>
@@ -234,6 +241,12 @@ export default function ProdutosPage() {
                           <span className="text-muted-foreground">Sua Comissão</span>
                           <span className="font-semibold text-green-500">{product.commission}</span>
                        </div>
+                       {product.category && (
+                         <div className="flex justify-between items-center text-sm">
+                            <span className="text-muted-foreground">Categoria</span>
+                            <span className="font-semibold">{product.category}</span>
+                         </div>
+                       )}
                     </div>
                     <DialogFooter>
                       <DialogClose asChild>
