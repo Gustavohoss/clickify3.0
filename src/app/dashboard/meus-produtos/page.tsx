@@ -33,6 +33,7 @@ type Product = {
 };
 
 const productCategories = [
+  "HOT",
   "Administração e Negócios",
   "Animais de Estimação",
   "Arquitetura e Engenharia",
@@ -345,5 +346,3 @@ export default function MeusProdutosPage() {
     </div>
   );
 }
-
-    
