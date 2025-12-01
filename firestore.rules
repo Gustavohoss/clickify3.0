@@ -93,5 +93,12 @@ service cloud.firestore {
       allow get, list: if isSignedIn();
       allow create, update, delete: if false; // Managed via Firebase Console
     }
+
+    match /notifications/{notificationId} {
+      allow get, list: if isSignedIn();
+      // Allow only admins to create, update, or delete notifications.
+      // This requires an `isAdmin` custom claim on the user's token.
+      allow write: if false; // Locked for now, can be updated to: request.auth.token.isAdmin == true
+    }
   }
 }

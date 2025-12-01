@@ -2,8 +2,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser, useAuth, useFirestore, useDoc, doc, useMemoFirebase } from '@/firebase';
-import { updateDoc } from 'firebase/firestore';
+import { useUser, useAuth, useFirestore, useDoc, doc, useMemoFirebase, useCollection } from '@/firebase';
+import { updateDoc, collection, query, orderBy, Timestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -19,11 +19,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Menu, Zap } from 'lucide-react';
+import { Menu, Bell } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '../ui/sheet';
 import { Sidebar } from './sidebar';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { ScrollArea } from '../ui/scroll-area';
+import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 
 type UserData = {
@@ -31,6 +35,15 @@ type UserData = {
     firstName: string;
     lastName: string;
     email: string;
+    lastNotificationCheck?: Timestamp;
+};
+
+type Notification = {
+    id: string;
+    title: string;
+    description: string;
+    createdAt: Timestamp;
+    url?: string;
 };
 
 export function Topbar() {
@@ -43,6 +56,10 @@ export function Topbar() {
   const userDocRef = useMemoFirebase(() => (user && firestore ? doc(firestore, 'users', user.uid) : null), [firestore, user]);
   const { data: userData, mutate } = useDoc<UserData>(userDocRef);
 
+  const notificationsQuery = useMemoFirebase(() => (firestore ? query(collection(firestore, 'notifications'), orderBy('createdAt', 'desc')) : null), [firestore]);
+  const { data: notifications } = useCollection<Notification>(notificationsQuery);
+
+  const [hasUnread, setHasUnread] = useState(false);
   const [isNameDialogOpen, setIsNameDialogOpen] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -55,6 +72,28 @@ export function Topbar() {
     }
   }, [userData]);
 
+  useEffect(() => {
+    if (notifications && notifications.length > 0 && userData) {
+      const lastCheck = userData.lastNotificationCheck?.toDate();
+      const latestNotification = notifications[0].createdAt.toDate();
+      if (!lastCheck || latestNotification > lastCheck) {
+        setHasUnread(true);
+      }
+    }
+  }, [notifications, userData]);
+
+  const handleNotificationsOpen = async () => {
+    if (hasUnread && userDocRef) {
+      try {
+        await updateDoc(userDocRef, {
+          lastNotificationCheck: new Date(),
+        });
+        setHasUnread(false);
+      } catch (error) {
+        console.error("Error updating last notification check:", error);
+      }
+    }
+  };
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -122,7 +161,38 @@ export function Topbar() {
             )}
         </div>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
+        <Popover onOpenChange={(open) => open && handleNotificationsOpen()}>
+            <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                    <Bell className="h-5 w-5" />
+                    {hasUnread && <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-red-500" />}
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-80">
+                <div className="flex items-center justify-between p-2 border-b">
+                    <h4 className="font-medium text-sm">Notificações</h4>
+                </div>
+                <ScrollArea className="h-96">
+                    <div className="p-2 space-y-2">
+                        {notifications && notifications.length > 0 ? (
+                            notifications.map(notification => (
+                                <div key={notification.id} className="p-2 rounded-md hover:bg-accent">
+                                    <p className="font-semibold text-sm">{notification.title}</p>
+                                    <p className="text-xs text-muted-foreground">{notification.description}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        {formatDistanceToNow(notification.createdAt.toDate(), { addSuffix: true, locale: ptBR })}
+                                    </p>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-sm text-center text-muted-foreground p-4">Nenhuma notificação nova.</p>
+                        )}
+                    </div>
+                </ScrollArea>
+            </PopoverContent>
+        </Popover>
+
         <Dialog open={isNameDialogOpen} onOpenChange={setIsNameDialogOpen}>
             <DropdownMenu>
             <DropdownMenuTrigger asChild>

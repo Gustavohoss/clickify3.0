@@ -1,9 +1,10 @@
+
 'use client';
 
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, setDoc, updateDoc } from 'firebase/firestore'
+import { getFirestore, doc, setDoc, updateDoc, collection, query, where, orderBy, Timestamp } from 'firebase/firestore'
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
 export function initializeFirebase() {
@@ -40,7 +41,7 @@ export function getSdks(firebaseApp: FirebaseApp) {
   };
 }
 
-export { doc, setDoc, updateDoc };
+export { doc, setDoc, updateDoc, collection, query, where, orderBy, Timestamp };
 export * from './provider';
 export * from './client-provider';
 export * from './firestore/use-collection';
