@@ -16,6 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
+import { Switch } from '@/components/ui/switch';
 
 type FormData = {
     // Step 1
@@ -243,7 +244,7 @@ prompt += `
                     <p className="text-sm text-muted-foreground">Marque esta opção para criar uma área de membros, dashboard, ou qualquer funcionalidade que exija uma conta de usuário.</p>
                     <div className="flex items-center space-x-2 pt-2">
                         <Switch id="auth-needed" checked={formData.authNeeded} onCheckedChange={(checked) => setFormData(prev => ({...prev, authNeeded: checked}))} />
-                        <Label htmlFor="auth-needed">Sim, precisa de sistema de login</Snapdragon>
+                        <Label htmlFor="auth-needed">Sim, precisa de sistema de login</Label>
                     </div>
                 </div>
 
