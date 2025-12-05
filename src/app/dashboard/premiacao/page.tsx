@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Trophy, CheckCircle, Clock } from 'lucide-react';
 import Image from 'next/image';
-import { useUser, useDoc, useMemoFirebase, doc } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase, doc, useFirestore } from '@/firebase';
 import { differenceInDays, parseISO } from 'date-fns';
 import { Progress } from '@/components/ui/progress';
 
@@ -15,7 +15,8 @@ type UserData = {
 
 export default function PremiacaoPage() {
   const { user } = useUser();
-  const userDocRef = useMemoFirebase(() => (user ? doc(user.firestore, 'users', user.uid) : null), [user]);
+  const firestore = useFirestore();
+  const userDocRef = useMemoFirebase(() => (user && firestore ? doc(firestore, 'users', user.uid) : null), [user, firestore]);
   const { data: userData } = useDoc<UserData>(userDocRef);
 
   const daysAsMember = userData?.createdAt ? differenceInDays(new Date(), parseISO(userData.createdAt)) : 0;
