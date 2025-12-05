@@ -134,7 +134,7 @@ export default function Home() {
               }}
               className="relative"
             >
-              <div className="absolute inset-0 -bottom-10 bg-blue-500/50 rounded-full blur-3xl" />
+              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-blue-500/50 rounded-full blur-3xl" />
               <Image
                 src="https://s3.typebot.io/public/workspaces/cmin0v9k5001cl404bcq7x2qj/typebots/cmin0visp0001l704z3ncv1yg/blocks/wy7wp7ti2bxdxwqhuu1vch8p?v=1764956144895"
                 alt="Pulseira de premiação Clickify"
