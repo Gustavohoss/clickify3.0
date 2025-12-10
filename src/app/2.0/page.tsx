@@ -137,6 +137,7 @@ export default function Home() {
                         "Suporte básico"
                     ]}
                     isFeatured={false}
+                    checkoutUrl="https://pay.cakto.com.br/37k4xrc?affiliate=M2ODrXk1"
                 />
                 <NewPricingCard
                     title="Plano Ilimitado"
@@ -151,6 +152,7 @@ export default function Home() {
                         "Todas as atualizações incluídas"
                     ]}
                     isFeatured={true}
+                    checkoutUrl="https://pay.cakto.com.br/37k4xrc_658280?affiliate=M2ODrXk1"
                 />
             </div>
         </div>

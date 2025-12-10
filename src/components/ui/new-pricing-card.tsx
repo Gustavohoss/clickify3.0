@@ -13,6 +13,7 @@ interface NewPricingCardProps {
   priceSuffix?: string;
   features: string[];
   isFeatured: boolean;
+  checkoutUrl: string;
 }
 
 export function NewPricingCard({
@@ -22,20 +23,8 @@ export function NewPricingCard({
   priceSuffix,
   features,
   isFeatured,
+  checkoutUrl,
 }: NewPricingCardProps) {
-  // Determine o link de checkout com base no título do plano
-  let checkoutUrl;
-  if (title === 'Plano Mensal') {
-    // COLOQUE SEU LINK DE R$149,90 AQUI
-    checkoutUrl = ""; 
-  } else if (title === 'Plano Ilimitado') {
-    // COLOQUE SEU LINK DE R$249,90 AQUI
-    checkoutUrl = "";
-  } else {
-    // Link padrão caso o título não corresponda
-    checkoutUrl = "#";
-  }
-
   return (
     <div
       className={cn(
