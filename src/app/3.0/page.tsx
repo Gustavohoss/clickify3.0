@@ -153,7 +153,7 @@ export default function Home() {
                     </div>
                     
                     <Button asChild size="lg" variant="glow" className="mt-8 w-full font-bold">
-                        <Link href="https://pay.cakto.com.br/xy27qg8?affiliate=GvPmALyW">Escolher este plano</Link>
+                        <Link href="https://pay.cakto.com.br/xy27qg8?affiliate=6LYXbkZ2">Escolher este plano</Link>
                     </Button>
                 </div>
 
@@ -187,7 +187,7 @@ export default function Home() {
                     </div>
                     
                     <Button asChild size="lg" variant="glow" className="mt-8 w-full font-bold">
-                        <Link href="https://pay.cakto.com.br/37k4xrc_658280?affiliate=GvPmALyW">Escolher este plano</Link>
+                        <Link href="https://pay.cakto.com.br/37k4xrc_658280?affiliate=6LYXbkZ2">Escolher este plano</Link>
                     </Button>
                 </div>
 
@@ -198,3 +198,5 @@ export default function Home() {
     </main>
   );
 }
+
+    
