@@ -185,12 +185,12 @@ export default function Home() {
                         </div>
                     </div>
                     
-                    <Link
+                    <a
                       href="https://pay.cakto.com.br/xy27qg8?affiliate=6LYXbkZ2"
                       className={cn(buttonVariants({ variant: "glow", size: "lg" }), "mt-8 w-full font-bold")}
                     >
                       Escolher este plano
-                    </Link>
+                    </a>
                 </div>
 
                 <div className={cn('relative rounded-2xl p-8 text-white bg-gray-900/50 border border-primary/50')}>
@@ -222,12 +222,12 @@ export default function Home() {
                         </div>
                     </div>
                     
-                    <Link
+                    <a
                       href="https://pay.cakto.com.br/37k4xrc_658280"
                       className={cn(buttonVariants({ variant: "glow", size: "lg" }), "mt-8 w-full font-bold")}
                     >
                       Escolher este plano
-                    </Link>
+                    </a>
                 </div>
 
             </div>
