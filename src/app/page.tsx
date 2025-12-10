@@ -13,6 +13,7 @@ import { LessonsCarousel } from "@/components/landing/lessons-carousel";
 import { motion } from 'framer-motion';
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 
 const partners = [
   PlaceHolderImages.find(p => p.id === 'kiwify-logo'),
@@ -184,9 +185,12 @@ export default function Home() {
                         </div>
                     </div>
                     
-                    <Button asChild size="lg" variant="glow" className="mt-8 w-full font-bold">
-                        <Link href="https://pay.cakto.com.br/37k4xrc">Escolher este plano</Link>
-                    </Button>
+                    <Link
+                      href="https://pay.cakto.com.br/37k4xrc"
+                      className={cn(buttonVariants({ variant: "glow", size: "lg" }), "mt-8 w-full font-bold")}
+                    >
+                      Escolher este plano
+                    </Link>
                 </div>
 
                 <div className={cn('relative rounded-2xl p-8 text-white bg-gray-900/50 border border-primary/50')}>
@@ -218,9 +222,12 @@ export default function Home() {
                         </div>
                     </div>
                     
-                    <Button asChild size="lg" variant="glow" className="mt-8 w-full font-bold">
-                        <Link href="https://pay.cakto.com.br/37k4xrc_658280">Escolher este plano</Link>
-                    </Button>
+                    <Link
+                      href="https://pay.cakto.com.br/37k4xrc_658280"
+                      className={cn(buttonVariants({ variant: "glow", size: "lg" }), "mt-8 w-full font-bold")}
+                    >
+                      Escolher este plano
+                    </Link>
                 </div>
 
             </div>
@@ -231,4 +238,3 @@ export default function Home() {
   );
 }
 
-    

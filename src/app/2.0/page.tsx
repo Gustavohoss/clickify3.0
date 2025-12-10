@@ -185,9 +185,12 @@ export default function Home() {
                         </div>
                     </div>
                     
-                    <Button asChild size="lg" variant="glow" className="mt-8 w-full font-bold">
-                        <Link href="https://pay.cakto.com.br/xy27qg8?affiliate=6LYXbkZ2">Escolher este plano</Link>
-                    </Button>
+                    <Link
+                      href="https://pay.cakto.com.br/xy27qg8?affiliate=6LYXbkZ2"
+                      className={cn(buttonVariants({ variant: "glow", size: "lg" }), "mt-8 w-full font-bold")}
+                    >
+                      Escolher este plano
+                    </Link>
                 </div>
 
                 <div className={cn('relative rounded-2xl p-8 text-white bg-gray-900/50 border border-primary/50')}>
@@ -219,8 +222,8 @@ export default function Home() {
                         </div>
                     </div>
                     
-                    <Link 
-                      href="https://pay.cakto.com.br/37k4xrc_658280?affiliate=6LYXbkZ2"
+                    <Link
+                      href="https://pay.cakto.com.br/37k4xrc_658280"
                       className={cn(buttonVariants({ variant: "glow", size: "lg" }), "mt-8 w-full font-bold")}
                     >
                       Escolher este plano
