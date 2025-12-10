@@ -1,3 +1,4 @@
+
 // GABRIEL
 'use client';
 
@@ -136,7 +137,6 @@ export default function Home() {
                         "Suporte básico"
                     ]}
                     isFeatured={false}
-                    checkoutUrl="https://pay.cakto.com.br/xy27qg8?affiliate=BqV5o2ug"
                 />
                 <NewPricingCard
                     title="Plano Ilimitado"
@@ -151,7 +151,6 @@ export default function Home() {
                         "Todas as atualizações incluídas"
                     ]}
                     isFeatured={true}
-                    checkoutUrl="https://pay.cakto.com.br/37k4xrc_658280?affiliate=BqV5o2ug"
                 />
             </div>
         </div>

@@ -14,7 +14,6 @@ interface NewPricingCardProps {
   priceSuffix?: string;
   features: string[];
   isFeatured: boolean;
-  checkoutUrl: string;
 }
 
 export function NewPricingCard({
@@ -24,7 +23,6 @@ export function NewPricingCard({
   priceSuffix,
   features,
   isFeatured,
-  checkoutUrl,
 }: NewPricingCardProps) {
   return (
     <div
@@ -76,7 +74,7 @@ export function NewPricingCard({
         variant="glow"
         className="mt-8 w-full font-bold"
       >
-        <Link href={checkoutUrl}>Escolher este plano</Link>
+        <Link href="#">Escolher este plano</Link>
       </Button>
     </div>
   );
