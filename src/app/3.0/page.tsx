@@ -136,6 +136,7 @@ export default function Home() {
                         "Suporte básico"
                     ]}
                     isFeatured={false}
+                    checkoutUrl=""
                 />
                 <NewPricingCard
                     title="Plano Ilimitado"
@@ -150,6 +151,7 @@ export default function Home() {
                         "Todas as atualizações incluídas"
                     ]}
                     isFeatured={true}
+                    checkoutUrl=""
                 />
             </div>
         </div>
